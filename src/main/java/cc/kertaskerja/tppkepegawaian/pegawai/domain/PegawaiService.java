@@ -1,6 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,8 +10,8 @@ public class PegawaiService {
         this.pegawaiRepository = pegawaiRepository;
     }
 
-    public Page<Pegawai> listPegawaiAktif(String kodeOpd, Integer tahun, Integer bulan) {
-        return pegawaiRepository.listPegawaiOpdByTahunBulan(kodeOpd, tahun, bulan);
+    public Iterable<Pegawai> listPegawaiAktif(String kodeOpd, Integer tahun, Integer bulan) {
+        return pegawaiRepository.findByKodeOpd(kodeOpd, tahun, bulan);
     }
 
     public Pegawai detailPegawai(String nip) {
@@ -21,7 +20,7 @@ public class PegawaiService {
     }
 
     public Pegawai tambahPegawai(Pegawai pegawai) {
-        if (pegawaiRepository.nipSudahAda(pegawai.nip())) {
+        if (pegawaiRepository.existsByNip(pegawai.nip())) {
             throw new PegawaiSudahAdaException(pegawai.nip());
         }
         return pegawaiRepository.save(pegawai);

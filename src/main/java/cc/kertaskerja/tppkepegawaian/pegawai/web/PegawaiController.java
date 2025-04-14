@@ -4,12 +4,13 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("kepegawaians")
+@RequestMapping("pegawais")
 public class PegawaiController {
     private final PegawaiService pegawaiService;
 
@@ -18,13 +19,12 @@ public class PegawaiController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<Pegawai>> getPegawaiAktif(
+    public Iterable<Pegawai> getPegawaiAktif(
             @RequestParam("kode_opd") String kodeOpd,
-            @RequestParam("tahun") Integer tahun,
-            @RequestParam("bulan") Integer bulan
+            @RequestParam(value = "tahun", required = false) Integer tahun,
+            @RequestParam(value = "bulan", required = false) Integer bulan
     ) {
-        Page<Pegawai> results =  pegawaiService.listPegawaiAktif(kodeOpd, tahun, bulan);
-        return ResponseEntity.ok(results);
+        return pegawaiService.listPegawaiAktif(kodeOpd, tahun, bulan);
     }
 
     @GetMapping("{nip}")
