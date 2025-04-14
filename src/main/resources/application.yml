@@ -1,0 +1,23 @@
+server:
+  port: 8001
+  shutdown: graceful
+  tomcat:
+    connection-timeout: 2s
+    keep-alive-timeout: 15s
+    threads:
+      max: 50
+      min-spare: 5
+
+spring:
+  application:
+    name: tpp-kepegawaian
+  datasource:
+    username: user
+    password: password
+    url: jdbc:postgresql://localhost:5432/kertaskerja_kepegawaian
+    hikari:
+      connection-timeout: 2000
+      maximum-pool-size: 5
+
+kertaskerja:
+  status: TPP Kepegawaian UP!
