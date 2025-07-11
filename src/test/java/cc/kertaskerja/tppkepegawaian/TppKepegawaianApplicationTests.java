@@ -1,7 +1,6 @@
 package cc.kertaskerja.tppkepegawaian;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.RolePegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ class TppKepegawaianApplicationTests {
 		var nip = "123456789012345678";
 		var kodeOpd = "5.01.5.05.0.00.02.0000";
 		var pegawaiToCreate = Pegawai.of("Pegawai A", nip,
-				kodeOpd, "jb-123", StatusPegawai.AKTIF, RolePegawai.LEVEL_1);
+				kodeOpd, StatusPegawai.AKTIF, "TEST-123");
 		Pegawai expectedPegawai = webTestClient
 				.post()
 				.uri("/pegawais")

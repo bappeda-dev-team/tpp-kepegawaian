@@ -27,11 +27,10 @@ public record Pegawai(
         @NotBlank(message = "OPD pegawai wajib diisi.")
         String kodeOpd,
 
-        @NotBlank(message = "Jabatan pegawai wajib diisi.")
-        String kodeJabatan,
-
         StatusPegawai statusPegawai,
-        RolePegawai rolePegawai,
+
+        @NotBlank(message = "PASSWORD wajib diisi.")
+        String passwordHash,
 
         @CreatedDate
         Instant createdDate,
@@ -41,14 +40,14 @@ public record Pegawai(
 ) {
     public static Pegawai of(
             String namaPegawai, String nip,
-            String kodeOpd, String kodeJabatan,
+            String kodeOpd,
             StatusPegawai statusPegawai,
-            RolePegawai rolePegawai
+            String passwordHash
     ) {
         return new Pegawai(
                 null, namaPegawai, nip,
-                kodeOpd, kodeJabatan,
-                statusPegawai, rolePegawai,
+                kodeOpd, statusPegawai,
+                passwordHash,
                 null, null
         );
     }

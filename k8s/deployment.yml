@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kepegawaian-service
+  labels:
+    app: kepegawaian-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kepegawaian-service
+  template:
+    metadata:
+      labels:
+        app: kepegawaian-service
+    spec:
+      containers:
+        - name: kepegawaian-service
+          image: kepegawaian-service
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "sh", "-c", "sleep 5" ]
+          ports:
+            - containerPort: 9001
+          env:
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+          volumeMounts:
+            - name: opd-config-volume
+              mountPath: /workspace/config
+      volumes:
+        - name: kepegawaian-config-volume
+          configMap:
+            name: kepegawaian-config
