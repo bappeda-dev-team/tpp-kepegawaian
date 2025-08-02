@@ -1,6 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.opd.web;
 
+import java.net.URI;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.Opd;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdService;
@@ -40,15 +44,28 @@ public class OpdController {
 	 * url: /opd/{kodeOpd}
 	 */
 	@PutMapping("{kodeOpd}")
-	public Opd put(@PathVariable("kodeOpd") String kodeOpd, @Valid @RequestBody Opd opd) {
+	public Opd put(@PathVariable("kodeOpd") String kodeOpd, @Valid @RequestBody OpdRequest request) {
+		Opd opd = new Opd(
+	            request.opdId(),
+	            kodeOpd,
+	            request.namaOpd(),
+	            null,
+	            null
+	    );
 	    return opdService.ubahOpd(kodeOpd, opd);
 	}
 	
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public Opd post(@Valid @RequestBody Opd opd) {
-		return opdService.tambahOpd(opd);
-	}
+	public ResponseEntity<Opd> post(@Valid @RequestBody OpdRequest request) {
+        Opd opd = Opd.of(request.kodeOpd(), request.namaOpd());
+        Opd saved = opdService.tambahOpd(opd);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{kodeOpd}")
+                .buildAndExpand(saved.kodeOpd())
+                .toUri();
+        return ResponseEntity.created(location).body(saved);
+    }
 	
 	/**
 	 * 

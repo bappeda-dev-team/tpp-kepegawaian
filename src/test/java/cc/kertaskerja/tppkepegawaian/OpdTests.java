@@ -4,6 +4,7 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.Opd;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdService;
 import cc.kertaskerja.tppkepegawaian.opd.web.OpdController;
+import cc.kertaskerja.tppkepegawaian.opd.web.OpdRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -51,12 +52,13 @@ public class OpdTests {
     
     @Test
     void testPostOpd_success() throws Exception {
+        OpdRequest request = new OpdRequest(null, "OPD-123", "Pemda");
         Opd opd = new Opd(1L, "OPD-123", "Pemda", null, null);
         Mockito.when(opdService.tambahOpd(any(Opd.class))).thenReturn(opd);
 
         mockMvc.perform(post("/opd")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(opd)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-123"))
@@ -73,12 +75,13 @@ public class OpdTests {
     
     @Test
     void testPutOpd_success() throws Exception {
-        Opd opd = new Opd(null,"OPD-124", "Dinas", null, null);
+        OpdRequest request = new OpdRequest(null, "OPD-124", "Dinas");
+        Opd opd = new Opd(null, "OPD-124", "Dinas", null, null);
         Mockito.when(opdService.ubahOpd(eq("OPD-124"), any(Opd.class))).thenReturn(opd);
 
         mockMvc.perform(put("/opd/OPD-124")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(opd)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-124"))
                 .andExpect(jsonPath("$.namaOpd").value("Dinas"));
@@ -86,13 +89,13 @@ public class OpdTests {
     
     @Test
     void testPutOpd_notFound() throws Exception {
-        Opd opd = new Opd(null, "OPD-999", "Dinas", null, null);
+        OpdRequest request = new OpdRequest(null, "OPD-999", "Dinas");
         Mockito.when(opdService.ubahOpd(eq("OPD-999"), any(Opd.class)))
                .thenThrow(new OpdNotFoundException("OPD-999"));
 
         mockMvc.perform(put("/opd/OPD-999")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(opd)))
+                .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
     }
     

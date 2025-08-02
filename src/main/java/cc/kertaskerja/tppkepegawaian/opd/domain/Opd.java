@@ -13,16 +13,12 @@ import jakarta.validation.constraints.NotBlank;
 public record Opd(
         @Id
         Long id,
-
-        @NotBlank(message = "Kode OPD wajib diisi.")
+        
         String kodeOpd,
-
-        @NotBlank(message = "Nama OPD wajib diisi.")
         String namaOpd,
-
+        
         @CreatedDate
         Instant createdDate,
-
         @LastModifiedDate
         Instant lastModifiedDate
 ) {
