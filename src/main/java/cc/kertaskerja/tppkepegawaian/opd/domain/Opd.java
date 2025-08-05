@@ -1,0 +1,37 @@
+package cc.kertaskerja.tppkepegawaian.opd.domain;
+
+import java.time.Instant;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Table;
+
+import jakarta.validation.constraints.NotBlank;
+
+@Table(name = "opd")
+public record Opd(
+        @Id
+        Long id,
+        
+        String kodeOpd,
+        String namaOpd,
+        
+        @CreatedDate
+        Instant createdDate,
+        @LastModifiedDate
+        Instant lastModifiedDate
+) {
+    public static Opd of(
+            String kodeOpd,
+            String namaOpd 
+    ) {
+        return new Opd(
+                null, 
+                kodeOpd,
+                namaOpd,
+                null, 
+                null
+        );
+    }
+}

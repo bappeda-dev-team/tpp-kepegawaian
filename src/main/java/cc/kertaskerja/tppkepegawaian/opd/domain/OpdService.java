@@ -1,0 +1,35 @@
+package cc.kertaskerja.tppkepegawaian.opd.domain;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class OpdService {
+	private final OpdRepository opdRepository;
+	
+	public OpdService(OpdRepository opdRepository) {
+		this.opdRepository = opdRepository;
+	}
+	
+	public Opd detailOpd(String kodeOpd) {
+		return opdRepository.findByKodeOpd(kodeOpd)
+				.orElseThrow(() -> new OpdNotFoundException(kodeOpd));
+	}
+	
+	public Opd tambahOpd(Opd opd) {
+        if (opdRepository.existsByKodeOpd(opd.kodeOpd())) {
+            throw new OpdSudahAdaException(opd.kodeOpd());
+        }
+        return opdRepository.save(opd);
+    }
+	
+	public Opd ubahOpd(String kodeOpd, Opd opd) {
+		if (!opdRepository.existsByKodeOpd(kodeOpd)) {
+			throw new OpdNotFoundException(kodeOpd);
+		}
+		return opdRepository.save(opd);
+	}
+	
+	public void hapusOpd(String kodeOpd) {
+        opdRepository.deleteByKodeOpd(kodeOpd);
+    }
+}
