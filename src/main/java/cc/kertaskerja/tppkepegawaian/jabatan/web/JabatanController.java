@@ -30,24 +30,24 @@ public class JabatanController {
 	
 	/**
 	 * 
-	 * @param nip
-	 * url: /jabatan/{nip}
+	 * @param id
+	 * url: /jabatan/{id}
 	 */
-	@GetMapping("{nip}")
-    public Jabatan getByNip(@PathVariable("nip") String nip) {
-        return jabatanService.detailJabatan(nip);
+	@GetMapping("{id}")
+    public Jabatan getById(@PathVariable("id") Long id) {
+        return jabatanService.detailJabatan(id);
     }
 	
 	/**
 	 * 
-	 * @param nip
-	 * url: /jabatan/{nip}
+	 * @param id
+	 * url: /jabatan/{id}
 	 */
-	@PutMapping("{nip}")
-	public Jabatan put(@PathVariable("nip") String nip, @Valid @RequestBody JabatanRequest request) {
+	@PutMapping("{id}")
+	public Jabatan put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
 		Jabatan jabatan = new Jabatan(
-	            request.jabatanId(),
-	            nip,
+	            id,
+	            request.nip(),
 	            request.namaJabatan(),
 	            request.kodeOpd(),
 	            request.statusJabatan(),
@@ -58,7 +58,7 @@ public class JabatanController {
 	            null,
 	            null
 	    );
-	    return jabatanService.ubahJabatan(nip, jabatan);
+	    return jabatanService.ubahJabatan(id, jabatan);
 	}
 	
 	@PostMapping
@@ -76,20 +76,20 @@ public class JabatanController {
         Jabatan saved = jabatanService.tambahJabatan(jabatan);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{nip}")
-                .buildAndExpand(saved.nip())
+                .path("/jabatan")
+                .buildAndExpand(saved.id())
                 .toUri();
         return ResponseEntity.created(location).body(saved);
     }
 	
 	/**
 	 * 
-	 * @param nip
-	 * url: /jabatan/{nip}
+	 * @param id
+	 * url: /jabatan/{id}
 	 */
-	@DeleteMapping("{nip}")
+	@DeleteMapping("{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("nip") String nip) {
-		jabatanService.hapusJabatan(nip);
+	public void delete(@PathVariable("id") String id) {
+		jabatanService.hapusJabatan(id);
 	}
 }

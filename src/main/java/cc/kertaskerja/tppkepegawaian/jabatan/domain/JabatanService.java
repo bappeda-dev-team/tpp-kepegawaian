@@ -19,34 +19,31 @@ public class JabatanService {
         return jabatanRepository.findByKodeOpd(kodeOpd);
     }
 	
-	public Jabatan detailJabatan(String nip) {
-        return jabatanRepository.findByNip(nip)
-                .orElseThrow(() -> new JabatanNotFoundException(nip));
+	public Jabatan detailJabatan(Long id) {
+        return jabatanRepository.findById(id)
+                .orElseThrow(() -> new JabatanNotFoundException(id));
     }
 	
-	public Jabatan ubahJabatan(String nip, Jabatan jabatan) {
-		if (!jabatanRepository.existsByNip(nip)) {
-			throw new OpdNotFoundException(nip);
+	public Jabatan ubahJabatan(Long id, Jabatan jabatan) {
+		if (!jabatanRepository.existsById(id)) {
+			throw new JabatanNotFoundException(id);
 		}
-		
-		if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
+
+        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
             throw new OpdNotFoundException(jabatan.kodeOpd());
         }
 		return jabatanRepository.save(jabatan);
 	}
 	
 	public Jabatan tambahJabatan(Jabatan jabatan) {
-        if (jabatanRepository.existsByNip(jabatan.nip())) {
-            throw new JabatanSudahAdaException(jabatan.nip());
-        }
-        
+
         if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
             throw new OpdNotFoundException(jabatan.kodeOpd());
         }
         return jabatanRepository.save(jabatan);
     }
 	
-	public void hapusJabatan(String nip) {
-        jabatanRepository.deleteByNip(nip);
+	public void hapusJabatan(String id) {
+        jabatanRepository.deleteById(id);
     }
 }

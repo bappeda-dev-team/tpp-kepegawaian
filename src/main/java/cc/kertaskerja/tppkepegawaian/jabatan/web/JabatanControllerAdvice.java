@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanNotFoundException;
-import cc.kertaskerja.tppkepegawaian.opd.domain.OpdSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanSudahAdaException;
 
 
 @RestControllerAdvice
@@ -22,9 +22,9 @@ public class JabatanControllerAdvice {
 		return ex.getMessage();
 	}
 	
-	@ExceptionHandler(OpdSudahAdaException.class)
+	@ExceptionHandler(JabatanSudahAdaException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String opdSudahAdaHandler(OpdSudahAdaException ex) {
+    String opdSudahAdaHandler(JabatanSudahAdaException ex) {
         return ex.getMessage();
     }
 	
