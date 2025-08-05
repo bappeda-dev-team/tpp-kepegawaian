@@ -1,7 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 public class JabatanSudahAdaException extends RuntimeException {
-	public JabatanSudahAdaException(String nip) {
-        super("Jabatan dengan NIP " + nip + " sudah ada.");
+	public JabatanSudahAdaException(Long id) {
+        super("Jabatan dengan Id " + id + " sudah ada.");
     }
 }
