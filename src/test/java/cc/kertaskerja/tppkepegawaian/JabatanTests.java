@@ -79,7 +79,7 @@ public class JabatanTests {
                                 new Date(),
                                 new Date());
                 Jabatan jabatan = new Jabatan(
-                                null,
+                                12L,
                                 "1234567",
                                 "Perencana Ahli Muda",
                                 "OPD-345",
