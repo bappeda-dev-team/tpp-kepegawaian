@@ -3,66 +3,66 @@ package cc.kertaskerja.tppkepegawaian;
 import cc.kertaskerja.tppkepegawaian.opd.domain.Opd;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdService;
-import cc.kertaskerja.tppkepegawaian.opd.web.OpdController;
 import cc.kertaskerja.tppkepegawaian.opd.web.OpdRequest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(OpdController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
+@Transactional
+@Sql(scripts = "/test-data/opd-data.sql")
 public class OpdTests {
-	@Autowired
+    @Autowired
     private MockMvc mockMvc;
-
-    @MockitoBean
-    private OpdService opdService;
-
+    
     @Autowired
     private ObjectMapper objectMapper;
     
     @Test
     void testGetByKodeOpd_found() throws Exception {
-        Opd opd = new Opd(null, "OPD-123", "Pemda", null, null);
-        Mockito.when(opdService.detailOpd("OPD-123")).thenReturn(opd);
-
-        mockMvc.perform(get("/opd/OPD-123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.kodeOpd").value("OPD-123"))
-                .andExpect(jsonPath("$.namaOpd").value("Pemda"));
+        mockMvc.perform(get("/opd/OPD-001"))
+               	.andExpect(status().isOk())
+                .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$.namaOpd").value("Badan Perencanaan Pembangunan Daerah"));
     }
     
     @Test
     void testGetByKodeOpd_notFound() throws Exception {
-        Mockito.when(opdService.detailOpd("OPD-1")).thenThrow(new OpdNotFoundException("OPD-1"));
 
-        mockMvc.perform(get("/opd/OPD-1"))
+        mockMvc.perform(get("/opd/OPD-999"))
                 .andExpect(status().isNotFound());
     }
     
     @Test
     void testPostOpd_success() throws Exception {
-        OpdRequest request = new OpdRequest(null, "OPD-123", "Pemda");
-        Opd opd = new Opd(1L, "OPD-123", "Pemda", null, null);
-        Mockito.when(opdService.tambahOpd(any(Opd.class))).thenReturn(opd);
+	// gunakan milisecond untuk membuat data test yang unique
+	String uniqueCode = "TEST-OPD-" + System.currentTimeMillis();
+	OpdRequest request = new OpdRequest(null, uniqueCode, "Badan Perencanaan Pembangunan Daerah");
 
         mockMvc.perform(post("/opd")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.kodeOpd").value("OPD-123"))
-                .andExpect(jsonPath("$.namaOpd").value("Pemda"));
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.kodeOpd").value(uniqueCode))
+                .andExpect(jsonPath("$.namaOpd").value("Badan Perencanaan Pembangunan Daerah"));
     }
     
     @Test
@@ -74,24 +74,39 @@ public class OpdTests {
     }
     
     @Test
-    void testPutOpd_success() throws Exception {
-        OpdRequest request = new OpdRequest(null, "OPD-124", "Dinas");
-        Opd opd = new Opd(null, "OPD-124", "Dinas", null, null);
-        Mockito.when(opdService.ubahOpd(eq("OPD-124"), any(Opd.class))).thenReturn(opd);
+    void testPostOpd_duplicateKodeOpd() throws Exception {
+        OpdRequest request = new OpdRequest(null, "OPD-001", "Badan Perencanaan Pembangunan Daerah");
 
-        mockMvc.perform(put("/opd/OPD-124")
+        mockMvc.perform(post("/opd")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnprocessableEntity());
+    }
+    
+    @Test
+    void testPutOpd_success() throws Exception {
+        OpdRequest request = new OpdRequest(1L, "OPD-001", "Badan Perencanaan Pembangunan Daerah Madiun");
+
+        mockMvc.perform(put("/opd/OPD-001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.kodeOpd").value("OPD-124"))
-                .andExpect(jsonPath("$.namaOpd").value("Dinas"));
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$.namaOpd").value("Badan Perencanaan Pembangunan Daerah Madiun"));
+    }
+    
+    @Test
+    void testPutOpd_validationError() throws Exception {
+        mockMvc.perform(put("/opd/001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{}"))
+                .andExpect(status().isBadRequest());
     }
     
     @Test
     void testPutOpd_notFound() throws Exception {
-        OpdRequest request = new OpdRequest(null, "OPD-999", "Dinas");
-        Mockito.when(opdService.ubahOpd(eq("OPD-999"), any(Opd.class)))
-               .thenThrow(new OpdNotFoundException("OPD-999"));
+        OpdRequest request = new OpdRequest(13L, "OPD-999", "Badan Perencanaan Pembangunan Daerah Madiun");
 
         mockMvc.perform(put("/opd/OPD-999")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,8 +116,15 @@ public class OpdTests {
     
     @Test
     void testDeleteOpd_success() throws Exception {
-        mockMvc.perform(delete("/opd/OPD-124"))
+        mockMvc.perform(delete("/opd/OPD-001"))
                 .andExpect(status().isNoContent());
-        Mockito.verify(opdService).hapusOpd("OPD-124");
+        mockMvc.perform(get("/opd/OPD-001"))
+        	.andExpect(status().isNotFound());
+    }
+    
+    @Test
+    void testDeleteOpd_notFound() throws Exception {
+            mockMvc.perform(delete("/opd/OPD-999"))
+                    .andExpect(status().isNotFound());
     }
 }
