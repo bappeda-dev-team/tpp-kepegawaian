@@ -29,22 +29,28 @@ public class JabatanController {
 	}
 	
 	/**
-	 * 
-	 * @param id
+	 * Get jabatan by ID
+	 * @param id jabatan ID
+	 * @return Jabatan objectdadadad
 	 * url: /jabatan/{id}
 	 */
 	@GetMapping("{id}")
-    public Jabatan getById(@PathVariable("id") Long id) {
-        return jabatanService.detailJabatan(id);
-    }
+  	public Jabatan getById(@PathVariable("id") Long id) {
+	    return jabatanService.detailJabatan(id);
+	}
 	
 	/**
-	 * 
-	 * @param id
+	 * Update jabatan by ID
+	 * @param id jabatan ID
+	 * @param request jabatan update request
+	 * @return updated Jabatan object
 	 * url: /jabatan/{id}
 	 */
 	@PutMapping("{id}")
 	public Jabatan put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
+	    	// Ambil data jabatan yang sudah dibuat
+	    	Jabatan existingJabatan = jabatanService.detailJabatan(id);
+	    
 		Jabatan jabatan = new Jabatan(
 	            id,
 	            request.nip(),
@@ -55,41 +61,49 @@ public class JabatanController {
 	            request.eselon(),
 	            request.tanggalMulai(),
 	            request.tanggalBerakhir(),
-	            null,
+	            // saat update data ambil data createdDate dari jabatan yang sudah dibuat
+	            existingJabatan.createdDate(),
 	            null
 	    );
 	    return jabatanService.ubahJabatan(id, jabatan);
 	}
 	
+	/**
+	 * Create new jabatan
+	 * @param request jabatan creation request
+	 * @return created Jabatan object with location header
+	 * url: /jabatan
+	 */
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Jabatan> post(@Valid @RequestBody JabatanRequest request) {
-        Jabatan jabatan = Jabatan.of(
-				        		request.nip(), 
-				        		request.namaJabatan(),
-				        		request.kodeOpd(),
-				        		request.statusJabatan(),
-				        		request.jenisJabatan(),
-				        		request.eselon(),
-				        		request.tanggalMulai(),
-				        		request.tanggalBerakhir()
-				        	);
-        Jabatan saved = jabatanService.tambahJabatan(jabatan);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/jabatan")
-                .buildAndExpand(saved.id())
-                .toUri();
-        return ResponseEntity.created(location).body(saved);
-    }
+	    Jabatan jabatan = Jabatan.of(
+		    request.nip(), 
+		    request.namaJabatan(),
+		    request.kodeOpd(),
+		    request.statusJabatan(),
+		    request.jenisJabatan(),
+		    request.eselon(),
+		    request.tanggalMulai(),
+		    request.tanggalBerakhir()
+		    );
+	    Jabatan saved = jabatanService.tambahJabatan(jabatan);
+	    URI location = ServletUriComponentsBuilder
+		    .fromCurrentRequest()
+		    .path("/{id}")
+		    .buildAndExpand(saved.id())
+		    .toUri();
+	    return ResponseEntity.created(location).body(saved);
+	}
 	
 	/**
-	 * 
-	 * @param id
+	 * Delete jabatan by ID
+	 * @param id jabatan ID
 	 * url: /jabatan/{id}
 	 */
 	@DeleteMapping("{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("id") String id) {
+	public void delete(@PathVariable("id") Long id) {
 		jabatanService.hapusJabatan(id);
 	}
 }
