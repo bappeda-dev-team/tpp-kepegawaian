@@ -45,17 +45,22 @@ public class OpdController {
 	 */
 	@PutMapping("{kodeOpd}")
 	public Opd put(@PathVariable("kodeOpd") String kodeOpd, @Valid @RequestBody OpdRequest request) {
+	    	// Ambil data opd yang sudah dibuat
+	    	Opd existingOpd = opdService.detailOpd(kodeOpd);
+	    
 		Opd opd = new Opd(
 	            request.opdId(),
 	            kodeOpd,
 	            request.namaOpd(),
-	            null,
+	            // saat update data ambil data createdDate dari opd yang sudah dibuat
+	            existingOpd.createdDate(),
 	            null
 	    );
 	    return opdService.ubahOpd(kodeOpd, opd);
 	}
 	
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Opd> post(@Valid @RequestBody OpdRequest request) {
         Opd opd = Opd.of(request.kodeOpd(), request.namaOpd());
         Opd saved = opdService.tambahOpd(opd);
