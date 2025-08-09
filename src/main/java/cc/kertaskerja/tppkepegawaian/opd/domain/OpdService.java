@@ -30,7 +30,7 @@ public class OpdService {
 	}
 	
 	public void hapusOpd(String kodeOpd) {
-	if (!opdRepository.existsById(kodeOpd)) {
+	if (!opdRepository.existsByKodeOpd(kodeOpd)) {
 	    throw new OpdNotFoundException(kodeOpd);
 	} 
 	   
