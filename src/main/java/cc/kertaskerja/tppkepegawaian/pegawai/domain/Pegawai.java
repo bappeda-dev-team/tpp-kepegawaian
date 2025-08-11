@@ -1,10 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
@@ -14,22 +13,19 @@ public record Pegawai(
         @Id
         Long id,
 
-        @NotBlank(message = "Nama pegawai wajib diisi.")
+        @Column("nama_pegawai")
         String namaPegawai,
-
-        @NotBlank(message = "NIP wajib diisi.")
-        @Pattern(
-                regexp = "^([0-9]{18})$",
-                message = "Format NIP harus valid."
-        )
+        
+        @Column("nip")
         String nip,
 
-        @NotBlank(message = "OPD pegawai wajib diisi.")
+        @Column("kode_opd")
         String kodeOpd,
-
+        
+        @Column("status_pegawai")
         StatusPegawai statusPegawai,
 
-        @NotBlank(message = "PASSWORD wajib diisi.")
+        @Column("password_hash")
         String passwordHash,
 
         @CreatedDate
@@ -39,16 +35,21 @@ public record Pegawai(
         Instant lastModifiedDate
 ) {
     public static Pegawai of(
-            String namaPegawai, String nip,
+            String namaPegawai, 
+            String nip,
             String kodeOpd,
             StatusPegawai statusPegawai,
             String passwordHash
     ) {
         return new Pegawai(
-                null, namaPegawai, nip,
-                kodeOpd, statusPegawai,
+                null, 
+                namaPegawai, 
+                nip,
+                kodeOpd, 
+                statusPegawai,
                 passwordHash,
-                null, null
+                null, 
+                null
         );
     }
 }
