@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface OpdRepository extends CrudRepository<Opd, String> {
+public interface OpdRepository extends CrudRepository<Opd, Long> {
 	Optional<Opd> findByKodeOpd(String kodeOpd);
 	boolean existsByKodeOpd(String kodeOpd);
 	
