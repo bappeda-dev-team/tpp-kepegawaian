@@ -43,7 +43,11 @@ public class JabatanService {
         return jabatanRepository.save(jabatan);
     }
 	
-	public void hapusJabatan(String id) {
+	public void hapusJabatan(Long id) {
+        if (!jabatanRepository.existsById(id)) {
+            throw new JabatanNotFoundException(id);
+        }
+
         jabatanRepository.deleteById(id);
     }
 }

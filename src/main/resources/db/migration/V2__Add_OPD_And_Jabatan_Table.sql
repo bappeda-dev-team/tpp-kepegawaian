@@ -13,6 +13,7 @@ CREATE TABLE jabatan (
     kode_opd            VARCHAR(22)  NOT NULL,
     status_jabatan      VARCHAR(20)  NOT NULL DEFAULT('UTAMA'),
     jenis_jabatan       VARCHAR(20)  NOT NULL DEFAULT('BELUM_DIATUR'),
+    eselon							VARCHAR(20)  NOT NULL DEFAULT('NON_ESELON'),
     tanggal_mulai       DATE NOT NULL,
     tanggal_akhir       DATE,
     created_date        timestamp NOT NULL DEFAULT(NOW()),
