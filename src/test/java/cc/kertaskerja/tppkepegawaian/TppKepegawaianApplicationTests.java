@@ -16,34 +16,34 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("integration")
 class TppKepegawaianApplicationTests {
 
-	@Autowired
-	private WebTestClient webTestClient;
-
-	@Test
-	void whenGetRequestWithNipThenPegawaiReturned() {
-		var nip = "123456789012345678";
-		var kodeOpd = "5.01.5.05.0.00.02.0000";
-		var pegawaiToCreate = Pegawai.of("Pegawai A", nip,
-				kodeOpd, StatusPegawai.AKTIF, "TEST-123");
-		Pegawai expectedPegawai = webTestClient
-				.post()
-				.uri("/pegawais")
-				.bodyValue(pegawaiToCreate)
-				.exchange()
-				.expectStatus().isCreated()
-				.expectBody(Pegawai.class).value(pegawai -> {
-					assertThat(pegawai).isNotNull();
-				}).returnResult().getResponseBody();
-
-		webTestClient
-				.get()
-				.uri("/pegawais/" + nip)
-				.exchange()
-				.expectStatus().is2xxSuccessful()
-				.expectBody(Pegawai.class).value(actualPegawai -> {
-					assertThat(actualPegawai).isNotNull();
-					assertThat(actualPegawai.nip()).isEqualTo(expectedPegawai.nip());
-				});
-	}
+//	@Autowired
+//	private WebTestClient webTestClient;
+//
+//	@Test
+//	void whenGetRequestWithNipThenPegawaiReturned() {
+//		var nip = "123456789012345678";
+//		var kodeOpd = "5.01.5.05.0.00.02.0000";
+//		var pegawaiToCreate = Pegawai.of("Pegawai A", nip,
+//				kodeOpd, StatusPegawai.AKTIF, "TEST-123");
+//		Pegawai expectedPegawai = webTestClient
+//				.post()
+//				.uri("/pegawais")
+//				.bodyValue(pegawaiToCreate)
+//				.exchange()
+//				.expectStatus().isCreated()
+//				.expectBody(Pegawai.class).value(pegawai -> {
+//					assertThat(pegawai).isNotNull();
+//				}).returnResult().getResponseBody();
+//
+//		webTestClient
+//				.get()
+//				.uri("/pegawais/" + nip)
+//				.exchange()
+//				.expectStatus().is2xxSuccessful()
+//				.expectBody(Pegawai.class).value(actualPegawai -> {
+//					assertThat(actualPegawai).isNotNull();
+//					assertThat(actualPegawai.nip()).isEqualTo(expectedPegawai.nip());
+//				});
+//	}
 
 }

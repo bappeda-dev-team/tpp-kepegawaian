@@ -53,7 +53,7 @@ public class OpdTests {
     @Test
     void testPostOpd_success() throws Exception {
 	// gunakan milisecond untuk membuat data test yang unique
-	String uniqueCode = "TEST-OPD-" + System.currentTimeMillis();
+	String uniqueCode = "OPD-" + System.currentTimeMillis();
 	OpdRequest request = new OpdRequest(null, uniqueCode, "Badan Perencanaan Pembangunan Daerah");
 
         mockMvc.perform(post("/opd")
