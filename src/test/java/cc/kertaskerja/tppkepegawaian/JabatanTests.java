@@ -55,7 +55,7 @@ public class JabatanTests {
         void testPostJabatan_success() throws Exception {
                 JabatanRequest request = new JabatanRequest(
                                 null,
-                                "987654321012345678",
+                                "12345",
                                 "Perencana Ahli Muda",
                                 "OPD-001",
                                 StatusJabatan.UTAMA,
@@ -69,7 +69,7 @@ public class JabatanTests {
                                 .content(objectMapper.writeValueAsString(request)))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.id").exists())
-                                .andExpect(jsonPath("$.nip").value("987654321012345678"))
+                                .andExpect(jsonPath("$.nip").value("12345"))
                                 .andExpect(jsonPath("$.namaJabatan").value("Perencana Ahli Muda"))
                                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
                                 .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
