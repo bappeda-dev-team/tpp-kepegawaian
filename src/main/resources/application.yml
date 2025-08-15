@@ -14,7 +14,7 @@ spring:
   datasource:
     username: user
     password: password
-    url: jdbc:postgresql://192.168.194.97:5432/kertaskerja_kepegawaian
+    url: jdbc:postgresql://192.168.194.241:5432/kertaskerja_kepegawaian
     hikari:
       connection-timeout: 2000
       maximum-pool-size: 5
