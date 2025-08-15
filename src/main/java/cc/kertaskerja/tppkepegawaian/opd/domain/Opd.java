@@ -5,20 +5,23 @@ import java.time.Instant;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import jakarta.validation.constraints.NotBlank;
 
 @Table(name = "opd")
 public record Opd(
         @Id
         Long id,
         
+        @Column("kode_opd")
         String kodeOpd,
+
+        @Column("nama_opd")
         String namaOpd,
         
         @CreatedDate
         Instant createdDate,
+
         @LastModifiedDate
         Instant lastModifiedDate
 ) {
