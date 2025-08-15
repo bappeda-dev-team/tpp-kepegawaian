@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 
 @Service
@@ -29,8 +30,8 @@ public class PegawaiService {
 	}
 
 	if (!opdRepository.existsByKodeOpd(pegawai.kodeOpd())) {
-	    throw new PegawaiNotFoundException(pegawai.kodeOpd());
-	}
+        throw new OpdNotFoundException(pegawai.kodeOpd());
+    }
 
 	return pegawaiRepository.save(pegawai);
     }
@@ -39,6 +40,11 @@ public class PegawaiService {
 	if (pegawaiRepository.existsByNip(pegawai.nip())) {
 	    throw new PegawaiSudahAdaException(pegawai.nip());
 	}
+
+	if (!opdRepository.existsByKodeOpd(pegawai.kodeOpd())) {
+        throw new OpdNotFoundException(pegawai.kodeOpd());
+    }
+
 	return pegawaiRepository.save(pegawai);
     }
 
