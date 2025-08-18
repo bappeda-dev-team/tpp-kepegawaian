@@ -1,7 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
-import static org.junit.Assert.assertThat;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
