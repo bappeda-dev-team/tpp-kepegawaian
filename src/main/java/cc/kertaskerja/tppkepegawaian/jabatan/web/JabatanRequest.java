@@ -36,6 +36,14 @@ public record JabatanRequest(
 		@NotNull(message = "Pilih eselon")
 		Eselon eselon,
 		
+		@NotNull(message = "Pangkat harus terdefinisi")
+		@NotEmpty(message = "Pangkat tidak boleh kosong")
+		String pangkat,
+		
+		@NotNull(message = "Golongan harus terdefinisi")
+		@NotEmpty(message = "Golongan tidak boleh kosong")
+		String golongan,
+		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
 		@JsonFormat(pattern = "dd-MM-yy")
 		Date tanggalMulai,

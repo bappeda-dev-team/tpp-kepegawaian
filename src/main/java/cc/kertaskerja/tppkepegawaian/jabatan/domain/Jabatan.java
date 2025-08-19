@@ -34,6 +34,12 @@ public record Jabatan(
 	@Column("eselon")
 	Eselon eselon,
 
+    @Column("pangkat")
+    String pangkat,
+
+    @Column("golongan")
+    String golongan,
+
 	@Column("tanggal_mulai")
 	@JsonFormat(pattern = "dd-MM-yy")
 	Date tanggalMulai,
@@ -55,6 +61,8 @@ public record Jabatan(
             StatusJabatan statusJabatan,
             JenisJabatan jenisJabatan,
             Eselon eselon,
+            String pangkat,
+            String golongan,
             Date   tanggalMulai,
             Date   tanggalAkhir
     ) {
@@ -66,6 +74,8 @@ public record Jabatan(
                 statusJabatan,
                 jenisJabatan,
                 eselon,
+                pangkat,
+                golongan,
                 tanggalMulai,
                 tanggalAkhir,
                 null, 
