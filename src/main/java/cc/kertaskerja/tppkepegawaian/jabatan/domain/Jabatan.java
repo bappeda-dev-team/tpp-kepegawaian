@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 
 @Table(name = "jabatan")
@@ -34,9 +35,11 @@ public record Jabatan(
 	Eselon eselon,
 
 	@Column("tanggal_mulai")
+	@JsonFormat(pattern = "dd-MM-yy")
 	Date tanggalMulai,
 
 	@Column("tanggal_akhir")
+	@JsonFormat(pattern = "dd-MM-yy")
 	Date tanggalAkhir,
 
 	@CreatedDate
