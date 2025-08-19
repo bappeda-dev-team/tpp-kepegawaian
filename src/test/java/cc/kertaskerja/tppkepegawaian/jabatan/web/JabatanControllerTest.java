@@ -80,8 +80,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
                 .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
                 .andExpect(jsonPath("$.eselon").value("ESELON_IV"))
-                .andExpect(jsonPath("$.tanggalMulai").value(org.hamcrest.Matchers.startsWith("2023-01-01")))
-                .andExpect(jsonPath("$.tanggalAkhir").value(org.hamcrest.Matchers.startsWith("2025-12-31")));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
     }
     
     @Test
@@ -135,8 +135,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
                 .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_FUNGSIONAL"))
                 .andExpect(jsonPath("$.eselon").value("ESELON_III"))
-                .andExpect(jsonPath("$.tanggalMulai").exists())
-                .andExpect(jsonPath("$.tanggalAkhir").exists());
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
     }
     
     @Test
@@ -225,8 +225,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.statusJabatan", is("UTAMA")))
                 .andExpect(jsonPath("$.jenisJabatan", is("JABATAN_ADMINISTRASI")))
                 .andExpect(jsonPath("$.eselon", is("ESELON_II")))
-                .andExpect(jsonPath("$.tanggalMulai").exists())
-                .andExpect(jsonPath("$.tanggalAkhir").exists());
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
         
         verify(jabatanService).detailJabatan(1L);
         verify(jabatanService).ubahJabatan(eq(1L), any(Jabatan.class));

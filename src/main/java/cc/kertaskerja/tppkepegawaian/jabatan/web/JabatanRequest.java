@@ -2,6 +2,8 @@ package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
@@ -35,8 +37,10 @@ public record JabatanRequest(
 		Eselon eselon,
 		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
+		@JsonFormat(pattern = "dd-MM-yy")
 		Date tanggalMulai,
 		
+		@JsonFormat(pattern = "dd-MM-yy")
 		Date tanggalBerakhir
 ) {
 }
