@@ -53,6 +53,8 @@ public class JabatanServiceTest {
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_FUNGSIONAL,
                 Eselon.ESELON_III,
+                "Junior",
+                "Golongan I",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime(),
                 Instant.now(),
@@ -89,6 +91,8 @@ public class JabatanServiceTest {
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
                 Eselon.ESELON_IV,
+                "Senior",
+                "Golongan III",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime(),
                 null,
@@ -105,6 +109,8 @@ public class JabatanServiceTest {
                         newJabatan.statusJabatan(),
                         newJabatan.jenisJabatan(),
                         newJabatan.eselon(),
+                        newJabatan.pangkat(),
+                        newJabatan.golongan(),
                         newJabatan.tanggalMulai(),
                         newJabatan.tanggalAkhir(),
                         Instant.now(),
@@ -121,6 +127,8 @@ public class JabatanServiceTest {
         assertThat(result.statusJabatan()).isEqualTo(StatusJabatan.UTAMA);
         assertThat(result.jenisJabatan()).isEqualTo(JenisJabatan.JABATAN_PEMIMPIN_TINGGI);
         assertThat(result.eselon()).isEqualTo(Eselon.ESELON_IV);
+        assertThat(result.pangkat()).isEqualTo("Senior");
+        assertThat(result.golongan()).isEqualTo("Golongan III");
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
         verify(jabatanRepository).save(newJabatan);
     }
@@ -135,6 +143,8 @@ public class JabatanServiceTest {
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
                 Eselon.ESELON_IV,
+                "Senior",
+                "Golongan III",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime(),
                 null,
@@ -161,6 +171,8 @@ public class JabatanServiceTest {
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
                 Eselon.ESELON_IV,
+                "Middle",
+                "Golongan II",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime(),
                 testJabatan.createdDate(),
@@ -202,6 +214,8 @@ public class JabatanServiceTest {
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
                 Eselon.ESELON_IV,
+                "Middle",
+                "Golongan II",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime(),
                 testJabatan.createdDate(),
