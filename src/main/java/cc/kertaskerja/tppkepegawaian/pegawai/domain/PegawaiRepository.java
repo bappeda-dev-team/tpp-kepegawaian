@@ -11,7 +11,10 @@ import java.util.Optional;
 public interface PegawaiRepository extends CrudRepository<Pegawai, String> {
     Optional<Pegawai> findByNip(String nip);
     boolean existsByNip(String nip);
+    
     Iterable<Pegawai> findByKodeOpd(String kodeOpd);
+    Iterable<Pegawai> findByNamaRole(String namaRole);
+    
     @Modifying
     @Transactional
     @Query("DELETE FROM pegawai WHERE nip = :nip")

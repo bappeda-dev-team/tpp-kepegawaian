@@ -4,19 +4,31 @@ import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
+import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 
 @Service
 public class PegawaiService {
     private final PegawaiRepository pegawaiRepository;
     private final OpdRepository opdRepository;
+    private final RoleRepository roleRepository;
 
-    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository) {
+    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository) {
 	this.pegawaiRepository = pegawaiRepository;
 	this.opdRepository = opdRepository;
+	this.roleRepository = roleRepository;
     }
-
-    public Iterable<Pegawai> listPegawaiAktif(String kodeOpd) {
-	return pegawaiRepository.findByKodeOpd(kodeOpd);
+    
+    public Iterable<Pegawai> listAllPegawaiByKodeOpd(String kodeOpd) {
+        if (!opdRepository.existsByKodeOpd(kodeOpd)) {
+            throw new OpdNotFoundException(kodeOpd);
+        }
+        
+        return pegawaiRepository.findByKodeOpd(kodeOpd);
+    }
+    
+    public Iterable<Pegawai> listAllPegawaiByRole(String namaRole) {
+        return pegawaiRepository.findByNamaRole(namaRole);
     }
 
     public Pegawai detailPegawai(String nip) {
@@ -31,6 +43,10 @@ public class PegawaiService {
 
 	if (!opdRepository.existsByKodeOpd(pegawai.kodeOpd())) {
         throw new OpdNotFoundException(pegawai.kodeOpd());
+    }
+	
+	if (!roleRepository.existsByNamaRole(pegawai.namaRole())) {
+        throw new NamaRoleNotFoundException(pegawai.namaRole());
     }
 
 	return pegawaiRepository.save(pegawai);

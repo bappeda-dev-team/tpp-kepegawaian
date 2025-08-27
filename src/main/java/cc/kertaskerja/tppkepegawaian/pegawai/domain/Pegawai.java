@@ -22,6 +22,9 @@ public record Pegawai(
         @Column("kode_opd")
         String kodeOpd,
         
+        @Column("nama_role")
+        String namaRole,
+        
         @Column("status_pegawai")
         StatusPegawai statusPegawai,
 
@@ -38,6 +41,7 @@ public record Pegawai(
             String namaPegawai, 
             String nip,
             String kodeOpd,
+            String namaRole,
             StatusPegawai statusPegawai,
             String passwordHash
     ) {
@@ -45,7 +49,8 @@ public record Pegawai(
                 null, 
                 namaPegawai, 
                 nip,
-                kodeOpd, 
+                kodeOpd,
+                namaRole,
                 statusPegawai,
                 passwordHash,
                 null, 

@@ -3,6 +3,9 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.hamcrest.Matchers.hasSize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -52,6 +56,7 @@ public class PegawaiControllerTest {
                 "John Doe",
                 "198001012010011001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword",
                 Instant.now(),
@@ -70,6 +75,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.namaPegawai").value("John Doe"))
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$.namaRole").value("Admin"))
                 .andExpect(jsonPath("$.statusPegawai").value("AKTIF"))
                 .andExpect(jsonPath("$.passwordHash").value("hashedpassword"));
     }
@@ -83,12 +89,88 @@ public class PegawaiControllerTest {
     }
     
     @Test
+    void getAllPegawaiByKodeOpd_WhenKodeOpdExists_ShouldReturnPegawaiList() throws Exception {
+        String kodeOpd = "OPD-001";
+        List<Pegawai> pegawaiList = Arrays.asList(
+                new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", StatusPegawai.AKTIF, "hashedpassword123", Instant.now(), Instant.now()),
+                new Pegawai(1L, "John Doe", "201001012010011001", "OPD-002", "User", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
+        );
+        
+        when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
+        
+        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
+                .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
+                .andExpect(jsonPath("$[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
+                .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
+                .andExpect(jsonPath("$[1].namaRole", is("User")));
+        
+        verify(pegawaiService).listAllPegawaiByKodeOpd(kodeOpd);
+    }
+    
+    @Test
+    void getAllPegawaiByKodeOpd_WhenKodeOpdNotExists_ShouldReturnEmptyList() throws Exception {
+        String kodeOpd = "OPD-999";
+        List<Pegawai> emptyList = Collections.emptyList();
+        
+        when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(emptyList);
+        
+        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
+        
+        verify(pegawaiService).listAllPegawaiByKodeOpd(kodeOpd);
+    }
+    
+    @Test
+    void getAllPegawaiByRole_WhenRoleExists_ShouldReturnPegawaiList() throws Exception {
+        String namaRole = "Admin";
+        List<Pegawai> pegawaiList = Arrays.asList(
+                new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", StatusPegawai.AKTIF, "hashedpassword123", Instant.now(), Instant.now()),
+                new Pegawai(1L, "John Doe", "201001012010011001", "OPD-002", "User", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
+        );
+        
+        when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(pegawaiList);
+        
+        mockMvc.perform(get("/pegawai/role/{namaRole}", namaRole))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
+                .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
+                .andExpect(jsonPath("$[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
+                .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
+                .andExpect(jsonPath("$[1].namaRole", is("User")));
+        
+        verify(pegawaiService).listAllPegawaiByRole(namaRole);
+    }
+    
+    @Test
+    void getAllPegawaiByRole_WhenRoleNotExists_ShouldReturnEmptyList() throws Exception {
+        String namaRole = "Salah";
+        when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(List.of());
+        
+        mockMvc.perform(get("/pegawai/role/{namaRole}", namaRole))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(0)));
+        
+        verify(pegawaiService).listAllPegawaiByRole(namaRole);
+    }
+    
+    @Test
     void tambah_WhenValidPegawaiRequest_ShouldCreateJabatan() throws Exception {
         testPegawaiRequest = new PegawaiRequest(
                 null,
                 "Jane Doe",
                 "201001012010011001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword123"
         );
@@ -98,6 +180,7 @@ public class PegawaiControllerTest {
                 "Jane Doe",
                 "201001012010011001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword123",
                 Instant.now(),
@@ -115,6 +198,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.namaPegawai").value("Jane Doe"))
                 .andExpect(jsonPath("$.nip").value("201001012010011001"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$.namaRole").value("Admin"))
                 .andExpect(jsonPath("$.statusPegawai").value("AKTIF"))
                 .andExpect(jsonPath("$.passwordHash").value("hashedpassword123"));
     }
@@ -123,6 +207,7 @@ public class PegawaiControllerTest {
     void tambah_WhenInvalidPegawaiRequest_ShouldReturn400() throws Exception {
         PegawaiRequest request = new PegawaiRequest(
                 null,
+                "",
                 "",
                 "",
                 "",
@@ -154,6 +239,7 @@ public class PegawaiControllerTest {
                 "Rohman",
                 "199501012012011003",
                 "OPD-001",
+                "User",
                 StatusPegawai.CUTI,
                 "password213"
         );
@@ -163,6 +249,7 @@ public class PegawaiControllerTest {
                 "John Doe",
                 "198001012010011001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword",
                 Instant.now(),
@@ -174,6 +261,7 @@ public class PegawaiControllerTest {
                 "Rohman",
                 "199501012012011003",
                 "OPD-001",
+                "User",
                 StatusPegawai.CUTI,
                 "password213",
                 Instant.now(),
@@ -190,6 +278,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.namaPegawai", is("Rohman")))
                 .andExpect(jsonPath("$.nip", is("199501012012011003")))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
+                .andExpect(jsonPath("namaRole", is("User")))
                 .andExpect(jsonPath("$.statusPegawai", is("CUTI")))
                 .andExpect(jsonPath("$.passwordHash", is("password213")));
         
@@ -204,6 +293,7 @@ public class PegawaiControllerTest {
                 "Rohman",
                 "198201012010011002",
                 "OPD-001",
+                "User",
                 StatusPegawai.CUTI,
                 "password213"
         );
@@ -226,6 +316,7 @@ public class PegawaiControllerTest {
                 "Rohman",
                 "198001012010011001",
                 "OPD-003",
+                "User",
                 StatusPegawai.CUTI,
                 "password213"
         );

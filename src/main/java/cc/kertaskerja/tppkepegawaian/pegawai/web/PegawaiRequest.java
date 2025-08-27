@@ -26,6 +26,10 @@ public record PegawaiRequest(
 		@NotEmpty(message = "Kode OPD tidak boleh kosong")
 		String kodeOpd,
 		
+		@NotNull(message = "Nama role tidak boleh kosong")
+        @NotEmpty(message = "Nama role tidak boleh kosong")
+        String namaRole,
+		
 		@NotNull(message = "Status Pegawai harus terdefinisi")
 		StatusPegawai statusPegawai,
 		

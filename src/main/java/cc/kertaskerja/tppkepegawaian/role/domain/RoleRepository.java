@@ -12,6 +12,7 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
     @NonNull
     Optional<Role> findById(@NonNull Long id);
     boolean existsById(@NonNull Long id);
+    boolean existsByNamaRole(@NonNull String namaRole);
     @NonNull
     Iterable<Role> findByNip(@NonNull String nip);
 
