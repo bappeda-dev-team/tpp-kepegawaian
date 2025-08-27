@@ -15,6 +15,10 @@ public class OpdService {
 				.orElseThrow(() -> new OpdNotFoundException(kodeOpd));
 	}
 	
+	public Iterable<Opd> listAllOpd() {
+	    return opdRepository.findAll();
+	}
+	
 	public Opd tambahOpd(Opd opd) {
         if (opdRepository.existsByKodeOpd(opd.kodeOpd())) {
             throw new OpdSudahAdaException(opd.kodeOpd());

@@ -21,16 +21,6 @@ public class PegawaiController {
     }
 
     /**
-     * Get pegawai by kodeOpd
-     * @param kodeOpd
-     * @return pegawai object
-     */
-    @GetMapping
-    public Iterable<Pegawai> getPegawaiAktif(@RequestParam("kode_opd") String kodeOpd) {
-        return pegawaiService.listPegawaiAktif(kodeOpd);
-    }
-
-    /**
      * Get pegawai by nip
      * @param nip
      * @return pegawai object
@@ -38,6 +28,28 @@ public class PegawaiController {
     @GetMapping("{nip}")
     public Pegawai getByNip(@PathVariable("nip") String nip) {
         return pegawaiService.detailPegawai(nip);
+    }
+    
+    /**
+     * Get all pegawai by kodeOpd
+     * @param kodeOpd
+     * @return list of all pegawai in the OPD
+     * url: /pegawai/opd/{kodeOpd}
+     */
+    @GetMapping("opd/{kodeOpd}")
+    public Iterable<Pegawai> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+        return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
+    }
+    
+    /**
+     * Get all pegawai by role name
+     * @param namaRole role name
+     * @return list of all pegawai with the specified role
+     * url: /pegawai/role/{namaRole}
+     */
+    @GetMapping("role/{namaRole}")
+    public Iterable<Pegawai> getAllPegawaiByRole(@PathVariable("namaRole") String namaRole) {
+        return pegawaiService.listAllPegawaiByRole(namaRole);
     }
     
     /**
@@ -57,6 +69,7 @@ public class PegawaiController {
             request.namaPegawai(),
             nip,
             request.kodeOpd(),
+            request.namaRole(),
             request.statusPegawai(),
             request.passwordHash(),
             // saat update data ambil data createdDate dari pegawai yang sudah dibuat
@@ -79,6 +92,7 @@ public class PegawaiController {
 		request.namaPegawai(), 
 		request.nip(),
 		request.kodeOpd(),
+		request.namaRole(),
 		request.statusPegawai(),
 		request.passwordHash()
 		);

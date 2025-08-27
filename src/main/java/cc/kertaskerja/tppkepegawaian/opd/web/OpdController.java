@@ -39,6 +39,16 @@ public class OpdController {
     }
 	
 	/**
+     * Get all OPD
+     * @return list of all OPD
+     * url: /opd/{allOpd}
+     */
+    @GetMapping("allOpd")
+    public Iterable<Opd> getAllOpd() {
+        return opdService.listAllOpd();
+    }
+	
+	/**
 	 * 
 	 * @param kodeOpd
 	 * url: /opd/{kodeOpd}

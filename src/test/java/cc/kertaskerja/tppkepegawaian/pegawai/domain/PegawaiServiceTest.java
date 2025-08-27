@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
+import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,6 +29,9 @@ public class PegawaiServiceTest {
 
     @Mock
     private OpdRepository opdRepository;
+    
+    @Mock
+    private RoleRepository roleRepository;
 
     @InjectMocks
     private PegawaiService pegawaiService;
@@ -39,22 +45,12 @@ public class PegawaiServiceTest {
                 "John Doe",
                 "198001012010011001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword",
                 Instant.now(),
                 Instant.now()
         );
-    }
-
-    @Test
-    void listPegawaiAktif_ShouldReturnPegawaiList() {
-        List<Pegawai> pegawaiList = List.of(testPegawai);
-        when(pegawaiRepository.findByKodeOpd("OPD-001")).thenReturn(pegawaiList);
-        
-        Iterable<Pegawai> result = pegawaiService.listPegawaiAktif("OPD-001");
-        
-        assertThat(result).containsExactly(testPegawai);
-        verify(pegawaiRepository).findByKodeOpd("OPD-001");
     }
 
     @Test
@@ -78,6 +74,84 @@ public class PegawaiServiceTest {
                 .hasMessageContaining(nip);
         verify(pegawaiRepository).findByNip(nip);
     }
+    
+    @Test
+    void listPegawaiAktif_WhenOpdExists_ShouldReturnPegawaiList() {
+        String kodeOpd = "OPD-001";
+        List<Pegawai> pegawaiList = Arrays.asList(
+                testPegawai,
+                new Pegawai(
+                        2L,
+                        "Jane Doe",
+                        "200601012010012001",
+                        "OPD-001",
+                        "User",
+                        StatusPegawai.AKTIF,
+                        "hashedpassword123",
+                        Instant.now(),
+                        Instant.now()
+                )
+        );
+        
+        when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(true);
+        when(pegawaiRepository.findByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
+        
+        Iterable<Pegawai> result = pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
+        
+        assertThat(result).isEqualTo(pegawaiList);
+        verify(opdRepository).existsByKodeOpd(kodeOpd);
+        verify(pegawaiRepository).findByKodeOpd(kodeOpd);
+    }
+
+    @Test
+    void listPegawaiAktif_WhenOpdNotExists_ShouldThrowException() {
+        String kodeOpd = "OPD-9999";
+        when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(false);
+        
+        assertThatThrownBy(() -> pegawaiService.listAllPegawaiByKodeOpd(kodeOpd))
+                .isInstanceOf(OpdNotFoundException.class)
+                .hasMessageContaining(kodeOpd);
+        
+        verify(opdRepository).existsByKodeOpd(kodeOpd);
+        verify(pegawaiRepository, never()).findByKodeOpd(any());
+    }
+    
+    @Test
+    void listAllPegawaiByRole_WhenRoleExists_ShouldReturnPegawaiList() {
+        String namaRole = "Admin";
+        List<Pegawai> pegawaiList = Arrays.asList(
+                testPegawai,
+                new Pegawai(
+                        2L,
+                        "Jane Doe",
+                        "200601012010012001",
+                        "OPD-001",
+                        "Admin",
+                        StatusPegawai.AKTIF,
+                        "hashedpassword123",
+                        Instant.now(),
+                        Instant.now()
+                )
+        );
+        
+        when(pegawaiRepository.findByNamaRole(namaRole)).thenReturn(pegawaiList);
+        
+        Iterable<Pegawai> result = pegawaiService.listAllPegawaiByRole(namaRole);
+        
+        assertThat(result).isEqualTo(pegawaiList);
+        verify(pegawaiRepository).findByNamaRole(namaRole);
+    }
+    
+    @Test
+    void listAllPegawaiByRole_WhenRoleNotExists_ShouldReturnEmptyList() {
+        String namaRole = "Salah";
+        when(pegawaiRepository.findByNamaRole(namaRole)).thenReturn(List.of());
+        
+        Iterable<Pegawai> result = pegawaiService.listAllPegawaiByRole(namaRole);
+        
+        assertThat(result).isEmpty();
+        verify(pegawaiRepository).findByNamaRole(namaRole);
+    }
 
     @Test
     void tambahPegawai_WhenPegawaiValid_ShouldSaveAndReturnPegawai() {
@@ -86,6 +160,7 @@ public class PegawaiServiceTest {
                 "Jane Doe",
                 "200601012010012001",
                 "OPD-001",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword123",
                 null,
@@ -100,6 +175,7 @@ public class PegawaiServiceTest {
                         newPegawai.namaPegawai(),
                         newPegawai.nip(),
                         newPegawai.kodeOpd(),
+                        newPegawai.namaRole(),
                         newPegawai.statusPegawai(),
                         newPegawai.passwordHash(),
                         Instant.now(),
@@ -112,6 +188,7 @@ public class PegawaiServiceTest {
         assertThat(result.id()).isEqualTo(2L);
         assertThat(result.namaPegawai()).isEqualTo("Jane Doe");
         assertThat(result.nip()).isEqualTo("200601012010012001");
+        assertThat(result.namaRole()).isEqualTo("Admin");
         assertThat(result.passwordHash()).isEqualTo("hashedpassword123");
         verify(pegawaiRepository).existsByNip(newPegawai.nip());
         verify(opdRepository).existsByKodeOpd(newPegawai.kodeOpd());
@@ -134,8 +211,9 @@ public class PegawaiServiceTest {
         Pegawai newPegawai = new Pegawai(
                 null,
                 "Jane Doe",
-                "200601012010012001",
+                "198001012010011001",
                 "OPD-9999",
+                "Admin",
                 StatusPegawai.AKTIF,
                 "hashedpassword123",
                 null,
@@ -161,6 +239,7 @@ public class PegawaiServiceTest {
                 "Anthony",
                 nip,
                 "OPD-001",
+                "User",
                 StatusPegawai.CUTI,
                 "newhash123",
                 testPegawai.createdDate(),
@@ -169,6 +248,7 @@ public class PegawaiServiceTest {
         
         when(pegawaiRepository.existsByNip(nip)).thenReturn(true);
         when(opdRepository.existsByKodeOpd("OPD-001")).thenReturn(true);
+        when(roleRepository.existsByNamaRole("User")).thenReturn(true);
         when(pegawaiRepository.save(any(Pegawai.class))).thenReturn(updatedPegawai);
         
         Pegawai result = pegawaiService.ubahPegawai(nip, updatedPegawai);
@@ -176,6 +256,7 @@ public class PegawaiServiceTest {
         assertThat(result).isEqualTo(updatedPegawai);
         verify(pegawaiRepository).existsByNip(nip);
         verify(opdRepository).existsByKodeOpd("OPD-001");
+        verify(roleRepository).existsByNamaRole("User");
         verify(pegawaiRepository).save(updatedPegawai);
     }
 
@@ -199,6 +280,7 @@ public class PegawaiServiceTest {
                 "Anthony",
                 nip,
                 "OPD-9999",
+                "User",
                 StatusPegawai.CUTI,
                 "newhash123",
                 testPegawai.createdDate(),
@@ -213,6 +295,34 @@ public class PegawaiServiceTest {
 
         verify(pegawaiRepository).existsByNip(nip);
         verify(opdRepository).existsByKodeOpd("OPD-9999");
+        verify(pegawaiRepository, never()).save(any());
+    }
+    
+    @Test
+    void ubahPegawai_WhenRoleNotExists_ShouldThrowException() {
+        String nip = "198001012010011001";
+        Pegawai updatedPegawai = new Pegawai(
+                1L,
+                "Anthony",
+                nip,
+                "OPD-001",
+                "Salah",
+                StatusPegawai.CUTI,
+                "newhash123",
+                testPegawai.createdDate(),
+                Instant.now());
+
+        when(pegawaiRepository.existsByNip("198001012010011001")).thenReturn(true);
+        when(opdRepository.existsByKodeOpd("OPD-001")).thenReturn(true);
+        when(roleRepository.existsByNamaRole("Salah")).thenReturn(false);
+
+        assertThatThrownBy(() -> pegawaiService.ubahPegawai(nip, updatedPegawai))
+                .isInstanceOf(NamaRoleNotFoundException.class)
+                .hasMessageContaining("Salah");
+
+        verify(pegawaiRepository).existsByNip(nip);
+        verify(opdRepository).existsByKodeOpd("OPD-001");
+        verify(roleRepository).existsByNamaRole("Salah");
         verify(pegawaiRepository, never()).save(any());
     }
 

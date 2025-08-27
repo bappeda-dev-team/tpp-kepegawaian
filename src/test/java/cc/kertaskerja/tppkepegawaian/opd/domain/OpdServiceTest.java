@@ -1,6 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.opd.domain;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -56,6 +59,35 @@ public class OpdServiceTest {
                 .isInstanceOf(OpdNotFoundException.class);
         verify(opdRepository).findByKodeOpd("OPD-003");
     }
+     
+     @Test
+     void listAllOpd_ShouldReturnAllOpd() {
+         List<Opd> opdList = Arrays.asList(
+                 testOpd,
+                 new Opd(2L, "OPD-002", "Dinas Kesehatan", Instant.now(), Instant.now()),
+                 new Opd(3L, "OPD-003", "Dinas Kehutanan", Instant.now(), Instant.now())
+         );
+         
+         when(opdRepository.findAll()).thenReturn(opdList);
+         
+         Iterable<Opd> result = opdService.listAllOpd();
+         
+         assertThat(result).isNotNull();
+         assertThat(result).hasSize(3);
+         assertThat(result).containsExactlyElementsOf(opdList);
+         verify(opdRepository).findAll();
+     }
+     
+     @Test
+     void listAllOpd_WhenNoOpdExists_ShouldReturnEmptyList() {
+         when(opdRepository.findAll()).thenReturn(Collections.emptyList());
+         
+         Iterable<Opd> result = opdService.listAllOpd();
+         
+         assertThat(result).isNotNull();
+         assertThat(result).isEmpty();
+         verify(opdRepository).findAll();
+     }
 
     @Test
     void tambahOpd_WhenValidOpd_ShouldSaveAndReturnOpd() {
