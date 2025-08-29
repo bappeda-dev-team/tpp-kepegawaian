@@ -24,8 +24,9 @@ public class PegawaiController {
      * Get pegawai by nip
      * @param nip
      * @return pegawai object
+     * url: /pegawai/detail/{nip}
      */
-    @GetMapping("{nip}")
+    @GetMapping("detail/{nip}")
     public Pegawai getByNip(@PathVariable("nip") String nip) {
         return pegawaiService.detailPegawai(nip);
     }
@@ -34,9 +35,9 @@ public class PegawaiController {
      * Get all pegawai by kodeOpd
      * @param kodeOpd
      * @return list of all pegawai in the OPD
-     * url: /pegawai/opd/{kodeOpd}
+     * url: /pegawai/detail/opd/{kodeOpd}
      */
-    @GetMapping("opd/{kodeOpd}")
+    @GetMapping("detail/opd/{kodeOpd}")
     public Iterable<Pegawai> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
     }
@@ -45,9 +46,9 @@ public class PegawaiController {
      * Get all pegawai by role name
      * @param namaRole role name
      * @return list of all pegawai with the specified role
-     * url: /pegawai/role/{namaRole}
+     * url: /pegawai/detail/role/{namaRole}
      */
-    @GetMapping("role/{namaRole}")
+    @GetMapping("detail/role/{namaRole}")
     public Iterable<Pegawai> getAllPegawaiByRole(@PathVariable("namaRole") String namaRole) {
         return pegawaiService.listAllPegawaiByRole(namaRole);
     }
@@ -57,9 +58,9 @@ public class PegawaiController {
      * @param nip pegawai NIP
      * @param request pegawai update request
      * @return updated Pegawai object
-     * url: /pegawai/{nip}
+     * url: /pegawai/update/{nip}
      */
-    @PutMapping("{nip}")
+    @PutMapping("update/{nip}")
     public Pegawai put(@PathVariable("nip") String nip, @Valid @RequestBody PegawaiRequest request) {
         // Ambil data pegawai yang sudah dibuat
         Pegawai existingPegawai = pegawaiService.detailPegawai(nip);
@@ -108,9 +109,9 @@ public class PegawaiController {
     /**
      * Delete pegawai by nip
      * @param nip pegawai
-     * url: /pegawai/{nip}
+     * url: /pegawai/delete/{nip}
      */
-    @DeleteMapping("{nip}")
+    @DeleteMapping("delete/{nip}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("nip") String nip) {
         pegawaiService.hapusPegawai(nip);

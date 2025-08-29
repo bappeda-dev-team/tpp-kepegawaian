@@ -68,7 +68,7 @@ public class PegawaiControllerTest {
     void detailByNip_WhenPegawaiExists_ShouldReturnPegawai() throws Exception {
         when(pegawaiService.detailPegawai("198001012010011001")).thenReturn(testPegawai);
         
-        mockMvc.perform(get("/pegawai/198001012010011001"))
+        mockMvc.perform(get("/pegawai/detail/198001012010011001"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
@@ -84,7 +84,7 @@ public class PegawaiControllerTest {
     void detailByNip_WhenPegawaiNotExists_ShouldReturnNotFound() throws Exception {
         when(pegawaiService.detailPegawai("999999999999999999")).thenThrow(new PegawaiNotFoundException("999999999999999999"));
         
-        mockMvc.perform(get("/pegawai/999999999999999999"))
+        mockMvc.perform(get("/pegawai/detail/999999999999999999"))
                 .andExpect(status().isNotFound());
     }
     
@@ -98,7 +98,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
         
-        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+        mockMvc.perform(get("/pegawai/detail/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -119,7 +119,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(emptyList);
         
-        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+        mockMvc.perform(get("/pegawai/detail/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
         
@@ -136,7 +136,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(pegawaiList);
         
-        mockMvc.perform(get("/pegawai/role/{namaRole}", namaRole))
+        mockMvc.perform(get("/pegawai/detail/role/{namaRole}", namaRole))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -155,7 +155,7 @@ public class PegawaiControllerTest {
         String namaRole = "Salah";
         when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(List.of());
         
-        mockMvc.perform(get("/pegawai/role/{namaRole}", namaRole))
+        mockMvc.perform(get("/pegawai/detail/role/{namaRole}", namaRole))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -271,7 +271,7 @@ public class PegawaiControllerTest {
         when(pegawaiService.detailPegawai("199501012012011003")).thenReturn(existingPegawai);
         when(pegawaiService.ubahPegawai(eq("199501012012011003"), any(Pegawai.class))).thenReturn(updatePegawai);
         
-        mockMvc.perform(put("/pegawai/{nip}", "199501012012011003")
+        mockMvc.perform(put("/pegawai/update/{nip}", "199501012012011003")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -300,7 +300,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.detailPegawai("198001012010011001")).thenThrow(new PegawaiNotFoundException("198001012010011001"));
         
-        mockMvc.perform(put("/pegawai/{nip}", "198001012010011001")
+        mockMvc.perform(put("/pegawai/update/{nip}", "198001012010011001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -325,7 +325,7 @@ public class PegawaiControllerTest {
         when(pegawaiService.ubahPegawai(eq("198001012010011001"), any(Pegawai.class)))
                 .thenThrow(new OpdNotFoundException("OPD-003"));
         
-        mockMvc.perform(put("/pegawai/{nip}", "198001012010011001")
+        mockMvc.perform(put("/pegawai/update/{nip}", "198001012010011001")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -338,7 +338,7 @@ public class PegawaiControllerTest {
     void hapusPegawai_WhenJabatanExists_ShouldDeletePegawai() throws Exception {
         doNothing().when(pegawaiService).hapusPegawai("198001012010011001");
         
-        mockMvc.perform(delete("/pegawai/{nip}", "198001012010011001"))
+        mockMvc.perform(delete("/pegawai/delete/{nip}", "198001012010011001"))
                 .andExpect(status().isNoContent());
         
         verify(pegawaiService).hapusPegawai("198001012010011001");
@@ -348,7 +348,7 @@ public class PegawaiControllerTest {
     void hapusPegawai_WhenPegawaiNotExists_ShouldReturn404() throws Exception {
         doThrow(new PegawaiNotFoundException("198001012010011001")).when(pegawaiService).hapusPegawai("198001012010011001");
         
-        mockMvc.perform(delete("/pegawai/{nip}", "198001012010011001"))
+        mockMvc.perform(delete("/pegawai/delete/{nip}", "198001012010011001"))
                 .andExpect(status().isNotFound());
         
         verify(pegawaiService).hapusPegawai("198001012010011001");

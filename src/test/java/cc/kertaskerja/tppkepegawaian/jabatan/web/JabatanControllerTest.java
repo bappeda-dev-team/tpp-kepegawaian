@@ -1,3 +1,4 @@
+
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
@@ -72,7 +73,7 @@ public class JabatanControllerTest {
     void detailById_WhenJabatanExists_ShouldReturnJabatan() throws Exception {
         when(jabatanService.detailJabatan(1L)).thenReturn(testJabatan);
         
-        mockMvc.perform(get("/jabatan/detail/1"))
+        mockMvc.perform(get("/jabatan/detail/{id}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
@@ -92,7 +93,7 @@ public class JabatanControllerTest {
     void detailById_WhenJabatanNotExists_ShouldReturnNotFound() throws Exception {
         when(jabatanService.detailJabatan(999L)).thenThrow(new JabatanNotFoundException(999L));
         
-        mockMvc.perform(get("/jabatan/detail/999"))
+        mockMvc.perform(get("/jabatan/detail/{id}", 999L))
                 .andExpect(status().isNotFound());
     }
     
@@ -233,7 +234,7 @@ public class JabatanControllerTest {
         when(jabatanService.detailJabatan(1L)).thenReturn(existingJabatan);
         when(jabatanService.ubahJabatan(eq(1L), any(Jabatan.class))).thenReturn(updateJabatan);
         
-        mockMvc.perform(put("/jabatan/update/{id}", "1")
+        mockMvc.perform(put("/jabatan/update/{id}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -270,7 +271,7 @@ public class JabatanControllerTest {
         
         when(jabatanService.detailJabatan(3L)).thenThrow(new JabatanNotFoundException(1L));
         
-        mockMvc.perform(put("/jabatan/update/{id}", "3")
+        mockMvc.perform(put("/jabatan/update/{id}", 3L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -299,7 +300,7 @@ public class JabatanControllerTest {
         when(jabatanService.ubahJabatan(eq(1L), any(Jabatan.class)))
                 .thenThrow(new OpdNotFoundException("OPD-999"));
         
-        mockMvc.perform(put("/jabatan/update/{id}", "1")
+        mockMvc.perform(put("/jabatan/update/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -312,7 +313,7 @@ public class JabatanControllerTest {
     void hapusJabatan_WhenJabatanExists_ShouldDeleteJabatan() throws Exception {
         doNothing().when(jabatanService).hapusJabatan(1L);
         
-        mockMvc.perform(delete("/jabatan/delete/{id}", "1"))
+        mockMvc.perform(delete("/jabatan/delete/{id}", 1L))
                 .andExpect(status().isNoContent());
         
         verify(jabatanService).hapusJabatan(1L);
@@ -322,7 +323,7 @@ public class JabatanControllerTest {
     void hapusJabatan_WhenJabatanNotExists_ShouldReturn404() throws Exception {
         doThrow(new JabatanNotFoundException(3L)).when(jabatanService).hapusJabatan(3L);
         
-        mockMvc.perform(delete("/jabatan/delete/{id}", "3"))
+        mockMvc.perform(delete("/jabatan/delete/{id}", 3L))
                 .andExpect(status().isNotFound());
         
         verify(jabatanService).hapusJabatan(3L);
