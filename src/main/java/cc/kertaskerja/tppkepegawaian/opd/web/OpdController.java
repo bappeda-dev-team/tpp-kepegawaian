@@ -59,7 +59,7 @@ public class OpdController {
         	Opd existingOpd = opdService.detailOpd(kodeOpd);
         
         Opd opd = new Opd(
-                request.opdId(),
+                existingOpd.id(),
                 kodeOpd,
                 request.namaOpd(),
                 // saat update data ambil data createdDate dari opd yang sudah dibuat
