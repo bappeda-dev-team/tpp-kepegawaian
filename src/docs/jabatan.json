@@ -1,0 +1,618 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Jabatan API",
+    "description": "API untuk jabatan",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/jabatan": {
+      "post": {
+        "summary": "Buat Jabatan",
+        "description": "Endpoint untuk membuat jabatan",
+        "tags": [
+          "Jabatan"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Data untuk membuat jabatan baru",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nip",
+                  "nama_jabatan",
+                  "kode_opd",
+                  "status_jabatan",
+                  "jenis_jabatan",
+                  "eselon",
+                  "pangkat",
+                  "golongan",
+                  "tanggal_mulai",
+                  "tanggal_berakhir"
+                ],
+                "properties": {
+                  "nip": {
+                    "type": "string"
+                  },
+                  "nama_jabatan": {
+                    "type": "string"
+                  },
+                  "kode_opd": {
+                    "type": "string"
+                  },
+                  "status_jabatan": {
+                    "type": "string"
+                  },
+                  "jenis_jabatan": {
+                    "type": "string"
+                  },
+                  "eselon": {
+                    "type": "string"
+                  },
+                  "pangkat": {
+                    "type": "string"
+                  },
+                  "golongan": {
+                    "type": "string"
+                  },
+                  "tanggal_mulai": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "tanggal_berakhir": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sukses membuat jabatan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data jabatan berhasil dibuat"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "nip": {
+                          "type": "string"
+                        },
+                        "nama_jabatan": {
+                          "type": "string"
+                        },
+                        "kode_opd": {
+                          "type": "string"
+                        },
+                        "status_jabatan": {
+                          "type": "string"
+                        },
+                        "jenis_jabatan": {
+                          "type": "string"
+                        },
+                        "eselon": {
+                          "type": "string"
+                        },
+                        "pangkat": {
+                          "type": "string"
+                        },
+                        "golongan": {
+                          "type": "string"
+                        },
+                        "tanggal_mulai": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "tanggal_berakhir": {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jabatan/update/{id}": {
+      "put": {
+        "summary": "Update Jabatan",
+        "description": "Endpoint untuk mengupdate jabatan",
+        "tags": [
+          "Jabatan"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Id jabatan yang akan diupdate",
+            "example": 1
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Data untuk mengupdate jabatan",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "nip",
+                  "nama_jabatan",
+                  "kode_opd",
+                  "status_jabatan",
+                  "jenis_jabatan",
+                  "eselon",
+                  "pangkat",
+                  "golongan",
+                  "tanggal_mulai",
+                  "tanggal_berakhir"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "nip": {
+                    "type": "string"
+                  },
+                  "nama_jabatan": {
+                    "type": "string"
+                  },
+                  "kode_opd": {
+                    "type": "string"
+                  },
+                  "status_jabatan": {
+                    "type": "string"
+                  },
+                  "jenis_jabatan": {
+                    "type": "string"
+                  },
+                  "eselon": {
+                    "type": "string"
+                  },
+                  "pangkat": {
+                    "type": "string"
+                  },
+                  "golongan": {
+                    "type": "string"
+                  },
+                  "tanggal_mulai": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "tanggal_berakhir": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sukses mengubah jabatan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data jabatan berhasil diubah"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "nip": {
+                          "type": "string"
+                        },
+                        "nama_jabatan": {
+                          "type": "string"
+                        },
+                        "kode_opd": {
+                          "type": "string"
+                        },
+                        "status_jabatan": {
+                          "type": "string"
+                        },
+                        "jenis_jabatan": {
+                          "type": "string"
+                        },
+                        "eselon": {
+                          "type": "string"
+                        },
+                        "pangkat": {
+                          "type": "string"
+                        },
+                        "golongan": {
+                          "type": "string"
+                        },
+                        "tanggal_mulai": {
+                          "type": "string",
+                          "format": "date"
+                        },
+                        "tanggal_berakhir": {
+                          "type": "string",
+                          "format": "date"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data tidak ditemukan"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jabatan/detail/{id}": {
+      "get": {
+        "summary": "Get jabatan Berdasarkan Id",
+        "description": "Endpoint untuk mendapatkan jabatan berdasarkan id",
+        "tags": [
+          "Jabatan"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter berdasarkan id",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses mendapatkan jabatan berdasarkan id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data jabatan berhasil ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "nip": {
+                            "type": "string"
+                          },
+                          "nama_jabatan": {
+                            "type": "string"
+                          },
+                          "kode_opd": {
+                            "type": "string"
+                          },
+                          "status_jabatan": {
+                            "type": "string"
+                          },
+                          "jenis_jabatan": {
+                            "type": "string"
+                          },
+                          "eselon": {
+                            "type": "string"
+                          },
+                          "pangkat": {
+                            "type": "string"
+                          },
+                          "golongan": {
+                            "type": "string"
+                          },
+                          "tanggal_mulai": {
+                            "type": "string",
+                            "format": "date"
+                          },
+                          "tanggal_berakhir": {
+                            "type": "string",
+                            "format": "date"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Data tidak ditemukan",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Data tidak ditemukan"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jabatan/delete/{id}": {
+      "delete": {
+        "summary": "Hapus Jabatan Berdasarkan Id",
+        "description": "Endpoint untuk menghapus jabatan",
+        "tags": [
+          "Jabatan"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID jabatan yang akan dihapus",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses menghapus jabatan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Jabatan berhasil dihapus"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
