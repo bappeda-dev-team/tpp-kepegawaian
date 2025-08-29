@@ -29,11 +29,11 @@ public class OpdController {
 	}
 	
 	/**
-	 * 
-	 * @param kodeOpd
-	 * url: /opd/{kodeOpd}
-	 */
-	@GetMapping("{kodeOpd}")
+     * 
+     * @param kodeOpd
+     * url: /opd/detail/{kodeOpd}
+     */
+    @GetMapping("detail/{kodeOpd}")
     public Opd getByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return opdService.detailOpd(kodeOpd);
     }
@@ -41,55 +41,59 @@ public class OpdController {
 	/**
      * Get all OPD
      * @return list of all OPD
-     * url: /opd/{allOpd}
+     * url: /opd/detail/allOpd
      */
-    @GetMapping("allOpd")
+    @GetMapping("detail/allOpd")
     public Iterable<Opd> getAllOpd() {
         return opdService.listAllOpd();
     }
 	
 	/**
-	 * 
-	 * @param kodeOpd
-	 * url: /opd/{kodeOpd}
-	 */
-	@PutMapping("{kodeOpd}")
-	public Opd put(@PathVariable("kodeOpd") String kodeOpd, @Valid @RequestBody OpdRequest request) {
-	    	// Ambil data opd yang sudah dibuat
-	    	Opd existingOpd = opdService.detailOpd(kodeOpd);
-	    
-		Opd opd = new Opd(
-	            request.opdId(),
-	            kodeOpd,
-	            request.namaOpd(),
-	            // saat update data ambil data createdDate dari opd yang sudah dibuat
-	            existingOpd.createdDate(),
-	            null
-	    );
-	    return opdService.ubahOpd(kodeOpd, opd);
-	}
+     * Update Kode OPD
+     * @param kodeOpd
+     * url: /opd/update/{kodeOpd}
+     */
+    @PutMapping("update/{kodeOpd}")
+    public Opd put(@PathVariable("kodeOpd") String kodeOpd, @Valid @RequestBody OpdRequest request) {
+        	// Ambil data opd yang sudah dibuat
+        	Opd existingOpd = opdService.detailOpd(kodeOpd);
+        
+        Opd opd = new Opd(
+                request.opdId(),
+                kodeOpd,
+                request.namaOpd(),
+                // saat update data ambil data createdDate dari opd yang sudah dibuat
+                existingOpd.createdDate(),
+                null
+        );
+        return opdService.ubahOpd(kodeOpd, opd);
+    }
 	
+	/**
+     * Tambah Kode OPD
+     * url: /opd
+     */
 	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public ResponseEntity<Opd> post(@Valid @RequestBody OpdRequest request) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Opd> post(@Valid @RequestBody OpdRequest request) {
         Opd opd = Opd.of(request.kodeOpd(), request.namaOpd());
         Opd saved = opdService.tambahOpd(opd);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
-                .path("/{kodeOpd}")
+                .path("/detail/{kodeOpd}")
                 .buildAndExpand(saved.kodeOpd())
                 .toUri();
         return ResponseEntity.created(location).body(saved);
     }
 	
 	/**
-	 * 
-	 * @param kodeOpd
-	 * url: /opd/{kodeOpd}
-	 */
-	@DeleteMapping("{kodeOpd}")
-	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable("kodeOpd") String kodeOpd) {
-		opdService.hapusOpd(kodeOpd);
-	}
+     * delete Kode OPD
+     * @param kodeOpd
+     * url: /opd/delete/{kodeOpd}
+     */
+    @DeleteMapping("delete/{kodeOpd}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable("kodeOpd") String kodeOpd) {
+        opdService.hapusOpd(kodeOpd);
+    }
 }
