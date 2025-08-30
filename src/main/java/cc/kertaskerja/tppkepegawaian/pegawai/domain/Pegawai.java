@@ -1,10 +1,12 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.lang.Nullable;
 
 import java.time.Instant;
 
@@ -23,12 +25,14 @@ public record Pegawai(
         String kodeOpd,
         
         @Column("nama_role")
+        @Nullable
         String namaRole,
         
         @Column("status_pegawai")
         StatusPegawai statusPegawai,
 
         @Column("password_hash")
+        @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
         String passwordHash,
 
         @CreatedDate
@@ -53,7 +57,7 @@ public record Pegawai(
                 namaRole,
                 statusPegawai,
                 passwordHash,
-                null, 
+                null,
                 null
         );
     }

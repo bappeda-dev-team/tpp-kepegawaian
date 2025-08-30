@@ -11,6 +11,13 @@ server:
 spring:
   application:
     name: tpp-kepegawaian
+  cache:
+    type: redis
+  data:
+    redis:
+      host: 192.168.194.241
+      port: 6379
+      timeout: 60000
   datasource:
     username: user
     password: password
@@ -21,3 +28,9 @@ spring:
 
 kertaskerja:
   status: TPP Kepegawaian UP!
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: mappings

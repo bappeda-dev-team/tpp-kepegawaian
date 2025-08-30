@@ -6,7 +6,12 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.*;
+import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
+import cc.kertaskerja.tppkepegawaian.role.domain.LevelRole;
+import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +24,6 @@ import static org.hamcrest.Matchers.hasSize;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,8 +77,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
                 .andExpect(jsonPath("$.namaRole").value("Admin"))
-                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"))
-                .andExpect(jsonPath("$.passwordHash").value("hashedpassword"));
+                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"));
     }
     
     @Test
@@ -89,11 +89,14 @@ public class PegawaiControllerTest {
     }
     
     @Test
-    void getAllPegawaiByKodeOpd_WhenKodeOpdExists_ShouldReturnPegawaiList() throws Exception {
+    void getAllPegawaiByKodeOpd_WhenKodeOpdExists_ShouldReturnPegawaiWithRoleList() throws Exception {
         String kodeOpd = "OPD-001";
-        List<Pegawai> pegawaiList = Arrays.asList(
-                new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", StatusPegawai.AKTIF, "hashedpassword123", Instant.now(), Instant.now()),
-                new Pegawai(1L, "John Doe", "201001012010011001", "OPD-002", "User", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
+        Set<Role> roles1 = Set.of(new Role(1L, "Admin", "198001012010011001", LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now()));
+        Set<Role> roles2 = Set.of(new Role(2L, "User", "201001012010011001", LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now()));
+
+        List<PegawaiWithRoles> pegawaiList = Arrays.asList(
+                new PegawaiWithRoles(1L, "John Doe", "198001012010011001", "OPD-001", roles1),
+                new PegawaiWithRoles(1L, "Jane Doe", "201001012010011001", "OPD-002", roles2)
         );
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
@@ -102,20 +105,23 @@ public class PegawaiControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].namaPegawai", is("John Doe")))
                 .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
                 .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
-                .andExpect(jsonPath("$[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[0].roles[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[1].namaPegawai", is("Jane Doe")))
                 .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
                 .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
-                .andExpect(jsonPath("$[1].namaRole", is("User")));
-        
+                .andExpect(jsonPath("$[1].roles[0].namaRole", is("User"))
+                );
+
         verify(pegawaiService).listAllPegawaiByKodeOpd(kodeOpd);
     }
     
     @Test
     void getAllPegawaiByKodeOpd_WhenKodeOpdNotExists_ShouldReturnEmptyList() throws Exception {
         String kodeOpd = "OPD-999";
-        List<Pegawai> emptyList = Collections.emptyList();
+        List<PegawaiWithRoles> emptyList = Collections.emptyList();
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(emptyList);
         
@@ -199,8 +205,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip").value("201001012010011001"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
                 .andExpect(jsonPath("$.namaRole").value("Admin"))
-                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"))
-                .andExpect(jsonPath("$.passwordHash").value("hashedpassword123"));
+                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"));
     }
     
     @Test
@@ -279,8 +284,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip", is("199501012012011003")))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
                 .andExpect(jsonPath("namaRole", is("User")))
-                .andExpect(jsonPath("$.statusPegawai", is("CUTI")))
-                .andExpect(jsonPath("$.passwordHash", is("password213")));
+                .andExpect(jsonPath("$.statusPegawai", is("CUTI")));
         
         verify(pegawaiService).detailPegawai("199501012012011003");
         verify(pegawaiService).ubahPegawai(eq("199501012012011003"), any(Pegawai.class));

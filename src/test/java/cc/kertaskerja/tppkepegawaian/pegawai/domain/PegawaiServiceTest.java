@@ -1,10 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import cc.kertaskerja.tppkepegawaian.role.domain.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,8 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
-import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
-import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -74,13 +71,13 @@ public class PegawaiServiceTest {
                 .hasMessageContaining(nip);
         verify(pegawaiRepository).findByNip(nip);
     }
-    
+
     @Test
-    void listPegawaiAktif_WhenOpdExists_ShouldReturnPegawaiList() {
+    void listPegawaiAktif_WhenOpdExists_ShouldReturnPegawaiWithRoleList() {
         String kodeOpd = "OPD-001";
-        List<Pegawai> pegawaiList = Arrays.asList(
-                testPegawai,
-                new Pegawai(
+        Set<Role> rolePegawai = Set.of(new Role(1L, "admin", "200601012010012001",
+                LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now() ));
+        Pegawai pegawai = new Pegawai(
                         2L,
                         "Jane Doe",
                         "200601012010012001",
@@ -90,17 +87,25 @@ public class PegawaiServiceTest {
                         "hashedpassword123",
                         Instant.now(),
                         Instant.now()
-                )
+                );
+
+        List<Pegawai> pegawaiList = List.of(pegawai);
+
+        List<PegawaiWithRoles> expected = List.of(
+                PegawaiWithRoles.of(pegawai, rolePegawai)
         );
-        
+
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(true);
         when(pegawaiRepository.findByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
-        
-        Iterable<Pegawai> result = pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
-        
-        assertThat(result).isEqualTo(pegawaiList);
+        when(roleRepository.findByNip("200601012010012001")).thenReturn(new ArrayList<>(rolePegawai));
+
+        Iterable<PegawaiWithRoles> result = pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
+
+        assertThat(result).containsExactlyElementsOf(expected);
+
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(pegawaiRepository).findByKodeOpd(kodeOpd);
+        verify(roleRepository).findByNip("200601012010012001");
     }
 
     @Test

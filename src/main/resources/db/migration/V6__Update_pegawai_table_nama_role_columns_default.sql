@@ -1,0 +1,1 @@
+ALTER TABLE pegawai ALTER COLUMN nama_role SET DEFAULT 'BLANK';

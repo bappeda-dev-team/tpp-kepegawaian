@@ -2,9 +2,12 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
 import jakarta.validation.Valid;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +36,12 @@ public class PegawaiController {
     /**
      * Get all pegawai by kodeOpd
      * @param kodeOpd
+     * kodeOpd: OPD unique code 1.23.4.56.7.89.1.0000
      * @return list of all pegawai in the OPD
      * url: /pegawai/opd/{kodeOpd}
      */
     @GetMapping("opd/{kodeOpd}")
-    public Iterable<Pegawai> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+    public List<PegawaiWithRoles> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
     }
     

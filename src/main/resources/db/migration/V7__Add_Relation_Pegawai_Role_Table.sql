@@ -1,0 +1,5 @@
+ALTER TABLE role
+ADD CONSTRAINT fk_role_pegawai
+FOREIGN KEY (nip)
+REFERENCES pegawai(nip)
+ON DELETE CASCADE;
