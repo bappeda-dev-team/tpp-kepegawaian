@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +25,7 @@ public class PegawaiController {
     /**
      * Get pegawai by nip
      * @param nip
+     * nip asn
      * @return pegawai object
      */
     @GetMapping("{nip}")

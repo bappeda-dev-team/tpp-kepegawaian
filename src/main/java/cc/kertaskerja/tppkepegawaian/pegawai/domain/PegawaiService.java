@@ -1,7 +1,6 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -62,8 +61,9 @@ public class PegawaiService {
 	if (!opdRepository.existsByKodeOpd(pegawai.kodeOpd())) {
         throw new OpdNotFoundException(pegawai.kodeOpd());
     }
-	
-	if (!roleRepository.existsByNamaRole(pegawai.namaRole())) {
+
+        assert pegawai.namaRole() != null;
+        if (!roleRepository.existsByNamaRole(pegawai.namaRole())) {
         throw new NamaRoleNotFoundException(pegawai.namaRole());
     }
 
