@@ -1,4 +1,3 @@
-
 package cc.kertaskerja.tppkepegawaian.opd.web;
 
 import java.time.Instant;
@@ -57,7 +56,7 @@ public class OpdControllerTest {
     void detailOpdByKode_WhenOpdExists_ShouldReturnOpd() throws Exception {
         when(opdService.detailOpd("OPD-001")).thenReturn(testOpd);
 
-        mockMvc.perform(get("/opd/detail/{kodeOpd}", "OPD-001"))
+        mockMvc.perform(get("/opd/{kodeOpd}", "OPD-001"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
@@ -70,7 +69,7 @@ public class OpdControllerTest {
     void detailOpdByKode_WhenOpdNotExists_ShouldReturn404() throws Exception {
         when(opdService.detailOpd("OPD-003")).thenThrow(new OpdNotFoundException("OPD-003"));
 
-        mockMvc.perform(get("/opd/detail/{kodeOpd}", "OPD-003"))
+        mockMvc.perform(get("/opd/{kodeOpd}", "OPD-003"))
                 .andExpect(status().isNotFound());
 
         verify(opdService).detailOpd("OPD-003");
@@ -85,7 +84,7 @@ public class OpdControllerTest {
         
         when(opdService.listAllOpd()).thenReturn(opdList);
 
-        mockMvc.perform(get("/opd/detail/allOpd"))
+        mockMvc.perform(get("/opd/allOpd"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -101,7 +100,7 @@ public class OpdControllerTest {
     void getAllOpd_WhenNoOpd_ShouldReturnEmptyList() throws Exception {
         when(opdService.listAllOpd()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/opd/detail/allOpd"))
+        mockMvc.perform(get("/opd/allOpd"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));
@@ -148,7 +147,7 @@ public class OpdControllerTest {
         when(opdService.detailOpd("OPD-001")).thenReturn(existingOpd);
         when(opdService.ubahOpd(eq("OPD-001"), any(Opd.class))).thenReturn(updatedOpd);
 
-        mockMvc.perform(put("/opd/update/{kodeOpd}", "OPD-001")
+        mockMvc.perform(put("/opd/{kodeOpd}", "OPD-001")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -165,7 +164,7 @@ public class OpdControllerTest {
 
         when(opdService.detailOpd("OPD-003")).thenThrow(new OpdNotFoundException("OPD-003"));
 
-        mockMvc.perform(put("/opd/update/{kodeOpd}", "OPD-003")
+        mockMvc.perform(put("/opd/{kodeOpd}", "OPD-003")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -178,7 +177,7 @@ public class OpdControllerTest {
     void hapusOpd_WhenOpdExists_ShouldDeleteOpd() throws Exception {
         doNothing().when(opdService).hapusOpd("OPD-001");
 
-        mockMvc.perform(delete("/opd/delete/{kodeOpd}", "OPD-001"))
+        mockMvc.perform(delete("/opd/{kodeOpd}", "OPD-001"))
                 .andExpect(status().isNoContent());
 
         verify(opdService).hapusOpd("OPD-001");
@@ -188,7 +187,7 @@ public class OpdControllerTest {
     void hapusOpd_WhenOpdNotExists_ShouldReturn404() throws Exception {
         doThrow(new OpdNotFoundException("OPD-003")).when(opdService).hapusOpd("OPD-003");
 
-        mockMvc.perform(delete("/opd/delete/{kodeOpd}", "OPD-003"))
+        mockMvc.perform(delete("/opd/{kodeOpd}", "OPD-003"))
                 .andExpect(status().isNotFound());
 
         verify(opdService).hapusOpd("OPD-003");

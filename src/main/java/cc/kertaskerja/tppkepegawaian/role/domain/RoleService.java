@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 public class RoleService {
     private final RoleRepository roleRepository;
     private final PegawaiRepository pegawaiRepository;
+    private final RoleCacheService roleCacheService;
     
-    public RoleService(RoleRepository roleRepository, PegawaiRepository pegawaiRepository) {
+    public RoleService(RoleRepository roleRepository, PegawaiRepository pegawaiRepository, RoleCacheService roleCacheService) {
         this.roleRepository = roleRepository;
         this.pegawaiRepository = pegawaiRepository;
+        this.roleCacheService = roleCacheService;
     }
     
     public Iterable<Role> listRoleAktif(String nip) {
@@ -31,8 +33,12 @@ public class RoleService {
         if (!pegawaiRepository.existsByNip(role.nip())) {
             throw new PegawaiNotFoundException(role.nip());
         }
+        Role updated = roleRepository.save(role);
 
-        return roleRepository.save(role);
+        // Evict cache untuk nip ini
+        roleCacheService.evictRolesCache(role.nip());
+
+        return updated;
     }
 
     public Role tambahRole(Role role) {

@@ -2,9 +2,11 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
 import jakarta.validation.Valid;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ public class PegawaiController {
     /**
      * Get pegawai by nip
      * @param nip
+     * nip asn
      * @return pegawai object
      * url: /pegawai/detail/{nip}
      */
@@ -34,11 +37,12 @@ public class PegawaiController {
     /**
      * Get all pegawai by kodeOpd
      * @param kodeOpd
+     * kodeOpd: OPD unique code 1.23.4.56.7.89.1.0000
      * @return list of all pegawai in the OPD
-     * url: /pegawai/detail/opd/{kodeOpd}
+     * url: /pegawai/opd/{kodeOpd}
      */
-    @GetMapping("detail/opd/{kodeOpd}")
-    public Iterable<Pegawai> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+    @GetMapping("opd/{kodeOpd}")
+    public List<PegawaiWithRoles> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
     }
     
@@ -46,9 +50,9 @@ public class PegawaiController {
      * Get all pegawai by role name
      * @param namaRole role name
      * @return list of all pegawai with the specified role
-     * url: /pegawai/detail/role/{namaRole}
+     * url: /pegawai/role/{namaRole}
      */
-    @GetMapping("detail/role/{namaRole}")
+    @GetMapping("role/{namaRole}")
     public Iterable<Pegawai> getAllPegawaiByRole(@PathVariable("namaRole") String namaRole) {
         return pegawaiService.listAllPegawaiByRole(namaRole);
     }

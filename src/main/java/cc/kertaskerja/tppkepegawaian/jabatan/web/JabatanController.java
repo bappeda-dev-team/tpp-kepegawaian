@@ -52,22 +52,22 @@ public class JabatanController {
 		Jabatan existingJabatan = jabatanService.detailJabatan(id);
 
 		Jabatan jabatan = new Jabatan(
-				id,
-				request.nip(),
-				request.namaJabatan(),
-				request.kodeOpd(),
-				request.statusJabatan(),
-				request.jenisJabatan(),
-				request.eselon(),
+	            id,
+	            request.nip(),
+	            request.namaJabatan(),
+	            request.kodeOpd(),
+	            request.statusJabatan(),
+	            request.jenisJabatan(),
+	            request.eselon(),
 				request.pangkat(),
 				request.golongan(),
-				request.tanggalMulai(),
-				request.tanggalBerakhir(),
-				// saat update data ambil data createdDate dari jabatan yang sudah dibuat
-				existingJabatan.createdDate(),
-				null
-		);
-		return jabatanService.ubahJabatan(id, jabatan);
+	            request.tanggalMulai(),
+	            request.tanggalBerakhir(),
+	            // saat update data ambil data createdDate dari jabatan yang sudah dibuat
+	            existingJabatan.createdDate(),
+	            null
+	    );
+	    return jabatanService.ubahJabatan(id, jabatan);
 	}
 
 	/**
@@ -79,25 +79,25 @@ public class JabatanController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ResponseEntity<Jabatan> post(@Valid @RequestBody JabatanRequest request) {
-		Jabatan jabatan = Jabatan.of(
-				request.nip(),
-				request.namaJabatan(),
-				request.kodeOpd(),
-				request.statusJabatan(),
-				request.jenisJabatan(),
-				request.eselon(),
-				request.pangkat(),
-				request.golongan(),
-				request.tanggalMulai(),
-				request.tanggalBerakhir()
-		);
-		Jabatan saved = jabatanService.tambahJabatan(jabatan);
-		URI location = ServletUriComponentsBuilder
-				.fromCurrentRequest()
-				.path("/detail/{id}")
-				.buildAndExpand(saved.id())
-				.toUri();
-		return ResponseEntity.created(location).body(saved);
+	    Jabatan jabatan = Jabatan.of(
+		    request.nip(), 
+		    request.namaJabatan(),
+		    request.kodeOpd(),
+		    request.statusJabatan(),
+		    request.jenisJabatan(),
+		    request.eselon(),
+		    request.pangkat(),
+		    request.golongan(),
+		    request.tanggalMulai(),
+		    request.tanggalBerakhir()
+		    );
+	    Jabatan saved = jabatanService.tambahJabatan(jabatan);
+	    URI location = ServletUriComponentsBuilder
+		    .fromCurrentRequest()
+		    .path("/{id}")
+		    .buildAndExpand(saved.id())
+		    .toUri();
+	    return ResponseEntity.created(location).body(saved);
 	}
 
 	/**

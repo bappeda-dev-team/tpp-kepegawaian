@@ -30,6 +30,9 @@ public class RoleServiceTest {
     @Mock
     private PegawaiRepository pegawaiRepository;
 
+    @Mock
+    private RoleCacheService roleCacheService;
+
     @InjectMocks
     private RoleService roleService;
 
@@ -96,7 +99,8 @@ public class RoleServiceTest {
                         2L,
                         newRole.namaRole(),
                         newRole.nip(),
-                        newRole.levelRole(),                        newRole.isActive(),
+                        newRole.levelRole(),
+                        newRole.isActive(),
                         Instant.now(),
                         Instant.now()
                 )
@@ -157,6 +161,7 @@ public class RoleServiceTest {
         verify(roleRepository).existsById(id);
         verify(pegawaiRepository).existsByNip(updatedRole.nip());
         verify(roleRepository).save(updatedRole);
+        verify(roleCacheService).evictRolesCache(updatedRole.nip());
     }
     
     @Test
