@@ -33,6 +33,18 @@ public class TppController {
     }
     
     /**
+     * Get tpp by bulan and tahun
+     * @param bulan tpp bulan
+     * @param tahun tpp tahun
+     * @return Tpp object
+     * url: /tpp/detail/{bulan}/{tahun}
+     */
+    @GetMapping("detail/{bulan}/{tahun}")
+    public Iterable<Tpp> getByBulanAndTahun(@PathVariable("bulan") Integer bulan, @PathVariable("tahun") Integer tahun) {
+        return tppService.listTppByBulanAndTahun(bulan, tahun);
+    }
+
+    /**
      * Update tpp by ID
      * @param id tpp ID
      * @param request tpp update request

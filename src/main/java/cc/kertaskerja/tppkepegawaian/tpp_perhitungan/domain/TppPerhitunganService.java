@@ -27,8 +27,7 @@ public class TppPerhitunganService {
     }
     
     public boolean existsByBulanAndTahun(Integer bulan, Integer tahun) {
-        Iterable<TppPerhitungan> existing = tppPerhitunganRepository.findByBulanAndTahun(bulan, tahun);
-        return existing.iterator().hasNext();
+        return tppPerhitunganRepository.existsByBulanAndTahun(bulan, tahun);
     }
     
     public Iterable<TppPerhitungan> listTppPerhitunganByNip(String nip) {

@@ -26,19 +26,10 @@ public interface TppPerhitunganRepository extends CrudRepository<TppPerhitungan,
     @Nullable
     Iterable<TppPerhitungan> findByKodeOpd(@Nullable String kodeOpd);
     
-//    @Nullable
-//    Iterable<TppPerhitungan> findByBulan(@Nullable Integer bulan);
-//
-//    @Nullable
-//    Iterable<TppPerhitungan> findByTahun(@Nullable Integer tahun);
-    
-    @Query("SELECT * FROM tpp_perhitungan WHERE bulan = :bulan AND tahun = :tahun")
+    @Query("SELECT * FROM tpp_perhitungan WHERE bulan = :bulan AND tahun = :tahun ORDER BY id")
     Iterable<TppPerhitungan> findByBulanAndTahun(@NonNull Integer bulan, @NonNull Integer tahun);
     
     boolean existsByBulanAndTahun(@NonNull Integer bulan, @NonNull Integer tahun);
-    
-//    @Nullable
-//    Iterable<TppPerhitungan> findByKodeOpdAndBulanAndTahun(@Nullable String kodeOpd, @Nullable Integer bulan, @Nullable Integer tahun);
     
     @Modifying
     @Transactional

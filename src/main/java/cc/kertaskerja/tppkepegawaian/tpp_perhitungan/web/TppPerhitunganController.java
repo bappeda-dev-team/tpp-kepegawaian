@@ -29,6 +29,18 @@ public class TppPerhitunganController {
     public TppPerhitungan getById(@PathVariable("id") Long id) {
         return tppPerhitunganService.detailTppPerhitungan(id);
     }
+
+    /**
+     * Get tpp perhitungan by bulan and tahun
+     * @param bulan bulan
+     * @param tahun tahun
+     * @return Iterable of TppPerhitungan objects
+     * url: /tppPerhitungan/detail/{bulan}/{tahun}
+     */
+    @GetMapping("detail/{bulan}/{tahun}")
+    public Iterable<TppPerhitungan> getByBulanAndTahun(@PathVariable("bulan") Integer bulan, @PathVariable("tahun") Integer tahun) {
+        return tppPerhitunganService.listTppPerhitunganByBulanAndTahun(bulan, tahun);
+    }
     
     /**
      * Update tpp perhitungan by ID

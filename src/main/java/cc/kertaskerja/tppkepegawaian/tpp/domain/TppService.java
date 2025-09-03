@@ -38,6 +38,10 @@ public class TppService {
         return tppRepository.findByHasilPerhitungan(hasilPerhitungan);
     }
 
+    public Iterable<Tpp> listTppByBulanAndTahun(Integer bulan, Integer tahun) {
+        return tppRepository.findByBulanAndTahun(bulan, tahun);
+    }
+
     public Tpp detailTpp(Long id) {
         return tppRepository.findById(id)
                 .orElseThrow(() -> new TppNotFoundException(id));
