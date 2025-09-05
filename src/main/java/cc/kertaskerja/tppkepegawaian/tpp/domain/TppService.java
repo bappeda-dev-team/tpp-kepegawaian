@@ -52,6 +52,10 @@ public class TppService {
             throw new TppNotFoundException(id);
         }
 
+        if (tpp.nilaiInput() > tpp.maksimum()) {
+            throw new TppNilaiInputMelebihiMaksimumException();
+        }
+
         if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
             throw new OpdNotFoundException(tpp.kodeOpd());
         }
@@ -59,7 +63,7 @@ public class TppService {
         if (!pegawaiRepository.existsByNip(tpp.nip())) {
             throw new PegawaiNotFoundException(tpp.nip());
         }
-
+        
         if (!tppPerhitunganRepository.existsByHasilPerhitungan(tpp.hasilPerhitungan())) {
             throw new TppHasilPerhitunganNotFoundException(tpp.hasilPerhitungan());
         }
@@ -72,6 +76,10 @@ public class TppService {
     }
 
     public Tpp tambahTpp(Tpp tpp) {
+
+        if (tpp.nilaiInput() > tpp.maksimum()) {
+            throw new TppNilaiInputMelebihiMaksimumException();
+        }
 
         if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
             throw new OpdNotFoundException(tpp.kodeOpd());

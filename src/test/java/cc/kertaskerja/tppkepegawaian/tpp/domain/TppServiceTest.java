@@ -14,7 +14,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.domain.TppPerhitunganRepository;
 
@@ -46,7 +48,7 @@ public class TppServiceTest {
                 "PEMDA01",
                 "Keterangan",
                 500000.0f,
-                120000f,
+                900000.0f,
                 47.0f,
                 1,
                 2023,
@@ -72,7 +74,20 @@ public class TppServiceTest {
     }
 
     @Test
-    void testTambahTpp() {
+    void testListTppByBulanAndTahunWhenDataNotExists() {
+        int nonExistentBulan = 13;
+        int nonExistentTahun = 1999;
+        
+        when(tppRepository.findByBulanAndTahun(nonExistentBulan, nonExistentTahun))
+                .thenReturn(java.util.Collections.emptyList());
+
+        Iterable<Tpp> result = tppService.listTppByBulanAndTahun(nonExistentBulan, nonExistentTahun);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void testAddTpp() {
         when(opdRepository.existsByKodeOpd(tpp.kodeOpd())).thenReturn(true);
         when(pegawaiRepository.existsByNip(tpp.nip())).thenReturn(true);
         when(tppRepository.existsByNip(tpp.nip())).thenReturn(false);
@@ -86,7 +101,46 @@ public class TppServiceTest {
     }
 
     @Test
-    void testUbahTpp() {
+    void testAddTppOpdNotFound() {
+        when(opdRepository.existsByKodeOpd(tpp.kodeOpd())).thenReturn(false);
+
+        assertThrows(OpdNotFoundException.class, () -> {
+            tppService.tambahTpp(tpp);
+        });
+    }
+
+    @Test
+    void testAddTppPegawaiNotFound() {
+        when(opdRepository.existsByKodeOpd(tpp.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tpp.nip())).thenReturn(false);
+
+        assertThrows(PegawaiNotFoundException.class, () -> {
+            tppService.tambahTpp(tpp);
+        });
+    }
+
+    @Test
+    void testAddTppInputValueExceedsMaximum() {
+        Tpp tppNilaiMelebihi = Tpp.of(
+                JenisTpp.BEBAN_KERJA,
+                "OPD01",
+                "12345",
+                "PEMDA01",
+                "Keterangan",
+                600000.0f,
+                500000.0f,
+                47.0f,
+                1,
+                2023,
+                240000.0f);
+
+        assertThrows(TppNilaiInputMelebihiMaksimumException.class, () -> {
+            tppService.tambahTpp(tppNilaiMelebihi);
+        });
+    }
+
+    @Test
+    void testUpdateTpp() {
         Tpp tppToUpdate = new Tpp(1L, tpp.jenisTpp(), tpp.kodeOpd(), tpp.nip(), tpp.kodePemda(), tpp.keterangan(), tpp.nilaiInput(), tpp.maksimum(), tpp.hasilPerhitungan(), tpp.bulan(), tpp.tahun(), tpp.totalTpp(), null, null);
 
         when(tppRepository.existsById(1L)).thenReturn(true);
@@ -102,7 +156,54 @@ public class TppServiceTest {
     }
 
     @Test
-    void testHapusTpp() {
+    void testUpdateTppNotFound() {
+        Tpp tppToUpdate = new Tpp(1L, tpp.jenisTpp(), tpp.kodeOpd(), tpp.nip(), tpp.kodePemda(), tpp.keterangan(), tpp.nilaiInput(), tpp.maksimum(), tpp.hasilPerhitungan(), tpp.bulan(), tpp.tahun(), tpp.totalTpp(), null, null);
+
+        when(tppRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(TppNotFoundException.class, () -> {
+            tppService.ubahTpp(1L, tppToUpdate);
+        });
+    }
+
+    @Test
+    void testUpdateTppOpdNotFound() {
+        Tpp tppToUpdate = new Tpp(1L, tpp.jenisTpp(), tpp.kodeOpd(), tpp.nip(), tpp.kodePemda(), tpp.keterangan(), tpp.nilaiInput(), tpp.maksimum(), tpp.hasilPerhitungan(), tpp.bulan(), tpp.tahun(), tpp.totalTpp(), null, null);
+
+        when(tppRepository.existsById(1L)).thenReturn(true);
+        when(opdRepository.existsByKodeOpd(tppToUpdate.kodeOpd())).thenReturn(false);
+
+        assertThrows(OpdNotFoundException.class, () -> {
+            tppService.ubahTpp(1L, tppToUpdate);
+        });
+    }
+
+    @Test
+    void testUpdateTppPegawaiNotFound() {
+        Tpp tppToUpdate = new Tpp(1L, tpp.jenisTpp(), tpp.kodeOpd(), tpp.nip(), tpp.kodePemda(), tpp.keterangan(), tpp.nilaiInput(), tpp.maksimum(), tpp.hasilPerhitungan(), tpp.bulan(), tpp.tahun(), tpp.totalTpp(), null, null);
+
+        when(tppRepository.existsById(1L)).thenReturn(true);
+        when(opdRepository.existsByKodeOpd(tppToUpdate.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppToUpdate.nip())).thenReturn(false);
+
+        assertThrows(PegawaiNotFoundException.class, () -> {
+            tppService.ubahTpp(1L, tppToUpdate);
+        });
+    }
+
+    @Test
+    void testUpdateTppInputValueExceedsMaximum() {
+        Tpp tppToUpdate = new Tpp(1L, tpp.jenisTpp(), tpp.kodeOpd(), tpp.nip(), tpp.kodePemda(), tpp.keterangan(), 600000.0f, 500000.0f, tpp.hasilPerhitungan(), tpp.bulan(), tpp.tahun(), tpp.totalTpp(), null, null);
+
+        when(tppRepository.existsById(1L)).thenReturn(true);
+
+        assertThrows(TppNilaiInputMelebihiMaksimumException.class, () -> {
+            tppService.ubahTpp(1L, tppToUpdate);
+        });
+    }
+
+    @Test
+    void testDeleteTpp() {
         when(tppRepository.existsById(1L)).thenReturn(true);
         tppService.hapusTpp(1L);
         verify(tppRepository).deleteById(1L);

@@ -15,7 +15,7 @@ public class JabatanService {
         this.opdRepository = opdRepository;
     }
 	
-	public Iterable<Jabatan> listJabatanAktif(String kodeOpd) {
+	public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
         return jabatanRepository.findByKodeOpd(kodeOpd);
     }
 	

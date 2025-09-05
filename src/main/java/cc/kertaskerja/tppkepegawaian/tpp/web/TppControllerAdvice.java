@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import cc.kertaskerja.tppkepegawaian.tpp.domain.TppNilaiInputMelebihiMaksimumException;
 import cc.kertaskerja.tppkepegawaian.tpp.domain.TppNipSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp.domain.TppNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp.domain.TppSudahAdaException;
@@ -26,6 +27,12 @@ public class TppControllerAdvice {
     @ExceptionHandler(TppNipSudahAdaException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     String tppNipSudahAdaHandler(TppNipSudahAdaException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(TppNilaiInputMelebihiMaksimumException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    String tppNilaiInputMelebihiMaksimumHandler(TppNilaiInputMelebihiMaksimumException ex) {
         return ex.getMessage();
     }
 }

@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.tpp.web;
 
 import cc.kertaskerja.tppkepegawaian.tpp.domain.JenisTpp;
 import cc.kertaskerja.tppkepegawaian.tpp.domain.Tpp;
+import cc.kertaskerja.tppkepegawaian.tpp.domain.TppNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp.domain.TppService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,6 +19,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -93,6 +95,27 @@ public class TppControllerTest {
     }
 
     @Test
+    void whenGetTppWithNonExistentIdThenFails() throws Exception {
+        long nonExistentId = 999L;
+        given(tppService.detailTpp(nonExistentId)).willThrow(new TppNotFoundException(nonExistentId));
+
+        mockMvc.perform(get("/tpp/detail/" + nonExistentId))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenGetTppByNonExistentBulanAndTahunThenReturnEmptyList() throws Exception {
+        int nonExistentBulan = 13;
+        int nonExistentTahun = 1999;
+        given(tppService.listTppByBulanAndTahun(nonExistentBulan, nonExistentTahun)).willReturn(List.of());
+
+        mockMvc.perform(get("/tpp/detail/" + nonExistentBulan + "/" + nonExistentTahun))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
     void whenPostTppThenCreateTpp() throws Exception {
         Tpp tppToSave = Tpp.of(
                 tppRequest.jenisTpp(),
@@ -115,6 +138,28 @@ public class TppControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id", is(1)));
+    }
+
+    @Test
+    void whenPostTppWithNoNipThenFails() throws Exception {
+        TppRequest tppRequestWithNoNip = new TppRequest(
+                null,
+                JenisTpp.BEBAN_KERJA,
+                "OPPD-123",
+                null,
+                "pemda1",
+                "keterangan",
+                9000000.0f,
+                2000000.0f,
+                48.0f,
+                1,
+                2023,
+                null);
+
+        mockMvc.perform(post("/tpp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppRequestWithNoNip)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -150,8 +195,50 @@ public class TppControllerTest {
     }
 
     @Test
+    void whenPutTppWithNonExistentIdThenFails() throws Exception {
+        long nonExistentId = 999L;
+        given(tppService.detailTpp(nonExistentId)).willThrow(new TppNotFoundException(nonExistentId));
+
+        mockMvc.perform(put("/tpp/update/" + nonExistentId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenPutTppWithNoNipThenFails() throws Exception {
+        TppRequest tppRequestWithNoNip = new TppRequest(
+                tpp.id(),
+                JenisTpp.BEBAN_KERJA,
+                "OPPD-123",
+                null,
+                "pemda1",
+                "keterangan",
+                9000000.0f,
+                2000000.0f,
+                48.0f,
+                1,
+                2023,
+                null);
+
+        mockMvc.perform(put("/tpp/update/" + tpp.id())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppRequestWithNoNip)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void whenDeleteTppThenReturnNoContent() throws Exception {
         mockMvc.perform(delete("/tpp/delete/" + tpp.id()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void whenDeleteTppWithNonExistentIdThenFails() throws Exception {
+        long nonExistentId = 999L;
+        doThrow(new TppNotFoundException(nonExistentId)).when(tppService).hapusTpp(nonExistentId);
+
+        mockMvc.perform(delete("/tpp/delete/" + nonExistentId))
+                .andExpect(status().isNotFound());
     }
 }
