@@ -38,8 +38,12 @@ public class TppPerhitunganController {
      * url: /tppPerhitungan/detail/{bulan}/{tahun}
      */
     @GetMapping("detail/{bulan}/{tahun}")
-    public Iterable<TppPerhitungan> getByBulanAndTahun(@PathVariable("bulan") Integer bulan, @PathVariable("tahun") Integer tahun) {
-        return tppPerhitunganService.listTppPerhitunganByBulanAndTahun(bulan, tahun);
+    public ResponseEntity<Iterable<TppPerhitungan>> getByBulanAndTahun(@PathVariable("bulan") Integer bulan, @PathVariable("tahun") Integer tahun) {
+        Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByBulanAndTahun(bulan, tahun);
+        if (!tppPerhitungans.iterator().hasNext()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(tppPerhitungans);
     }
     
     /**

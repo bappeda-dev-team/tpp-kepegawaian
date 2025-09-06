@@ -16,6 +16,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -92,6 +93,13 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
+    void getByBulanAndTahun_whenNotExists_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.listTppPerhitunganByBulanAndTahun(1, 2024)).thenReturn(Collections.emptyList());
+        mockMvc.perform(get("/tppPerhitungan/detail/1/2024"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void putTpp_whenValid_shouldUpdateTppPerhitungan() throws Exception {
         when(tppPerhitunganService.detailTppPerhitungan(1L)).thenReturn(tppPerhitungan);
         when(tppPerhitunganService.ubahTppPerhitungan(eq(1L), any(TppPerhitungan.class))).thenReturn(tppPerhitungan);
@@ -101,6 +109,52 @@ public class TppPerhitunganControllerTest {
                         .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(1)));
+    }
+
+    @Test
+    void putTpp_whenIdNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.detailTppPerhitungan(99L)).thenThrow(new TppPerhitunganNotFoundException(99L));
+
+        mockMvc.perform(put("/tppPerhitungan/update/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void putTpp_whenKodeOpdNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.detailTppPerhitungan(1L)).thenReturn(tppPerhitungan);
+        when(tppPerhitunganService.ubahTppPerhitungan(eq(1L), any(TppPerhitungan.class)))
+                .thenThrow(new TppPerhitunganNotFoundException(1L));
+
+        mockMvc.perform(put("/tppPerhitungan/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void putTpp_whenNipNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.detailTppPerhitungan(1L)).thenReturn(tppPerhitungan);
+        when(tppPerhitunganService.ubahTppPerhitungan(eq(1L), any(TppPerhitungan.class)))
+                .thenThrow(new TppPerhitunganNotFoundException(1L));
+
+        mockMvc.perform(put("/tppPerhitungan/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void putTpp_whenBulanAndTahunNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.detailTppPerhitungan(1L)).thenReturn(tppPerhitungan);
+        when(tppPerhitunganService.ubahTppPerhitungan(eq(1L), any(TppPerhitungan.class)))
+                .thenThrow(new TppPerhitunganNotFoundException(1L));
+
+        mockMvc.perform(put("/tppPerhitungan/update/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -128,8 +182,40 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
+    void postTpp_whenKodeOpdNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.existsByBulanAndTahun(any(Integer.class), any(Integer.class))).thenReturn(false);
+        when(tppPerhitunganService.tambahTppPerhitungan(any(TppPerhitungan.class)))
+                .thenThrow(new TppPerhitunganNotFoundException(null));
+
+        mockMvc.perform(post("/tppPerhitungan")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void postTpp_whenNipNotFound_shouldReturnNotFound() throws Exception {
+        when(tppPerhitunganService.existsByBulanAndTahun(any(Integer.class), any(Integer.class))).thenReturn(false);
+        when(tppPerhitunganService.tambahTppPerhitungan(any(TppPerhitungan.class)))
+                .thenThrow(new TppPerhitunganNotFoundException(null));
+
+        mockMvc.perform(post("/tppPerhitungan")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(tppPerhitunganRequest)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
     void deleteTpp_whenExists_shouldDelete() throws Exception {
         mockMvc.perform(delete("/tppPerhitungan/delete/1"))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteTpp_whenIdNotFound_shouldReturnNotFound() throws Exception {
+        doThrow(new TppPerhitunganNotFoundException(99L)).when(tppPerhitunganService).hapusTppPerhitungan(99L);
+
+        mockMvc.perform(delete("/tppPerhitungan/delete/99"))
+                .andExpect(status().isNotFound());
     }
 }
