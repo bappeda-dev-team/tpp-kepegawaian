@@ -11,7 +11,6 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganRepository;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.TppTotalPersenResponse;
 
 @Service
 public class TppService {
@@ -37,23 +36,6 @@ public class TppService {
 
     public Iterable<Tpp> listTppByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
         return tppRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
-    }
-
-    public Iterable<TppTotalPersenResponse> listTppByNipBulanTahunWithPerhitungan(String nip, Integer bulan, Integer tahun) {
-        var tppList = tppRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
-        
-        return StreamSupport.stream(tppList.spliterator(), false)
-            .map(tpp -> {
-                var perhitunganList = tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
-                
-                // Calculate total persen from perhitungan
-                Float totalPersen = StreamSupport.stream(perhitunganList.spliterator(), false)
-                    .map(perhitungan -> perhitungan.nilaiPerhitungan())
-                    .reduce(0.0f, Float::sum);
-                
-                return new TppTotalPersenResponse(tpp, totalPersen);
-            })
-            .toList();
     }
 
     public Tpp detailTpp(Long id) {

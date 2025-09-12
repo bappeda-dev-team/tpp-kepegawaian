@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.TppPerhitunganResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
 import jakarta.validation.Valid;
@@ -34,20 +33,6 @@ public class TppController {
     @GetMapping("detail/{id}")
     public Tpp getById(@PathVariable("id") Long id) {
         return tppService.detailTpp(id);
-    }
-
-    /**
-     * Get tpp by NIP, bulan, and tahun
-     * @param nip tpp NIP
-     * @param bulan tpp bulan
-     * @param tahun tpp tahun
-     * @return Tpp object
-     * url: /tpp/detail/{nip}/{bulan}/{tahun}
-     */
-    @GetMapping("detail/{nip}/{bulan}/{tahun}")
-    public Iterable<TppTotalPersenResponse> getByNipAndBulanAndTahun(@PathVariable("nip") String nip,
-            @PathVariable("bulan") Integer bulan, @PathVariable("tahun") Integer tahun) {
-        return tppService.listTppByNipBulanTahunWithPerhitungan(nip, bulan, tahun);
     }
 
     /**
