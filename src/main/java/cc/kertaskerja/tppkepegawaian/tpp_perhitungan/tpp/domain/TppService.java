@@ -1,16 +1,18 @@
 
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
-import java.util.stream.StreamSupport;
-
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganNipBulanTahunNotFoundException;
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganRepository;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNipSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNotFoundException;
 
 @Service
 public class TppService {
@@ -47,22 +49,25 @@ public class TppService {
         if (!tppRepository.existsById(id)) {
             throw new TppNotFoundException(id);
         }
-        
-        // hardcode semua jenis tpp = 30
-//        if (tpp.totalTpp() > tpp.maksimum()) {
-//            throw new TppNilaiInputMelebihiMaksimumException();
-//        }
 
         if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
             throw new OpdNotFoundException(tpp.kodeOpd());
         }
-
-        if (!pegawaiRepository.existsByNip(tpp.nip())) {
-            throw new PegawaiNotFoundException(tpp.nip());
+        
+        if (!tppPerhitunganRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
+            throw new TppPerhitunganJenisTppNipBulanTahunNotFoundException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
         }
 
-        if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(tpp.nip(), tpp.bulan(), tpp.tahun())) {
-            throw new TppPerhitunganNipBulanTahunNotFoundException(tpp.nip(), tpp.bulan(), tpp.tahun());
+        if (tppPerhitunganRepository.findByJenisTppAndNipAndBulanAndTahun(
+                tpp.jenisTpp(), 
+                tpp.nip(), 
+                tpp.bulan(), 
+                tpp.tahun()).iterator().hasNext()) {
+            throw new TppPerhitunganJenisTppNipBulanTahunSudahAdaException(
+                tpp.jenisTpp(), 
+                tpp.nip(), 
+                tpp.bulan(), 
+                tpp.tahun());
         }
 
         return tppRepository.save(tpp);
@@ -74,17 +79,20 @@ public class TppService {
             throw new OpdNotFoundException(tpp.kodeOpd());
         }
 
-        if (!pegawaiRepository.existsByNip(tpp.nip())) {
-            throw new PegawaiNotFoundException(tpp.nip());
+        if (!tppPerhitunganRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
+            throw new TppPerhitunganJenisTppNipBulanTahunNotFoundException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
         }
 
-        if (tppRepository.existsByNip(tpp.nip())) {
-            throw new TppNipSudahAdaException(tpp.nip());
-        }
-
-        // Validasi nip, bulan, tahun harus ada di TppPerhitungan
-        if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(tpp.nip(), tpp.bulan(), tpp.tahun())) {
-            throw new TppPerhitunganNipBulanTahunNotFoundException(tpp.nip(), tpp.bulan(), tpp.tahun());
+        if (tppPerhitunganRepository.findByJenisTppAndNipAndBulanAndTahun(
+                tpp.jenisTpp(), 
+                tpp.nip(), 
+                tpp.bulan(), 
+                tpp.tahun()).iterator().hasNext()) {
+            throw new TppPerhitunganJenisTppNipBulanTahunSudahAdaException(
+                tpp.jenisTpp(), 
+                tpp.nip(), 
+                tpp.bulan(), 
+                tpp.tahun());
         }
 
         return tppRepository.save(tpp);

@@ -1,5 +1,5 @@
 
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request;
 
 import java.util.List;
 

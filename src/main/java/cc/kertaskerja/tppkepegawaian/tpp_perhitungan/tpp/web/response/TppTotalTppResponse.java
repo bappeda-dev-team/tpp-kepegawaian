@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response;
 
 public record TppTotalTppResponse(
     String jenisTpp,

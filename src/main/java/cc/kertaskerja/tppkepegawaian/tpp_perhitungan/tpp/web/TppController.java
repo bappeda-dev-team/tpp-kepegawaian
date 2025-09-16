@@ -11,6 +11,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request.TppRequest;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.TppTotalTppResponse;
 import jakarta.validation.Valid;
 
 @RestController
@@ -43,7 +45,7 @@ public class TppController {
      * url: /tpp/{id}
      */
     @PutMapping("update/{id}")
-    public Tpp put(@PathVariable("id") Long id, @Valid @RequestBody TppRequest request) {
+    public TppTotalTppResponse put(@PathVariable("id") Long id, @Valid @RequestBody TppRequest request) {
         // Ambil data tpp yang sudah dibuat
         Tpp existingTpp = tppService.detailTpp(id);
 
@@ -59,8 +61,40 @@ public class TppController {
                 existingTpp.createdDate(),
                 null
         );
+        
+        Tpp  updated = tppService.ubahTpp(id, tpp);
+        
+        // Ambil data perhitungan berdasarkan pada NIP, bulan, dan tahun dari request
+        var perhitunganList = tppPerhitunganService.listTppPerhitunganByJenisTppAndNipAndBulanAndTahun(
+                request.jenisTpp(),
+                request.nip(), 
+                request.bulan(), 
+                request.tahun());
+        
+        // Kalkulasi hasilPerhitungan (total persen) dari perhitungan
+        Float hasilPerhitungan = 0.0f;
+        for (var perhitungan : perhitunganList) {
+            if (perhitungan.nilaiPerhitungan() != null) {
+                hasilPerhitungan += perhitungan.nilaiPerhitungan();
+            }
+        }
+        
+        // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
+        Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
 
-        return tppService.ubahTpp(id, tpp);
+        // Buat respons dengan nilai terhitung (bulan dan tahun saja dalam respons)
+        TppTotalTppResponse response = new TppTotalTppResponse(
+                updated.jenisTpp().name(),
+                updated.kodeOpd(),
+                updated.nip(),
+                updated.kodePemda(),
+                updated.maksimumTpp(),
+                request.bulan(),
+                request.tahun(),
+                hasilPerhitungan,
+                totaltpp);
+
+        return response;
     }
     
     /**
@@ -82,13 +116,14 @@ public class TppController {
                 request.tahun());
         Tpp saved = tppService.tambahTpp(tpp);
 
-        // Get perhitungan data based on NIP, bulan, and tahun from request
-        var perhitunganList = tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(
+        // Ambil data perhitungan berdasarkan pada NIP, bulan, dan tahun dari request
+        var perhitunganList = tppPerhitunganService.listTppPerhitunganByJenisTppAndNipAndBulanAndTahun(
+                request.jenisTpp(),
                 request.nip(),
                 request.bulan(),
                 request.tahun());
 
-        // Calculate hasilPerhitungan (total persen) from perhitungan
+        // Kalkulasi hasilPerhitungan (total persen) dari perhitungan
         Float hasilPerhitungan = 0.0f;
         for (var perhitungan : perhitunganList) {
             if (perhitungan.nilaiPerhitungan() != null) {
@@ -96,10 +131,10 @@ public class TppController {
             }
         }
 
-        // Calculate totaltpp = maksimumTpp * (hasilPerhitungan / 100)
+        // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
         Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
 
-        // Create response with calculated values (bulan and tahun only in response)
+        // Buat respons dengan nilai terhitung (bulan dan tahun saja dalam respons)
         TppTotalTppResponse response = new TppTotalTppResponse(
                 saved.jenisTpp().name(),
                 saved.kodeOpd(),

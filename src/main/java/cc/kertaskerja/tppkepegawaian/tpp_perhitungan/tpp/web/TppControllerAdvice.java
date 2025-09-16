@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppNilaiInputMelebihiMaksimumException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppNipSudahAdaException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppNotFoundException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppSudahAdaException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNilaiInputMelebihiMaksimumException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNipSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppSudahAdaException;
 
 @RestControllerAdvice
 public class TppControllerAdvice {
@@ -19,9 +19,9 @@ public class TppControllerAdvice {
         return ex.getMessage();
     }
 
-    @ExceptionHandler(TppPerhitunganNipBulanTahunNotFoundException.class)
+    @ExceptionHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganNipBulanTahunNotFoundException ex) {
+    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException ex) {
         return ex.getMessage();
     }
     

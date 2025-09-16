@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-public interface PegawaiRepository extends CrudRepository<Pegawai, String> {
+public interface PegawaiRepository extends CrudRepository<Pegawai, Long> {
     Optional<Pegawai> findByNip(String nip);
     boolean existsByNip(String nip);
     

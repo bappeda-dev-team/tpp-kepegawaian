@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response;
 
 import java.util.List;
 

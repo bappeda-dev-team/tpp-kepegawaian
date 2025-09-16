@@ -4,28 +4,26 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunSudahAdaException;
 
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class TppPerhitunganService {
     private final TppPerhitunganRepository tppPerhitunganRepository;
     private final PegawaiRepository pegawaiRepository;
     private final OpdRepository opdRepository;
-    private static final Float maksimum = 30.0f;
     
-    public TppPerhitunganService(TppPerhitunganRepository tppPerhitunganRepository, 
-                                PegawaiRepository pegawaiRepository, 
+    public TppPerhitunganService(TppPerhitunganRepository tppPerhitunganRepository, PegawaiRepository pegawaiRepository,
                                 OpdRepository opdRepository) {
         this.tppPerhitunganRepository = tppPerhitunganRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.opdRepository = opdRepository;
     }
 
-    public Iterable<TppPerhitungan> listTppPerhitunganByNipAndBulanAndTahun(String nip, Integer bulan, Integer tahun) {
-        return tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
+    public Iterable<TppPerhitungan> listTppPerhitunganByJenisTppAndNipAndBulanAndTahun(JenisTpp jenisTpp, String nip, Integer bulan, Integer tahun) {
+        return tppPerhitunganRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun);
     }
     
     public Iterable<TppPerhitungan> listTppPerhitunganByKodeOpd(String kodeOpd) {
@@ -36,22 +34,18 @@ public class TppPerhitunganService {
         return tppPerhitunganRepository.findByNip(nip);
     }
     
-    public TppPerhitungan detailTppPerhitungan(Long id) {
-        return tppPerhitunganRepository.findById(id)
-                .orElseThrow(() -> new TppPerhitunganNotFoundException(id));
+    public Iterable<TppPerhitungan> getByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
+        return tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
     
-    public TppPerhitungan ubahTppPerhitungan(Long id, TppPerhitungan tppPerhitungan) {
-        if (!tppPerhitunganRepository.existsById(id)) {
-            throw new TppPerhitunganNotFoundException(id);
+    public TppPerhitungan ubahTppPerhitungan(TppPerhitungan tppPerhitungan) {
+
+        if (!pegawaiRepository.existsByNip(tppPerhitungan.nip())) {
+            throw new PegawaiNotFoundException(tppPerhitungan.nip());
         }
         
         if (!opdRepository.existsByKodeOpd(tppPerhitungan.kodeOpd())) {
             throw new OpdNotFoundException(tppPerhitungan.kodeOpd());
-        }
-
-        if (!pegawaiRepository.existsByNip(tppPerhitungan.nip())) {
-            throw new PegawaiNotFoundException(tppPerhitungan.nip());
         }
         
         return tppPerhitunganRepository.save(tppPerhitungan);
@@ -62,9 +56,21 @@ public class TppPerhitunganService {
         if (!opdRepository.existsByKodeOpd(tppPerhitungan.kodeOpd())) {
             throw new OpdNotFoundException(tppPerhitungan.kodeOpd());
         }
-
+        
         if (!pegawaiRepository.existsByNip(tppPerhitungan.nip())) {
             throw new PegawaiNotFoundException(tppPerhitungan.nip());
+        }
+
+        if (tppPerhitunganRepository.findByJenisTppAndNipAndBulanAndTahun(
+                tppPerhitungan.jenisTpp(), 
+                tppPerhitungan.nip(), 
+                tppPerhitungan.bulan(), 
+                tppPerhitungan.tahun()).iterator().hasNext()) {
+            throw new TppPerhitunganJenisTppNipBulanTahunSudahAdaException(
+                tppPerhitungan.jenisTpp(), 
+                tppPerhitungan.nip(), 
+                tppPerhitungan.bulan(), 
+                tppPerhitungan.tahun());
         }
         
         return tppPerhitunganRepository.save(tppPerhitungan);
@@ -76,5 +82,9 @@ public class TppPerhitunganService {
         }
         
         tppPerhitunganRepository.deleteById(id);
+    }
+    
+    public void hapusTppPerhitunganByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
+        tppPerhitunganRepository.deleteByNipAndBulanAndTahun(nip, bulan, tahun);
     }
 }

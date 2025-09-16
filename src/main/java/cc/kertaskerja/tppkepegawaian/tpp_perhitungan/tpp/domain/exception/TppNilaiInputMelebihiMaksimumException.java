@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception;
 
 public class TppNilaiInputMelebihiMaksimumException extends RuntimeException {
     public TppNilaiInputMelebihiMaksimumException() {

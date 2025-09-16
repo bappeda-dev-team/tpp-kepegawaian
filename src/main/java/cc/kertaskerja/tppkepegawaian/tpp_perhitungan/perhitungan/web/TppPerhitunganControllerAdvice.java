@@ -6,10 +6,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganNotFoundException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganSudahAdaException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppHasilPerhitunganNotFoundException;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunSudahAdaException;
 
 @RestControllerAdvice
 public class TppPerhitunganControllerAdvice {
@@ -19,16 +18,16 @@ public class TppPerhitunganControllerAdvice {
         return ex.getMessage();
     }
 
-    @ExceptionHandler(TppPerhitunganSudahAdaException.class)
+    @ExceptionHandler(TppPerhitunganJenisTppNipBulanTahunSudahAdaException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String tppPerhitunganSudahAdaHandler(TppPerhitunganSudahAdaException ex) {
+    String tppPerhitunganSudahAdaHandler(TppPerhitunganJenisTppNipBulanTahunSudahAdaException ex) {
         return ex.getMessage();
     }
 
 
-    @ExceptionHandler(TppPerhitunganNipBulanTahunNotFoundException.class)
+    @ExceptionHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganNipBulanTahunNotFoundException ex) {
+    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException ex) {
         return ex.getMessage();
     }
 }
