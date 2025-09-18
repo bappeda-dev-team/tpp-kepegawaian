@@ -8,7 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.micrometer.common.lang.NonNull;
-import io.micrometer.common.lang.Nullable;
 
 public interface TppPerhitunganRepository extends CrudRepository<TppPerhitungan, Long> {
     @NonNull
@@ -16,23 +15,17 @@ public interface TppPerhitunganRepository extends CrudRepository<TppPerhitungan,
     boolean existsById(@NonNull Long id);
 
     @NonNull
-    Iterable<TppPerhitungan> findByJenisTppAndNipAndBulanAndTahun(@NonNull JenisTpp jenisTpp, String nip, @NonNull Integer bulan, @NonNull Integer tahun);
-    boolean existsByJenisTppAndNipAndBulanAndTahun(@NonNull JenisTpp jenisTpp, @NonNull String nip, @NonNull Integer bulan, @NonNull Integer tahun);
-
-    @NonNull
     Iterable<TppPerhitungan> findByNip(@NonNull String nip);
+    
+    @NonNull
+    Iterable<TppPerhitungan> findByKodeOpd(@NonNull String kodeOpd);
 
     @NonNull
     Iterable<TppPerhitungan> findByNipAndBulanAndTahun(@NonNull String nip, @NonNull Integer bulan, @NonNull Integer tahun);
+    boolean existsByNipAndBulanAndTahun(@NonNull String nip, @NonNull Integer bulan, @NonNull Integer tahun);
 
-    @Nullable
-    Iterable<TppPerhitungan> findByKodeOpd(@Nullable String kodeOpd);
-    boolean existsByNip(@NonNull String nip);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM tpp_perhitungan WHERE id = :id")
-    void deleteById(@NonNull Long id);
+    @NonNull
+    Iterable<TppPerhitungan> findByKodeOpdAndBulanAndTahun(@NonNull String kodeOpd, @NonNull Integer bulan, @NonNull Integer tahun);
 
     @Modifying
     @Transactional

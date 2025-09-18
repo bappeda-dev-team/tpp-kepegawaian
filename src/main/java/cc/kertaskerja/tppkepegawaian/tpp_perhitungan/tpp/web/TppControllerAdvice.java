@@ -5,7 +5,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganJenisTppNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNilaiInputMelebihiMaksimumException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNipSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppNotFoundException;
@@ -19,9 +20,9 @@ public class TppControllerAdvice {
         return ex.getMessage();
     }
 
-    @ExceptionHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException.class)
+    @ExceptionHandler(TppPerhitunganNipBulanTahunNotFoundException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganJenisTppNipBulanTahunNotFoundException ex) {
+    String tppPerhitunganNipBulanTahunNotFoundHandler(TppPerhitunganNipBulanTahunNotFoundException ex) {
         return ex.getMessage();
     }
     
@@ -40,6 +41,12 @@ public class TppControllerAdvice {
     @ExceptionHandler(TppNilaiInputMelebihiMaksimumException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     String tppNilaiInputMelebihiMaksimumHandler(TppNilaiInputMelebihiMaksimumException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(TppJenisTppNipBulanTahunSudahAdaException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    String TppJenisTppNipBulanTahunSudahHandler(TppJenisTppNipBulanTahunSudahAdaException ex) {
         return ex.getMessage();
     }
 }

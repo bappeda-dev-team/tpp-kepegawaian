@@ -1,7 +1,7 @@
 
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.JenisTpp;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;

@@ -1,18 +1,29 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web;
 
-import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.PerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.TppPerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.PerhitunganResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.TppPerhitunganResponse;
-
-import java.util.List;
-import java.util.stream.StreamSupport;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("tppPerhitungan")
@@ -22,7 +33,133 @@ public class TppPerhitunganController {
     public TppPerhitunganController(TppPerhitunganService tppPerhitunganService) {
         this.tppPerhitunganService = tppPerhitunganService;
     }
-    
+
+    /**
+     * Get tpp perhitungan by nip, bulan, and tahun
+     *
+     * @param nip NIP pegawai
+     * @param bulan bulan perhitungan
+     * @param tahun tahun perhitungan
+     * @return list of TppPerhitunganResponse objects url:
+     * /tppPerhitungan/rekapTppNip/{nip}/{bulan}/{tahun}
+     */
+    @GetMapping("detail/nip/{nip}/{bulan}/{tahun}")
+    public ResponseEntity<?> getByNipAndBulanAndTahun(
+            @PathVariable("nip") String nip,
+            @PathVariable("bulan") Integer bulan,
+            @PathVariable("tahun") Integer tahun) {
+
+        Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByNipBulanTahun(nip, bulan, tahun);
+
+        // Group berdasarkan nip, bulan, tahun
+        var groupedData = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                .collect(Collectors.groupingBy(
+                        tpp -> tpp.nip() + "|" + tpp.bulan() + "|" + tpp.tahun(),
+                        Collectors.toList()
+                ));
+
+        if (groupedData.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Data TPP perhitungan tidak ditemukan untuk parameter yang diberikan");
+        }
+
+        // Konversi menjadi response object
+        var responses = groupedData.values().stream()
+                .map(group -> {
+                    TppPerhitungan first = group.get(0);
+                    var perhitungans = group.stream()
+                            .map(tpp -> new PerhitunganResponse(
+                            tpp.namaPerhitungan(),
+                            tpp.maksimum(),
+                            tpp.nilaiPerhitungan()
+                    ))
+                            .toList();
+
+                    var totalPersen = (float) perhitungans.stream()
+                            .mapToDouble(PerhitunganResponse::nilaiPerhitungan)
+                            .sum();
+
+                    return new TppPerhitunganResponse(
+                            first.jenisTpp().name(),
+                            first.kodeOpd(),
+                            first.nip(),
+                            first.nama(),
+                            null,
+                            first.maksimum(),
+                            first.bulan(),
+                            first.tahun(),
+                            perhitungans,
+                            totalPersen
+                    );
+                })
+                .toList();
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * Get tpp perhitungan by kode opd, bulan, and tahun
+     * @param kodeOpd Kode OPD
+     * @param bulan bulan perhitungan
+     * @param tahun tahun perhitungan
+     * @return list of TppPerhitunganResponse objects
+     * url: /tppPerhitungan/{kodeOpd}/{bulan}/{tahun}
+     */
+    @GetMapping("detail/opd/{kodeOpd}/{bulan}/{tahun}")
+    public ResponseEntity<?> getByKodeOpdBulanTahun(
+            @PathVariable("kodeOpd") String kodeOpd,
+            @PathVariable("bulan") Integer bulan,
+            @PathVariable("tahun") Integer tahun) {
+
+        Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+
+        // Konversi list jika kosong
+        // List<TppPerhitungan> tppList = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+        //         .collect(Collectors.toList());
+
+        var groupedData = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                .collect(Collectors.groupingBy(
+                        tpp -> tpp.kodeOpd() + "|" + tpp.bulan() + "|" + tpp.tahun(),
+                        Collectors.toList()
+                ));
+
+        if (groupedData.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Data TPP perhitungan tidak ditemukan untuk parameter yang diberikan");
+        }
+
+        // Konversi menjadi response object
+        var responses = groupedData.values().stream()
+                .map(group -> {
+                    TppPerhitungan first = group.get(0);
+                    var perhitungans = group.stream()
+                            .map(tpp -> new PerhitunganResponse(
+                            tpp.namaPerhitungan(),
+                            tpp.maksimum(),
+                            tpp.nilaiPerhitungan()
+                    ))
+                            .toList();
+
+                    var totalPersen = (float) perhitungans.stream()
+                            .mapToDouble(PerhitunganResponse::nilaiPerhitungan)
+                            .sum();
+
+                    return new TppPerhitunganResponse(
+                            first.jenisTpp().name(),
+                            first.kodeOpd(),
+                            first.nip(),
+                            first.nama(),
+                            null,
+                            first.maksimum(),
+                            first.bulan(),
+                            first.tahun(),
+                            perhitungans,
+                            totalPersen
+                    );
+                })
+                .toList();
+        return ResponseEntity.ok(responses);
+    }
+
     /**
      * Update tpp perhitungan by NIP, bulan, and tahun
      * @param nip NIP pegawai
@@ -58,8 +195,13 @@ public class TppPerhitunganController {
 
             // Ambil data nip, bulan, dan tahun yang sudah ada untuk proses update
             List<TppPerhitungan> existingRecords = StreamSupport.stream(
-                    tppPerhitunganService.getByNipBulanTahun(nip, bulan, tahun).spliterator(), false)
+                    tppPerhitunganService.listTppPerhitunganByNipBulanTahun(nip, bulan, tahun).spliterator(), false)
                     .toList();
+
+            if (existingRecords.isEmpty()) {
+                // Jika tidak ada record yang sama untuk nip, bulan, tahun, maka ini adalah operasi create, bukan update.
+                throw new TppPerhitunganNipBulanTahunSudahAdaException(nip, bulan, tahun);
+            }
             
             var perhitungans = request.perhitungans().stream()
                     .map(p -> {
@@ -87,7 +229,8 @@ public class TppPerhitunganController {
                             );
                             return tppPerhitunganService.ubahTppPerhitungan(updatedRecord);
                         } else {
-                            // Buat data baru jika data yang diubah tidak ada
+                            // Buat data baru jika data yang diubah tidak ada, tetapi pastikan ini masih dalam konteks update
+                            // (yaitu, setidaknya satu record untuk nip/bulan/tahun sudah ada)
                             TppPerhitungan newRecord = TppPerhitungan.of(
                                     request.jenisTpp(),
                                     request.kodeOpd(),
@@ -99,6 +242,7 @@ public class TppPerhitunganController {
                                     p.namaPerhitungan(),
                                     p.nilaiPerhitungan()
                             );
+                            // Tambahkan item baru ke set yang sudah ada.
                             return tppPerhitunganService.tambahTppPerhitungan(newRecord);
                         }
                     })
@@ -154,6 +298,12 @@ public class TppPerhitunganController {
     @PostMapping
     public ResponseEntity<?> post(@Valid @RequestBody TppPerhitunganRequest request) {
         if (request.perhitungans() != null && !request.perhitungans().isEmpty()) {
+            // Cek nip, bulan, tahun sudah ada
+            if (tppPerhitunganService.listTppPerhitunganByNipBulanTahun(request.nip(), request.bulan(), request.tahun()).iterator().hasNext()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Tpp Perhitungan dengan nip " + request.nip() + " bulan " + request.bulan() + " tahun " + request.tahun() + " sudah ada.");
+            }
+
             // Ambil data perhitungans dari request
             var totalNilaiMaksimum = request.perhitungans().stream()
                 .mapToDouble(PerhitunganRequest::maksimum)
@@ -219,13 +369,18 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Delete tpp perhitungan by ID
-     * @param id tpp perhitungan ID
-     * url: /tppPerhitungan/{id}
+     * Delete tpp perhitungan by NIP, bulan, and tahun
+     * @param nip NIP pegawai
+     * @param bulan bulan perhitungan
+     * @param tahun tahun perhitungan
+     * url: /tppPerhitungan/delete/{nip}/{bulan}/{tahun}
      */
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("delete/{nip}/{bulan}/{tahun}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
-        tppPerhitunganService.hapusTppPerhitungan(id);
+    public void delete(
+            @PathVariable("nip") String nip,
+            @PathVariable("bulan") Integer bulan,
+            @PathVariable("tahun") Integer tahun) {
+        tppPerhitunganService.hapusTppPerhitunganByNipBulanTahun(nip, bulan, tahun);
     }
 }
