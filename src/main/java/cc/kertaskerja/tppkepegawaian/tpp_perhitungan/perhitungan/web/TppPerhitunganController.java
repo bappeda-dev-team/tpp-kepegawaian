@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.PerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.TppPerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.PerhitunganResponse;
@@ -49,51 +50,44 @@ public class TppPerhitunganController {
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
 
-        Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByNipBulanTahun(nip, bulan, tahun);
+        try {
+            TppPerhitungan tppPerhitungan = tppPerhitunganService.detailTppPerhitungan(nip, bulan, tahun);
 
-        // Group berdasarkan nip, bulan, tahun
-        var groupedData = StreamSupport.stream(tppPerhitungans.spliterator(), false)
-                .collect(Collectors.groupingBy(
-                        tpp -> tpp.nip() + "|" + tpp.bulan() + "|" + tpp.tahun(),
-                        Collectors.toList()
-                ));
+            // Ambil semua data untuk nip, bulan, tahun yang sama
+            Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByNipBulanTahun(nip, bulan, tahun);
 
-        if (groupedData.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Data TPP perhitungan tidak ditemukan untuk parameter yang diberikan");
-        }
-
-        // Konversi menjadi response object
-        var responses = groupedData.values().stream()
-                .map(group -> {
-                    TppPerhitungan first = group.get(0);
-                    var perhitungans = group.stream()
-                            .map(tpp -> new PerhitunganResponse(
+            // Konversi menjadi response object
+            var perhitungans = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                    .map(tpp -> new PerhitunganResponse(
                             tpp.namaPerhitungan(),
                             tpp.maksimum(),
                             tpp.nilaiPerhitungan()
                     ))
-                            .toList();
+                    .toList();
 
-                    var totalPersen = (float) perhitungans.stream()
-                            .mapToDouble(PerhitunganResponse::nilaiPerhitungan)
-                            .sum();
+            var totalPersen = (float) perhitungans.stream()
+                    .mapToDouble(PerhitunganResponse::nilaiPerhitungan)
+                    .sum();
 
-                    return new TppPerhitunganResponse(
-                            first.jenisTpp().name(),
-                            first.kodeOpd(),
-                            first.nip(),
-                            first.nama(),
-                            null,
-                            first.maksimum(),
-                            first.bulan(),
-                            first.tahun(),
-                            perhitungans,
-                            totalPersen
-                    );
-                })
-                .toList();
-        return ResponseEntity.ok(responses);
+            var response = new TppPerhitunganResponse(
+                    tppPerhitungan.jenisTpp().name(),
+                    tppPerhitungan.kodeOpd(),
+                    tppPerhitungan.nip(),
+                    tppPerhitungan.nama(),
+                    null,
+                    tppPerhitungan.maksimum(),
+                    tppPerhitungan.bulan(),
+                    tppPerhitungan.tahun(),
+                    perhitungans,
+                    totalPersen
+            );
+
+            return ResponseEntity.ok(response);
+
+        } catch (TppPerhitunganNipBulanTahunNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Data TPP perhitungan tidak ditemukan untuk parameter yang diberikan");
+        }
     }
 
     /**
@@ -110,33 +104,36 @@ public class TppPerhitunganController {
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
 
+        // Ambil semua data untuk kode opd, bulan, tahun yang sama
         Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
 
-        // Konversi list jika kosong
-        // List<TppPerhitungan> tppList = StreamSupport.stream(tppPerhitungans.spliterator(), false)
-        //         .collect(Collectors.toList());
-
-        var groupedData = StreamSupport.stream(tppPerhitungans.spliterator(), false)
-                .collect(Collectors.groupingBy(
-                        tpp -> tpp.kodeOpd() + "|" + tpp.bulan() + "|" + tpp.tahun(),
-                        Collectors.toList()
-                ));
-
-        if (groupedData.isEmpty()) {
+        // Cek apakah data ada
+        if (!tppPerhitungans.iterator().hasNext()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Data TPP perhitungan tidak ditemukan untuk parameter yang diberikan");
         }
 
+        // Ambil record pertama sebagai referensi
+        TppPerhitungan firstRecord = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                .findFirst()
+                .orElseThrow();
+
         // Konversi menjadi response object
-        var responses = groupedData.values().stream()
+        var responses = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                .collect(Collectors.groupingBy(
+                        tpp -> tpp.nip(),
+                        Collectors.toList()
+                ))
+                .values()
+                .stream()
                 .map(group -> {
                     TppPerhitungan first = group.get(0);
                     var perhitungans = group.stream()
                             .map(tpp -> new PerhitunganResponse(
-                            tpp.namaPerhitungan(),
-                            tpp.maksimum(),
-                            tpp.nilaiPerhitungan()
-                    ))
+                                    tpp.namaPerhitungan(),
+                                    tpp.maksimum(),
+                                    tpp.nilaiPerhitungan()
+                            ))
                             .toList();
 
                     var totalPersen = (float) perhitungans.stream()
@@ -157,6 +154,7 @@ public class TppPerhitunganController {
                     );
                 })
                 .toList();
+
         return ResponseEntity.ok(responses);
     }
 

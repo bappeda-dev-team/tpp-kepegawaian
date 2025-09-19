@@ -4,7 +4,9 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNotFoundException;
+import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,13 @@ public class TppPerhitunganService {
 
     public Iterable<TppPerhitungan> listTppPerhitunganByKodeOpdAndBulanAndTahun(String kodeOpd, Integer bulan, Integer tahun) {
         return tppPerhitunganRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+    }
+    
+    public TppPerhitungan detailTppPerhitungan(String nip, Integer bulan, Integer tahun) {
+        Iterable<TppPerhitungan> result = tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
+        return StreamSupport.stream(result.spliterator(), false)
+                .findFirst()
+                .orElseThrow(() -> new TppPerhitunganNipBulanTahunNotFoundException(nip, bulan, tahun));
     }
 
     public TppPerhitungan ubahTppPerhitungan(TppPerhitungan tppPerhitungan) {
