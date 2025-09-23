@@ -28,6 +28,7 @@ public interface TppRepository extends CrudRepository<Tpp, Long> {
     
     @NonNull
     Iterable<Tpp> findByKodeOpdAndBulanAndTahun(@NonNull String kodeOpd, @NonNull Integer bulan, @NonNull Integer tahun);
+    boolean existsByJenisTppAndKodeOpdAndBulanAndTahun(@NonNull JenisTpp jenisTpp, @NonNull String kodeOpd, @NonNull Integer bulan, @NonNull Integer tahun);
     
     @NonNull
     Optional<Tpp> findByJenisTppAndNipAndBulanAndTahun(@NonNull JenisTpp jenisTpp, @NonNull String nip, @NonNull Integer bulan, @NonNull Integer tahun);

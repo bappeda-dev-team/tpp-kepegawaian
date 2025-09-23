@@ -5,9 +5,15 @@ import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganRepository;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganKodeOpdBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganKodeOpdBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppKodeOpdBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppKodeOpdBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunSudahAdaException;
 
@@ -26,19 +32,40 @@ public class TppService {
     }
     
     public Iterable<Tpp> listTppByKodeOpd(String kodeOpd) {
+        if (!opdRepository.existsByKodeOpd(kodeOpd)) {
+            throw new OpdNotFoundException(kodeOpd);
+        }
+        
         return tppRepository.findByKodeOpd(kodeOpd);
     }
 
     public Iterable<Tpp> listTppByNip(String nip) {
+    	if (!pegawaiRepository.existsByNip(nip)) {
+            throw new PegawaiNotFoundException(nip);
+        }
+    	
         return tppRepository.findByNip(nip);
     }
 
     public Iterable<Tpp> listTppByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
+    	if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(nip, bulan, tahun)) {
+            throw new TppPerhitunganNipBulanTahunNotFoundException(nip, bulan, tahun);
+        }
+    	
         return tppRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
     
     public Iterable<Tpp> listTppByOpdBulanTahun(String kodeOpd, Integer bulan, Integer tahun) {
-        return tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+    	if (!tppPerhitunganRepository.existsByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)) {
+            throw new TppPerhitunganKodeOpdBulanTahunNotFoundException(kodeOpd, bulan, tahun);
+        }
+
+        Iterable<Tpp> tppList = tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+        if (!tppList.iterator().hasNext()) {
+            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(JenisTpp.BEBAN_KERJA, kodeOpd, bulan, tahun);
+        }
+
+        return tppList;
     }
 
     public Tpp detailTpp(JenisTpp jenisTpp, String nip, Integer bulan, Integer tahun) {
@@ -47,12 +74,21 @@ public class TppService {
     }
     
     public Tpp ubahTpp(Tpp tpp) {
-        if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
-            throw new OpdNotFoundException(tpp.kodeOpd());
-        }
-        
+
         if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppPerhitunganNipBulanTahunNotFoundException(tpp.nip(), tpp.bulan(), tpp.tahun());
+        }
+
+        if (!tppPerhitunganRepository.existsByKodeOpdAndBulanAndTahun(tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
+            throw new TppPerhitunganKodeOpdBulanTahunNotFoundException(tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
+        }
+
+        if (!tppRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
+            throw new TppJenisTppNipBulanTahunNotFoundException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
+        }
+
+        if (!tppRepository.existsByJenisTppAndKodeOpdAndBulanAndTahun(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
+            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
         }
 
         return tppRepository.save(tpp);
@@ -60,16 +96,20 @@ public class TppService {
 
     public Tpp tambahTpp(Tpp tpp) {
 
-        if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
-            throw new OpdNotFoundException(tpp.kodeOpd());
-        }
-
         if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppPerhitunganNipBulanTahunNotFoundException(tpp.nip(), tpp.bulan(), tpp.tahun());
         }
 
+        if (!tppPerhitunganRepository.existsByKodeOpdAndBulanAndTahun(tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
+            throw new TppPerhitunganKodeOpdBulanTahunNotFoundException(tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
+        }
+
         if (tppRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppJenisTppNipBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
+        }
+
+        if (tppRepository.existsByJenisTppAndKodeOpdAndBulanAndTahun(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
+            throw new TppJenisTppKodeOpdBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
         }
 
         return tppRepository.save(tpp);

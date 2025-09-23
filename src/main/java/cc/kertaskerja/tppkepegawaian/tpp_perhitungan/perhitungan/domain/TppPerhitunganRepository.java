@@ -28,7 +28,8 @@ public interface TppPerhitunganRepository extends CrudRepository<TppPerhitungan,
 
     @NonNull
     Iterable<TppPerhitungan> findByKodeOpdAndBulanAndTahun(@NonNull String kodeOpd, @NonNull Integer bulan, @NonNull Integer tahun);
-
+    boolean existsByKodeOpdAndBulanAndTahun(@NonNull String kodeOpd, @NonNull Integer bulan, @NonNull Integer tahun);
+    
     @Modifying
     @Transactional
     @Query("DELETE FROM tpp_perhitungan WHERE nip = :nip AND bulan = :bulan AND tahun = :tahun")
