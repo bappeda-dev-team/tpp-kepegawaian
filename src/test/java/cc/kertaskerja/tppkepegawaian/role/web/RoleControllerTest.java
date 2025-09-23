@@ -68,7 +68,7 @@ public class RoleControllerTest {
     void detailById_WhenRoleExists_ShouldReturnRole() throws Exception {
         when(roleService.detailRole(1L)).thenReturn(testRole);
         
-        mockMvc.perform(get("/role/1"))
+        mockMvc.perform(get("/role/detail/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
@@ -82,7 +82,7 @@ public class RoleControllerTest {
     void detailById_WhenRoleNotExists_ShouldReturnNotFound() throws Exception {
         when(roleService.detailRole(3L)).thenThrow(new RoleNotFoundException(3L));
         
-        mockMvc.perform(get("/role/3"))
+        mockMvc.perform(get("/role/detail/3"))
                 .andExpect(status().isNotFound());
     }
     
@@ -181,7 +181,7 @@ public class RoleControllerTest {
         when(roleService.detailRole(1L)).thenReturn(existingRole);
         when(roleService.ubahRole(eq(1L), any(Role.class))).thenReturn(updateRole);
         
-        mockMvc.perform(put("/role/{id}", "1")
+        mockMvc.perform(put("/role/update/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -206,7 +206,7 @@ public class RoleControllerTest {
         
         when(roleService.detailRole(3L)).thenThrow(new RoleNotFoundException(1L));
         
-        mockMvc.perform(put("/role/{id}", "3")
+        mockMvc.perform(put("/role/update/{id}", "3")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -229,7 +229,7 @@ public class RoleControllerTest {
         when(roleService.ubahRole(eq(1L), any(Role.class)))
                 .thenThrow(new PegawaiNotFoundException("201001012010011001"));
         
-        mockMvc.perform(put("/role/{id}", "1")
+        mockMvc.perform(put("/role/update/{id}", "1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
@@ -242,7 +242,7 @@ public class RoleControllerTest {
     void hapusRole_WhenRoleExists_ShouldDeleteRole() throws Exception {
         doNothing().when(roleService).hapusRole(1L);
         
-        mockMvc.perform(delete("/role/{id}", "1"))
+        mockMvc.perform(delete("/role/delete/{id}", "1"))
                 .andExpect(status().isNoContent());
         
         verify(roleService).hapusRole(1L);
@@ -252,7 +252,7 @@ public class RoleControllerTest {
     void hapusRole_WhenRoeNotExists_ShouldReturn404() throws Exception {
         doThrow(new RoleNotFoundException(3L)).when(roleService).hapusRole(3L);
         
-        mockMvc.perform(delete("/role/{id}", "3"))
+        mockMvc.perform(delete("/role/delete/{id}", "3"))
                 .andExpect(status().isNotFound());
         
         verify(roleService).hapusRole(3L);

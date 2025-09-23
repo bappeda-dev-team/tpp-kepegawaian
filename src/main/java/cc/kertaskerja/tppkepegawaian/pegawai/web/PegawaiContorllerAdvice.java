@@ -1,5 +1,6 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.web;
 
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.NamaPegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiSudahAdaException;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,12 @@ public class PegawaiContorllerAdvice {
     @ExceptionHandler(PegawaiNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     String pegawaiNotFoundHandler(PegawaiNotFoundException ex) {
+        return ex.getMessage();
+    }
+
+    @ExceptionHandler(NamaPegawaiNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    String namaPegawaiNotFoundHandler(NamaPegawaiNotFoundException ex) {
         return ex.getMessage();
     }
 

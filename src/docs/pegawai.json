@@ -1,0 +1,759 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Pegawai API",
+    "description": "API untuk pegawai",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000"
+    }
+  ],
+  "paths": {
+    "/pegawai": {
+      "post": {
+        "summary": "Buat Pegawai",
+        "description": "Endpoint untuk membuat pegawai",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Data untuk membuat pegawai baru",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "nama_pegawai",
+                  "nip",
+                  "kode_opd",
+                  "nama_role",
+                  "status_pegawai",
+                  "password_hash"
+                ],
+                "properties": {
+                  "nama_pegawai": {
+                    "type": "string"
+                  },
+                  "nip": {
+                    "type": "string"
+                  },
+                  "kode_opd": {
+                    "type": "string"
+                  },
+                  "nama_role": {
+                    "type": "string"
+                  },
+                  "status_pegawai": {
+                    "type": "string"
+                  },
+                  "password_hash": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sukses membuat pegawai",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data pegawai berhasil dibuat"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "nama_pegawai": {
+                          "type": "string"
+                        },
+                        "nip": {
+                          "type": "string"
+                        },
+                        "kode_opd": {
+                          "type": "string"
+                        },
+                        "nama_role": {
+                          "type": "string"
+                        },
+                        "status_pegawai": {
+                          "type": "string"
+                        },
+                        "password_hash": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pegawai/update/{nip}": {
+      "put": {
+        "summary": "Update Pegawai Berdasarkan Nip",
+        "description": "Endpoint untuk mengupdate pegawai",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "nip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "nip pegawai yang akan diupdate",
+            "example": "198001012010011001"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Data untuk mengupdate pegawai",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "nama_pegawai",
+                  "nip",
+                  "kode_opd",
+                  "nama_role",
+                  "status_pegawai",
+                  "password_hash"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "integer"
+                  },
+                  "nama_pegawai": {
+                    "type": "string"
+                  },
+                  "nip": {
+                    "type": "string"
+                  },
+                  "kode_opd": {
+                    "type": "string"
+                  },
+                  "nama_role": {
+                    "type": "string"
+                  },
+                  "status_pegawai": {
+                    "type": "string"
+                  },
+                  "password_hash": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sukses mengubah pegawai",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data pegawai berhasil diubah"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "nama_pegawai": {
+                          "type": "string"
+                        },
+                        "nip": {
+                          "type": "string"
+                        },
+                        "kode_opd": {
+                          "type": "string"
+                        },
+                        "nama_role": {
+                          "type": "string"
+                        },
+                        "status_pegawai": {
+                          "type": "string"
+                        },
+                        "password_hash": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data tidak ditemukan"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pegawai/detail/{nip}": {
+      "get": {
+        "summary": "Get Pegawai Berdasarkan Nip",
+        "description": "Endpoint untuk mendapatkan kode opd berdasarkan id",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "nip",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter berdasarkan nip",
+            "example": "198001012010011001"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses mendapatkan pegawai berdasarkan nip",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data pegawai berhasil ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "nama_pegawai": {
+                            "type": "string"
+                          },
+                          "nip": {
+                            "type": "string"
+                          },
+                          "kode_opd": {
+                            "type": "string"
+                          },
+                          "nama_role": {
+                            "type": "string"
+                          },
+                          "status_pegawai": {
+                            "type": "string"
+                          },
+                          "password_hash": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Data tidak ditemukan",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Data tidak ditemukan"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pegawai/detail/opd/{kodeOpd}": {
+      "get": {
+        "summary": "Get Pegawai Berdasarkan Kode OPD",
+        "description": "Endpoint untuk mendapatkan pegawai berdasarkan kode opd",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses mendapatkan pegawai berdasarkan kode opd",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data pegawai berdasarkan kode opd berhasil ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "nama_pegawai": {
+                            "type": "string"
+                          },
+                          "nip": {
+                            "type": "string"
+                          },
+                          "kode_opd": {
+                            "type": "string"
+                          },
+                          "nama_role": {
+                            "type": "string"
+                          },
+                          "status_pegawai": {
+                            "type": "string"
+                          },
+                          "password_hash": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Data tidak ditemukan",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Data tidak ditemukan"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pegawai/detail/role/{namaRole}": {
+      "get": {
+        "summary": "Get Pegawai Berdasarkan Nama Role",
+        "description": "Endpoint untuk mendapatkan pegawai berdasarkan nama role",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses mendapatkan pegawai berdasarkan kode opd",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Data pegawai berdasarkan nama role berhasil ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "nama_pegawai": {
+                            "type": "string"
+                          },
+                          "nip": {
+                            "type": "string"
+                          },
+                          "kode_opd": {
+                            "type": "string"
+                          },
+                          "nama_role": {
+                            "type": "string"
+                          },
+                          "status_pegawai": {
+                            "type": "string"
+                          },
+                          "password_hash": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Data tidak ditemukan",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "error"
+                      },
+                      "message": {
+                        "type": "string",
+                        "example": "Data tidak ditemukan"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/opd/delete/{id}": {
+      "delete": {
+        "summary": "Hapus Pegawai Berdasarkan Id",
+        "description": "Endpoint untuk menghapus pegawai",
+        "tags": [
+          "Pegawai"
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Bearer token untuk autentikasi"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID pegawai yang akan dihapus",
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sukses menghapus pegawai berdasarkan id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "pegawai berhasil dihapus"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "errors": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

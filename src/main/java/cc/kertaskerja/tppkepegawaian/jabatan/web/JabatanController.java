@@ -27,30 +27,30 @@ public class JabatanController {
 	public JabatanController(JabatanService jabatanService) {
 		this.jabatanService = jabatanService;
 	}
-	
+
 	/**
 	 * Get jabatan by ID
 	 * @param id jabatan ID
-	 * @return Jabatan objectdadadad
-	 * url: /jabatan/{id}
+	 * @return Jabatan object
+	 * url: /jabatan/detail/{id}
 	 */
-	@GetMapping("{id}")
-  	public Jabatan getById(@PathVariable("id") Long id) {
-	    return jabatanService.detailJabatan(id);
+	@GetMapping("detail/{id}")
+	public Jabatan getById(@PathVariable("id") Long id) {
+		return jabatanService.detailJabatan(id);
 	}
-	
+
 	/**
 	 * Update jabatan by ID
 	 * @param id jabatan ID
 	 * @param request jabatan update request
 	 * @return updated Jabatan object
-	 * url: /jabatan/{id}
+	 * url: /jabatan/update/{id}
 	 */
-	@PutMapping("{id}")
+	@PutMapping("update/{id}")
 	public Jabatan put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
-	    	// Ambil data jabatan yang sudah dibuat
-	    	Jabatan existingJabatan = jabatanService.detailJabatan(id);
-	    
+		// Ambil data jabatan yang sudah dibuat
+		Jabatan existingJabatan = jabatanService.detailJabatan(id);
+
 		Jabatan jabatan = new Jabatan(
 	            id,
 	            request.nip(),
@@ -69,7 +69,7 @@ public class JabatanController {
 	    );
 	    return jabatanService.ubahJabatan(id, jabatan);
 	}
-	
+
 	/**
 	 * Create new jabatan
 	 * @param request jabatan creation request
@@ -99,13 +99,13 @@ public class JabatanController {
 		    .toUri();
 	    return ResponseEntity.created(location).body(saved);
 	}
-	
+
 	/**
 	 * Delete jabatan by ID
 	 * @param id jabatan ID
-	 * url: /jabatan/{id}
+	 * url: /jabatan/delete/{id}
 	 */
-	@DeleteMapping("{id}")
+	@DeleteMapping("delete/{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable("id") Long id) {
 		jabatanService.hapusJabatan(id);

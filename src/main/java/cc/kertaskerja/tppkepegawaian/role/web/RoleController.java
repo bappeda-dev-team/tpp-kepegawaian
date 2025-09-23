@@ -33,7 +33,7 @@ public class RoleController {
      * @return Role object
      * url: /role/{id}
      */
-    @GetMapping("{id}")
+    @GetMapping("detail/{id}")
     public Role getById(@PathVariable("id") Long id) {
         return roleService.detailRole(id);
     }
@@ -45,7 +45,7 @@ public class RoleController {
      * @return updated Jabatan object
      * url: /role/{id}
      */
-    @PutMapping("{id}")
+    @PutMapping("update/{id}")
     public Role put(@PathVariable("id") Long id, @Valid @RequestBody RoleRequest request) {
         // Ambil data role yang sudah dibuat
         Role existingRole = roleService.detailRole(id);
@@ -92,7 +92,7 @@ public class RoleController {
      * @param id role ID
      * url: /role/{id}
      */
-    @DeleteMapping("{id}")
+    @DeleteMapping("delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("id") Long id) {
         roleService.hapusRole(id);

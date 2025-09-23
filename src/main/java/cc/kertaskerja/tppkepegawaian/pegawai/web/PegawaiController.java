@@ -27,8 +27,9 @@ public class PegawaiController {
      * @param nip
      * nip asn
      * @return pegawai object
+     * url: /pegawai/detail/{nip}
      */
-    @GetMapping("{nip}")
+    @GetMapping("detail/{nip}")
     public Pegawai getByNip(@PathVariable("nip") String nip) {
         return pegawaiService.detailPegawai(nip);
     }
@@ -61,9 +62,9 @@ public class PegawaiController {
      * @param nip pegawai NIP
      * @param request pegawai update request
      * @return updated Pegawai object
-     * url: /pegawai/{nip}
+     * url: /pegawai/update/{nip}
      */
-    @PutMapping("{nip}")
+    @PutMapping("update/{nip}")
     public Pegawai put(@PathVariable("nip") String nip, @Valid @RequestBody PegawaiRequest request) {
         // Ambil data pegawai yang sudah dibuat
         Pegawai existingPegawai = pegawaiService.detailPegawai(nip);
@@ -112,9 +113,9 @@ public class PegawaiController {
     /**
      * Delete pegawai by nip
      * @param nip pegawai
-     * url: /pegawai/{nip}
+     * url: /pegawai/delete/{nip}
      */
-    @DeleteMapping("{nip}")
+    @DeleteMapping("delete/{nip}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable("nip") String nip) {
         pegawaiService.hapusPegawai(nip);
