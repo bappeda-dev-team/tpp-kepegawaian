@@ -12,10 +12,10 @@ import org.springframework.data.relational.core.mapping.Table;
 public record Tpp(
         @Id
         Long id,
-        
+
         @Column("jenis_tpp")
         JenisTpp jenisTpp,
-        
+
         @Column("kode_opd")
         String kodeOpd,
 
@@ -33,7 +33,7 @@ public record Tpp(
 
         @Column("tahun")
         Integer tahun,
-        
+
         @CreatedDate
         Instant createdDate,
 
