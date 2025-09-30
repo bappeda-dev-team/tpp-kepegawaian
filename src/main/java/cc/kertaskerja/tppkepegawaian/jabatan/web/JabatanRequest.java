@@ -45,10 +45,10 @@ public record JabatanRequest(
 		String golongan,
 		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
-		@JsonFormat(pattern = "dd-MM-yy")
+		@JsonFormat(pattern = "dd-MM-yyyy")
 		Date tanggalMulai,
 		
-		@JsonFormat(pattern = "dd-MM-yy")
+		@JsonFormat(pattern = "dd-MM-yyyy")
 		Date tanggalBerakhir
 ) {
 }

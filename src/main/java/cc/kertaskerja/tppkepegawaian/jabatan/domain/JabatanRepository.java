@@ -17,5 +17,5 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM jabatan WHERE id = :id")
-	void deleteById(@NonNull String id);
+	void deleteById(@NonNull Long id);
 }

@@ -19,6 +19,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import java.util.List;
+
 @ExtendWith(MockitoExtension.class)
 public class JabatanServiceTest {
     @Mock
@@ -62,6 +64,17 @@ public class JabatanServiceTest {
         );
     }
     
+    @Test
+    void listJabatanByKodeOpd_WhenKodeOpdExists_ShouldReturnJabatanList() {
+        List<Jabatan> jabatanList = List.of(testJabatan);
+        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(jabatanList);
+
+        Iterable<Jabatan> result = jabatanService.listJabatanByKodeOpd("OPD-001");
+
+        assertThat(result).containsExactly(testJabatan);
+        verify(jabatanRepository).findByKodeOpd("OPD-001");
+    }
+
     @Test
     void detailJabatan_WhenJabatanExists_ShouldReturnJabatan() {
         when(jabatanRepository.findById(1L)).thenReturn(Optional.of(testJabatan));

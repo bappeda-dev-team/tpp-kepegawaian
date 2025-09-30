@@ -66,6 +66,20 @@ public class JabatanControllerTest {
                 Instant.now(),
                 Instant.now()
         );
+        
+        testJabatanRequest = new JabatanRequest(
+                null,
+                "198001012010011001",
+                "Kepala Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
     }
     
     @Test
@@ -84,8 +98,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.eselon").value("ESELON_IV"))
                 .andExpect(jsonPath("$.pangkat").value("Junior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan I"))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
     
     @Test
@@ -145,8 +159,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.eselon").value("ESELON_III"))
                 .andExpect(jsonPath("$.pangkat").value("Senior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan III"))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
     
     @Test
@@ -168,18 +182,24 @@ public class JabatanControllerTest {
         mockMvc.perform(post("/jabatan")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.nip").exists())
+                .andExpect(jsonPath("$.namaJabatan").exists())
+                .andExpect(jsonPath("$.kodeOpd").exists())
+                .andExpect(jsonPath("$.pangkat").exists())
+                .andExpect(jsonPath("$.golongan").exists())
+                .andExpect(jsonPath("$.tanggalMulai").exists());
     }
     
     @Test
-    void post_WhenOpdNotExists_ShouldReturn400() throws Exception {
+    void post_WhenOpdNotExists_ShouldReturn404() throws Exception {
         when(jabatanService.tambahJabatan(any(Jabatan.class)))
                 .thenThrow(new OpdNotFoundException("OPD-002"));
         
         mockMvc.perform(post("/jabatan")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testJabatanRequest)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
     
     @Test
@@ -245,8 +265,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.eselon", is("ESELON_II")))
                 .andExpect(jsonPath("$.pangkat", is("Middle")))
                 .andExpect(jsonPath("$.golongan", is("Golongan II")))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
         
         verify(jabatanService).detailJabatan(1L);
         verify(jabatanService).ubahJabatan(eq(1L), any(Jabatan.class));
@@ -268,7 +288,7 @@ public class JabatanControllerTest {
                 tanggalAkhir.getTime()
         );
         
-        when(jabatanService.detailJabatan(3L)).thenThrow(new JabatanNotFoundException(1L));
+        when(jabatanService.detailJabatan(3L)).thenThrow(new JabatanNotFoundException(3L));
         
         mockMvc.perform(put("/jabatan/update/{id}", "3")
                 .contentType(MediaType.APPLICATION_JSON)

@@ -35,8 +35,8 @@ public class JabatanController {
 	 * url: /jabatan/detail/{id}
 	 */
 	@GetMapping("detail/{id}")
-	public Jabatan getById(@PathVariable("id") Long id) {
-		return jabatanService.detailJabatan(id);
+	public ResponseEntity<Jabatan> getById(@PathVariable("id") Long id) {
+		return ResponseEntity.ok(jabatanService.detailJabatan(id));
 	}
 
 	/**
@@ -47,7 +47,7 @@ public class JabatanController {
 	 * url: /jabatan/update/{id}
 	 */
 	@PutMapping("update/{id}")
-	public Jabatan put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
+	public ResponseEntity<Jabatan> put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
 		// Ambil data jabatan yang sudah dibuat
 		Jabatan existingJabatan = jabatanService.detailJabatan(id);
 
@@ -67,7 +67,8 @@ public class JabatanController {
 	            existingJabatan.createdDate(),
 	            null
 	    );
-	    return jabatanService.ubahJabatan(id, jabatan);
+	    Jabatan updatedJabatan = jabatanService.ubahJabatan(id, jabatan);
+	    return ResponseEntity.ok(updatedJabatan);
 	}
 
 	/**
