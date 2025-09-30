@@ -41,11 +41,11 @@ public record Jabatan(
     String golongan,
 
 	@Column("tanggal_mulai")
-	@JsonFormat(pattern = "dd-MM-yy")
+	@JsonFormat(pattern = "dd-MM-yyyy")
 	Date tanggalMulai,
 
 	@Column("tanggal_akhir")
-	@JsonFormat(pattern = "dd-MM-yy")
+	@JsonFormat(pattern = "dd-MM-yyyy")
 	Date tanggalAkhir,
 
 	@CreatedDate
