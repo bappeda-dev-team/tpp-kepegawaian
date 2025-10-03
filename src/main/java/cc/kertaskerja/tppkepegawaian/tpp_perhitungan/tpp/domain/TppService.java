@@ -77,10 +77,6 @@ public class TppService {
             throw new TppJenisTppNipBulanTahunNotFoundException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
         }
 
-        if (!tppRepository.existsByJenisTppAndKodeOpdAndBulanAndTahun(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
-            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
-        }
-
         return tppRepository.save(tpp);
     }
 
@@ -88,10 +84,6 @@ public class TppService {
 
         if (tppRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppJenisTppNipBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
-        }
-
-        if (tppRepository.existsByJenisTppAndKodeOpdAndBulanAndTahun(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun())) {
-            throw new TppJenisTppKodeOpdBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.kodeOpd(), tpp.bulan(), tpp.tahun());
         }
 
         return tppRepository.save(tpp);
