@@ -101,7 +101,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
         
-        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+        mockMvc.perform(get("/pegawai/detail/master/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -125,7 +125,7 @@ public class PegawaiControllerTest {
         
         when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(emptyList);
         
-        mockMvc.perform(get("/pegawai/opd/{kodeOpd}", kodeOpd))
+        mockMvc.perform(get("/pegawai/detail/master/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
         
@@ -227,14 +227,24 @@ public class PegawaiControllerTest {
     }
     
     @Test
-    void tambah_WhenOpdNotExists_ShouldReturn400() throws Exception {
+    void tambah_WhenPegawaiNotExists_ShouldReturn404() throws Exception {
+        testPegawaiRequest = new PegawaiRequest(
+                null,
+                "Test User",
+                "201001012010011001",
+                "OPD-002",
+                "Admin",
+                StatusPegawai.AKTIF,
+                "hashedpassword123"
+        );
+
         when(pegawaiService.tambahPegawai(any(Pegawai.class)))
                 .thenThrow(new PegawaiNotFoundException("OPD-002"));
-        
+
         mockMvc.perform(post("/pegawai")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testPegawaiRequest)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
     
     @Test
@@ -283,7 +293,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.namaPegawai", is("Rohman")))
                 .andExpect(jsonPath("$.nip", is("199501012012011003")))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
-                .andExpect(jsonPath("namaRole", is("User")))
+                .andExpect(jsonPath("$.namaRole", is("User")))
                 .andExpect(jsonPath("$.statusPegawai", is("CUTI")));
         
         verify(pegawaiService).detailPegawai("199501012012011003");
@@ -302,14 +312,14 @@ public class PegawaiControllerTest {
                 "password213"
         );
         
-        when(pegawaiService.detailPegawai("198001012010011001")).thenThrow(new PegawaiNotFoundException("198001012010011001"));
-        
-        mockMvc.perform(put("/pegawai/update/{nip}", "198001012010011001")
+        when(pegawaiService.detailPegawai("198201012010011002")).thenThrow(new PegawaiNotFoundException("198201012010011002"));
+
+        mockMvc.perform(put("/pegawai/update/{nip}", "198201012010011002")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound());
-        
-        verify(pegawaiService).detailPegawai("198001012010011001");
+
+        verify(pegawaiService).detailPegawai("198201012010011002");
         verify(pegawaiService, never()).ubahPegawai(anyString(), any(Pegawai.class));
     }
     

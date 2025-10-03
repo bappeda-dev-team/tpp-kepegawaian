@@ -18,6 +18,10 @@ public class OpdService {
 	public Iterable<Opd> listAllOpd() {
 	    return opdRepository.findAll();
 	}
+
+	public Iterable<Opd> getDataMasterOpd() {
+	    return opdRepository.findAll();
+	}
 	
 	public Opd tambahOpd(Opd opd) {
         if (opdRepository.existsByKodeOpd(opd.kodeOpd())) {

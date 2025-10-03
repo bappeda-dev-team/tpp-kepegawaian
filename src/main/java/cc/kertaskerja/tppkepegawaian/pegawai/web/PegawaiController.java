@@ -35,13 +35,13 @@ public class PegawaiController {
     }
     
     /**
-     * Get all pegawai by kodeOpd
+     * Get master pegawai by kodeOpd
      * @param kodeOpd
      * kodeOpd: OPD unique code 1.23.4.56.7.89.1.0000
      * @return list of all pegawai in the OPD
      * url: /pegawai/opd/{kodeOpd}
      */
-    @GetMapping("opd/{kodeOpd}")
+    @GetMapping("detail/master/opd/{kodeOpd}")
     public List<PegawaiWithRoles> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
     }

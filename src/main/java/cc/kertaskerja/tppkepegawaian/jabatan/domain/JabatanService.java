@@ -4,21 +4,25 @@ import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 
 @Service
 public class JabatanService {
 
-	private final JabatanRepository jabatanRepository;
-	private final OpdRepository opdRepository;
+    private final JabatanRepository jabatanRepository;
+    private final OpdRepository opdRepository;
+    private final PegawaiRepository pegawaiRepository;
 
-	public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository) {
-        this.jabatanRepository = jabatanRepository;
+	public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository, PegawaiRepository pegawaiRepository) {
+	    this.jabatanRepository = jabatanRepository;
         this.opdRepository = opdRepository;
+        this.pegawaiRepository = pegawaiRepository;
     }
 
-    public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
+   public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
         return jabatanRepository.findByKodeOpd(kodeOpd);
-    }
+   }
 
    public Jabatan detailJabatan(Long id) {
        return jabatanRepository.findById(id)
@@ -33,6 +37,10 @@ public class JabatanService {
        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
            throw new OpdNotFoundException(jabatan.kodeOpd());
        }
+
+       if (!pegawaiRepository.existsByNip(jabatan.nip())) {
+           throw new PegawaiNotFoundException(jabatan.nip());
+       }
     return jabatanRepository.save(jabatan);
 	}
 
@@ -40,6 +48,10 @@ public class JabatanService {
 
         if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
             throw new OpdNotFoundException(jabatan.kodeOpd());
+        }
+
+        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
+            throw new PegawaiNotFoundException(jabatan.nip());
         }
         return jabatanRepository.save(jabatan);
     }

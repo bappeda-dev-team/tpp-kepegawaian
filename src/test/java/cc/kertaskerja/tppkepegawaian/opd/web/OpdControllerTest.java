@@ -84,7 +84,7 @@ public class OpdControllerTest {
         
         when(opdService.listAllOpd()).thenReturn(opdList);
 
-        mockMvc.perform(get("/opd/allOpd"))
+        mockMvc.perform(get("/opd/detail/allOpd"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
@@ -100,7 +100,7 @@ public class OpdControllerTest {
     void getAllOpd_WhenNoOpd_ShouldReturnEmptyList() throws Exception {
         when(opdService.listAllOpd()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/opd/allOpd"))
+        mockMvc.perform(get("/opd/detail/allOpd"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(0)));

@@ -43,9 +43,19 @@ public class OpdController {
      * @return list of all OPD
      * url: /opd/{allOpd}
      */
-    @GetMapping("allOpd")
+    @GetMapping("detail/allOpd")
     public Iterable<Opd> getAllOpd() {
         return opdService.listAllOpd();
+    }
+
+    /**
+     * Get all OPD untuk data master
+     * @return list of all OPD dengan informasi lengkap
+     * url: /opd/master
+     */
+    @GetMapping("detail/master")
+    public Iterable<Opd> getDataMasterOpd() {
+        return opdService.getDataMasterOpd();
     }
 	
 	/**

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +40,7 @@ public class JabatanControllerTest {
     private ObjectMapper objectMapper;
     
     private Jabatan testJabatan;
+    private Jabatan testJabatan2;
     private JabatanRequest testJabatanRequest;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
@@ -66,6 +68,22 @@ public class JabatanControllerTest {
                 Instant.now(),
                 Instant.now()
         );
+
+        testJabatan2 = new Jabatan(
+                2L,
+                "199001012015021002",
+                "Sekretaris Dinas",
+                "OPD-002",
+                StatusJabatan.PLT,
+                JenisJabatan.JABATAN_ADMINISTRASI,
+                Eselon.ESELON_III,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                Instant.now(),
+                Instant.now()
+        );
         
         testJabatanRequest = new JabatanRequest(
                 null,
@@ -85,7 +103,7 @@ public class JabatanControllerTest {
     @Test
     void detailById_WhenJabatanExists_ShouldReturnJabatan() throws Exception {
         when(jabatanService.detailJabatan(1L)).thenReturn(testJabatan);
-        
+
         mockMvc.perform(get("/jabatan/detail/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -108,6 +126,48 @@ public class JabatanControllerTest {
         
         mockMvc.perform(get("/jabatan/detail/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpd("OPD-001")).thenReturn(List.of(testJabatan, testJabatan2));
+
+        mockMvc.perform(get("/jabatan/detail/master/opd/OPD-001"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
+                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
+                .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
+                .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
+                .andExpect(jsonPath("$[1].statusJabatan").value("PLT"))
+                .andExpect(jsonPath("$[1].jenisJabatan").value("JABATAN_ADMINISTRASI"))
+                .andExpect(jsonPath("$[1].eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$[1].pangkat").value("Middle"))
+                .andExpect(jsonPath("$[1].golongan").value("Golongan II"));
+    }
+
+    @Test
+    void getMasterByKodeOpd_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpd("OPD-999")).thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/master/opd/OPD-999"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
     }
     
     @Test
@@ -341,10 +401,10 @@ public class JabatanControllerTest {
     @Test
     void hapusJabatan_WhenJabatanNotExists_ShouldReturn404() throws Exception {
         doThrow(new JabatanNotFoundException(3L)).when(jabatanService).hapusJabatan(3L);
-        
+
         mockMvc.perform(delete("/jabatan/delete/{id}", "3"))
                 .andExpect(status().isNotFound());
-        
+
         verify(jabatanService).hapusJabatan(3L);
     }
 }

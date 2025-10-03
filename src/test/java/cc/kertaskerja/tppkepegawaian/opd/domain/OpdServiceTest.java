@@ -67,11 +67,11 @@ public class OpdServiceTest {
                  new Opd(2L, "OPD-002", "Dinas Kesehatan", Instant.now(), Instant.now()),
                  new Opd(3L, "OPD-003", "Dinas Kehutanan", Instant.now(), Instant.now())
          );
-         
+
          when(opdRepository.findAll()).thenReturn(opdList);
-         
+
          Iterable<Opd> result = opdService.listAllOpd();
-         
+
          assertThat(result).isNotNull();
          assertThat(result).hasSize(3);
          assertThat(result).containsExactlyElementsOf(opdList);
@@ -81,9 +81,9 @@ public class OpdServiceTest {
      @Test
      void listAllOpd_WhenNoOpdExists_ShouldReturnEmptyList() {
          when(opdRepository.findAll()).thenReturn(Collections.emptyList());
-         
+
          Iterable<Opd> result = opdService.listAllOpd();
-         
+
          assertThat(result).isNotNull();
          assertThat(result).isEmpty();
          verify(opdRepository).findAll();

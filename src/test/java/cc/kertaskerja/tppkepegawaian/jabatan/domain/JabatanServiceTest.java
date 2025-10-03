@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -113,6 +114,7 @@ public class JabatanServiceTest {
         );
 
         when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(true);
         when(jabatanRepository.save(any(Jabatan.class))).thenReturn(
                 new Jabatan(
                         2L,
@@ -143,6 +145,7 @@ public class JabatanServiceTest {
         assertThat(result.pangkat()).isEqualTo("Senior");
         assertThat(result.golongan()).isEqualTo("Golongan III");
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
+        verify(pegawaiRepository).existsByNip(newJabatan.nip());
         verify(jabatanRepository).save(newJabatan);
     }
     
@@ -174,6 +177,35 @@ public class JabatanServiceTest {
     }
     
     @Test
+    void tambahJabatan_WhenPegawaiNotExists_ShouldThrowException() {
+        Jabatan newJabatan = new Jabatan(
+                null,
+                "200601012010012001",
+                "Sekretaris Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Senior",
+                "Golongan III",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                null,
+                null
+        );
+
+        when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(false);
+
+        assertThatThrownBy(() -> jabatanService.tambahJabatan(newJabatan))
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(newJabatan.nip());
+        verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
+        verify(pegawaiRepository).existsByNip(newJabatan.nip());
+        verify(jabatanRepository, never()).save(any());
+    }
+    
+    @Test
     void ubahJabatan_WhenJabatanExistsAndValid_ShouldUpdateAndReturnJabatan() {
         Long id = 1L;
         Jabatan updatedJabatan = new Jabatan(
@@ -194,6 +226,7 @@ public class JabatanServiceTest {
 
         when(jabatanRepository.existsById(id)).thenReturn(true);
         when(opdRepository.existsByKodeOpd(updatedJabatan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(updatedJabatan.nip())).thenReturn(true);
         when(jabatanRepository.save(any(Jabatan.class))).thenReturn(updatedJabatan);
 
         Jabatan result = jabatanService.ubahJabatan(id, updatedJabatan);
@@ -201,6 +234,7 @@ public class JabatanServiceTest {
         assertThat(result).isEqualTo(updatedJabatan);
         verify(jabatanRepository).existsById(id);
         verify(opdRepository).existsByKodeOpd(updatedJabatan.kodeOpd());
+        verify(pegawaiRepository).existsByNip(updatedJabatan.nip());
         verify(jabatanRepository).save(updatedJabatan);
     }
     
@@ -243,6 +277,38 @@ public class JabatanServiceTest {
                 .hasMessageContaining(updatedJabatan.kodeOpd());
         verify(jabatanRepository).existsById(id);
         verify(opdRepository).existsByKodeOpd(updatedJabatan.kodeOpd());
+        verify(jabatanRepository, never()).save(any());
+    }
+    
+    @Test
+    void ubahJabatan_WhenPegawaiNotExists_ShouldThrowException() {
+        Long id = 1L;
+        Jabatan updatedJabatan = new Jabatan(
+                id,
+                "201001012010011001",
+                "Sekretaris Kabupaten",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                testJabatan.createdDate(),
+                Instant.now()
+        );
+
+        when(jabatanRepository.existsById(id)).thenReturn(true);
+        when(opdRepository.existsByKodeOpd(updatedJabatan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(updatedJabatan.nip())).thenReturn(false);
+
+        assertThatThrownBy(() -> jabatanService.ubahJabatan(id, updatedJabatan))
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(updatedJabatan.nip());
+        verify(jabatanRepository).existsById(id);
+        verify(opdRepository).existsByKodeOpd(updatedJabatan.kodeOpd());
+        verify(pegawaiRepository).existsByNip(updatedJabatan.nip());
         verify(jabatanRepository, never()).save(any());
     }
     
