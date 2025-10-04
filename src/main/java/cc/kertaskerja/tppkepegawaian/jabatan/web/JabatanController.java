@@ -74,7 +74,7 @@ public class JabatanController {
 				request.pangkat(),
 				request.golongan(),
 	            request.tanggalMulai(),
-	            request.tanggalBerakhir(),
+	            request.tanggalAkhir(),
 	            // saat update data ambil data createdDate dari jabatan yang sudah dibuat
 	            existingJabatan.createdDate(),
 	            null
@@ -102,7 +102,7 @@ public class JabatanController {
 		    request.pangkat(),
 		    request.golongan(),
 		    request.tanggalMulai(),
-		    request.tanggalBerakhir()
+		    request.tanggalAkhir()
 		    );
 	    Jabatan saved = jabatanService.tambahJabatan(jabatan);
 	    URI location = ServletUriComponentsBuilder
