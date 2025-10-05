@@ -43,6 +43,7 @@ class TppPerhitunganServiceTest {
             1L,
             JenisTpp.ABSENSI,
             "OPD001",
+            "PEMDA001",
             "701301613358689213",
             "Wahyu",
             2,
@@ -226,7 +227,7 @@ class TppPerhitunganServiceTest {
     @Test
     void tambahTppPerhitungan_WhenNipNull_ShouldThrowException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", null, "John Doe", 1, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", null, "John Doe", 1, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
@@ -240,7 +241,7 @@ class TppPerhitunganServiceTest {
     @Test
     void tambahTppPerhitungan_WhenBulanNull_ShouldThrowException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", "123456789", "John Doe", null, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", "123456789", "John Doe", null, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
@@ -255,7 +256,7 @@ class TppPerhitunganServiceTest {
     @Test
     void tambahTppPerhitungan_WhenTahunNull_ShouldThrowException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", "123456789", "John Doe", 1, null, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", "123456789", "John Doe", 1, null, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);

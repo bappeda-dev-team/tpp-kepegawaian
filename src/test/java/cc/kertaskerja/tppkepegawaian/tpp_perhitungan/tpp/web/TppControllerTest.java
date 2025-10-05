@@ -65,7 +65,7 @@ class TppControllerTest {
         List<Tpp> tppList = Arrays.asList(tpp);
 
         // Create perhitungan with the same jenisTpp enum that the controller expects
-        TppPerhitungan perhitungan = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), "OPD001", nip, "John Doe", bulan, tahun, 100.0f, "ABSENSI", 80.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), "OPD001", "Pemda-001", "152020342189755645", "John Doe", bulan, tahun, 100.0f, "ABSENSI", 80.0f, Instant.now(), Instant.now());
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         when(tppService.listTppByNipBulanTahun(nip, bulan, tahun)).thenReturn(tppList);
@@ -96,8 +96,8 @@ class TppControllerTest {
         Tpp tpp2 = new Tpp(2L, jenisTpp, kodeOpd, nip2, "PEMDA001", 5000000.0f, bulan, tahun, Instant.now(), Instant.now());
         List<Tpp> tppList = Arrays.asList(tpp1, tpp2);
 
-        TppPerhitungan perhitungan1 = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), kodeOpd, nip1, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
-        TppPerhitungan perhitungan2 = new TppPerhitungan(2L, convertJenisTpp(jenisTpp), kodeOpd, nip2, "Jane Smith", bulan, tahun, 100.0f, "KINERJA", 90.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan1 = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), kodeOpd, "PEMDA001", "123456789012345678", "John Doe",  bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan2 = new TppPerhitungan(2L, convertJenisTpp(jenisTpp), kodeOpd, "PEMDA001", "152020342189755645", "Jane Smith", bulan, tahun, 100.0f, "KINERJA", 90.0f, Instant.now(), Instant.now());
 
         when(tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun)).thenReturn(tppList);
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip1, bulan, tahun)).thenReturn(Arrays.asList(perhitungan1));
@@ -138,7 +138,7 @@ class TppControllerTest {
         Tpp tpp = new Tpp(1L, jenisTpp, kodeOpd, nip, "PEMDA001", 5000000.0f, bulan, tahun, Instant.now(), Instant.now());
         List<Tpp> tppList = Arrays.asList(tpp);
 
-        TppPerhitungan perhitungan = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), kodeOpd, nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan = new TppPerhitungan(1L, convertJenisTpp(jenisTpp), kodeOpd, "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         when(tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun)).thenReturn(tppList);
@@ -187,7 +187,7 @@ class TppControllerTest {
         Tpp existingTpp = new Tpp(1L, JenisTpp.BEBAN_KERJA, "OPD001", nip, "PEMDA001", 5000000.0f, bulan, tahun, Instant.now(), Instant.now());
         List<Tpp> existingTppList = Arrays.asList(existingTpp);
 
-        TppPerhitungan perhitungan = new TppPerhitungan(1L, cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp.BEBAN_KERJA, "OPD001", nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan = new TppPerhitungan(1L, cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp.BEBAN_KERJA, "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         Tpp updatedTpp = new Tpp(1L, JenisTpp.PRESTASI_KERJA, "OPD002", nip, "PEMDA001", 6000000.0f, bulan, tahun, existingTpp.createdDate(), Instant.now());
@@ -235,7 +235,7 @@ class TppControllerTest {
         TppRequest request = new TppRequest(null, JenisTpp.BEBAN_KERJA, "OPD001", nip, "PEMDA001", 5000000.0f, bulan, tahun);
         Tpp createdTpp = new Tpp(1L, JenisTpp.BEBAN_KERJA, "OPD001", nip, "PEMDA001", 5000000.0f, bulan, tahun, Instant.now(), Instant.now());
 
-        TppPerhitungan perhitungan = new TppPerhitungan(1L, cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp.BEBAN_KERJA, "OPD001", nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
+        TppPerhitungan perhitungan = new TppPerhitungan(1L, cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp.BEBAN_KERJA, "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "KINERJA", 80.0f, Instant.now(), Instant.now());
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         when(tppService.tambahTpp(any(Tpp.class))).thenReturn(createdTpp);
