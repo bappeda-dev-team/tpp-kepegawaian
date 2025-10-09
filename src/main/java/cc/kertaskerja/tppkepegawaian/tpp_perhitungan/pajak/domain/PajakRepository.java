@@ -22,6 +22,6 @@ public interface PajakRepository extends CrudRepository<Pajak, Long> {
     
     @Modifying
     @Transactional
-    @Query("DELETE FROM role WHERE nip = :nip")
+    @Query("DELETE FROM pajak WHERE nip = :nip")
     void deleteByNip(@Param("nip") @NonNull String nip);
 }
