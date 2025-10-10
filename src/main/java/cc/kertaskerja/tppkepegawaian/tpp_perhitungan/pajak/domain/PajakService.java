@@ -2,12 +2,17 @@ package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.pajak.domain;
 
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
+
 @Service
 public class PajakService {
     private final PajakRepository pajakRepository;
+    private final PegawaiRepository pegawaiRepository;
     
-    public PajakService(PajakRepository pajakRepository) {
+    public PajakService(PajakRepository pajakRepository, PegawaiRepository pegawaiRepository) {
         this.pajakRepository = pajakRepository;
+        this.pegawaiRepository = pegawaiRepository;
     }
 
     public Pajak detailPajak(String nip) {
@@ -16,6 +21,10 @@ public class PajakService {
     }
 
     public Pajak ubahPajak(String nip, Pajak pajak) {
+        if (!pegawaiRepository.existsByNip(nip)) {
+            throw new PegawaiNotFoundException(nip);
+        }
+        
         if (!pajakRepository.existsByNip(nip)) {
             throw new PajakNotFoundException(nip);
         }
@@ -24,6 +33,10 @@ public class PajakService {
     }
 
     public Pajak tambahPajak(Pajak pajak) {
+        if (!pegawaiRepository.existsByNip(pajak.nip())) {
+            throw new PegawaiNotFoundException(pajak.nip());
+        }
+        
         if (pajakRepository.existsByNip(pajak.nip())) {
             throw new PajakSudahAdaException(pajak.nip());
         }

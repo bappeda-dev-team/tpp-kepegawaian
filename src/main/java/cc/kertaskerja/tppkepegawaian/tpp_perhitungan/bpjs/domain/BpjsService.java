@@ -2,12 +2,17 @@ package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain;
 
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
+
 @Service
 public class BpjsService {
     private final BpjsRepository bpjsRepository;
+    private final PegawaiRepository pegawaiRepository;
 
-    public BpjsService(BpjsRepository bpjsRepository) {
+    public BpjsService(BpjsRepository bpjsRepository, PegawaiRepository pegawaiRepository) {
         this.bpjsRepository = bpjsRepository;
+        this.pegawaiRepository = pegawaiRepository;
     }
 
     public Bpjs detailBpjs(String nip) {
@@ -16,6 +21,10 @@ public class BpjsService {
     }
 
     public Bpjs ubahBpjs(String nip, Bpjs bpjs) {
+        if (!pegawaiRepository.existsByNip(nip)) {
+            throw new PegawaiNotFoundException(nip);
+        }
+               
         if (!bpjsRepository.existsByNip(nip)) {
             throw new BpjsNotFoundException(nip);
         }
@@ -24,6 +33,10 @@ public class BpjsService {
     }
 
     public Bpjs tambahBpjs(Bpjs bpjs) {
+        if (!pegawaiRepository.existsByNip(bpjs.nip())) {
+            throw new PegawaiNotFoundException(bpjs.nip());
+        }
+        
         if (bpjsRepository.existsByNip(bpjs.nip())) {
             throw new BpjsSudahAdaException(bpjs.nip());
         }
