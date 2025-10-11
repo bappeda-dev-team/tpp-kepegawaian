@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.pajak.domain;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.pajak.domain.exception;
 
 public class PajakNotFoundException extends RuntimeException {
     public PajakNotFoundException(String nip) {

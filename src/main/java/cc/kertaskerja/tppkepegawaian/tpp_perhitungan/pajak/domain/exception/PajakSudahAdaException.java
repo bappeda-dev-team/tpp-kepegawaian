@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.pajak.domain;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.pajak.domain.exception;
 
 public class PajakSudahAdaException extends RuntimeException {
     public PajakSudahAdaException(String nip) {

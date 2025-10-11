@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain;
+package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain.exception;
 
 public class BpjsSudahAdaException extends RuntimeException {
     public BpjsSudahAdaException(String nip) {

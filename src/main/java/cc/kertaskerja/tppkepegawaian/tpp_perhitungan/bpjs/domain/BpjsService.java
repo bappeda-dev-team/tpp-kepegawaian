@@ -1,5 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain;
 
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain.exception.BpjsNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.bpjs.domain.exception.BpjsSudahAdaException;
 import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
