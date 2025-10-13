@@ -3,6 +3,7 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
 import jakarta.validation.Valid;
 
@@ -39,12 +40,12 @@ public class PegawaiController {
      * Get master pegawai by kodeOpd
      * @param kodeOpd
      * kodeOpd: OPD unique code 1.23.4.56.7.89.1.0000
-     * @return list of all pegawai in the OPD
-     * url: /pegawai/opd/{kodeOpd}
+     * @return list of all pegawai in the OPD with jabatan information
+     * url: /pegawai/detail/master/opd/{kodeOpd}
      */
     @GetMapping("detail/master/opd/{kodeOpd}")
-    public List<PegawaiWithRoles> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
-        return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
+    public List<PegawaiWithJabatanAndRolesResponse> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+        return pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
     
     /**

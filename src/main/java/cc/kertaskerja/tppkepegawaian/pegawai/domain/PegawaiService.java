@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.springframework.cache.annotation.Cacheable;
@@ -39,6 +40,29 @@ public class PegawaiService {
 
         return StreamSupport.stream(pegawais.spliterator(), false)
                 .map(p -> PegawaiWithRoles.of(p, getRolesByNip(p.nip())))
+                .toList();
+    }
+
+    public List<PegawaiWithJabatanAndRolesResponse> listAllPegawaiWithJabatanByKodeOpd(String kodeOpd) {
+        if (!opdRepository.existsByKodeOpd(kodeOpd)) {
+            throw new OpdNotFoundException(kodeOpd);
+            
+        }
+        Iterable<Pegawai> pegawais = pegawaiRepository.findByKodeOpd(kodeOpd);
+
+        return StreamSupport.stream(pegawais.spliterator(), false)
+                .map(p -> {
+                    Set<Role> roles = getRolesByNip(p.nip());
+                    Jabatan jabatan = jabatanRepository.findByNip(p.nip()).orElse(null);
+                    return PegawaiWithJabatanAndRolesResponse.of(
+                        p.id(),
+                        p.namaPegawai(),
+                        p.nip(),
+                        p.kodeOpd(),
+                        roles,
+                        jabatan
+                    );
+                })
                 .toList();
     }
 
