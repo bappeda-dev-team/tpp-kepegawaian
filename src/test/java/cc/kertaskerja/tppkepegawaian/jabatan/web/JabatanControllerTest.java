@@ -204,6 +204,40 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
     }
+
+    @Test
+    void getByNip_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        when(jabatanService.listJabatanByNipWithPegawai("198001012010011001")).thenReturn(List.of(testJabatanWithPegawaiResponse1));
+
+        mockMvc.perform(get("/jabatan/detail/nip/198001012010011001"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
+                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"));
+    }
+
+    @Test
+    void getByNip_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
+        when(jabatanService.listJabatanByNipWithPegawai("999999999999999999")).thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/nip/999999999999999999"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
     
     @Test
     void tambah_WhenValidJabatanRequest_ShouldCreateJabatan() throws Exception {

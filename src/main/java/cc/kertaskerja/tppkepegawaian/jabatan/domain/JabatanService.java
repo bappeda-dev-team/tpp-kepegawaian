@@ -29,6 +29,42 @@ public class JabatanService {
         return jabatanRepository.findByKodeOpd(kodeOpd);
    }
 
+   public List<Jabatan> listJabatanByNip(String nip) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
+        List<Jabatan> result = new ArrayList<>();
+        jabatans.forEach(result::add);
+        return result;
+   }
+
+   public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawai(String nip) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
+        List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
+
+        for (Jabatan jabatan : jabatans) {
+            Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
+                .orElse(null); // return null jika pegawai tidak ditemukan
+
+            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+
+            responses.add(new JabatanWithPegawaiResponse(
+                jabatan.id(),
+                jabatan.nip(),
+                namaPegawai,
+                jabatan.namaJabatan(),
+                jabatan.kodeOpd(),
+                jabatan.statusJabatan(),
+                jabatan.jenisJabatan(),
+                jabatan.eselon(),
+                jabatan.pangkat(),
+                jabatan.golongan(),
+                jabatan.tanggalMulai(),
+                jabatan.tanggalAkhir()
+            ));
+        }
+
+        return responses;
+   }
+
    public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {
         Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();

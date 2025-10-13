@@ -53,6 +53,17 @@ public class JabatanController {
 	}
 
 	/**
+	 * Get jabatan by NIP
+	 * @param nip NIP pegawai
+	 * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
+	 * url: /jabatan/by-nip/{nip}
+	 */
+	@GetMapping("detail/nip/{nip}")
+	public ResponseEntity<List<JabatanWithPegawaiResponse>> getByNip(@PathVariable("nip") String nip) {
+		return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawai(nip));
+	}
+
+	/**
 	 * Update jabatan by ID
 	 * @param id jabatan ID
 	 * @param request jabatan update request

@@ -16,6 +16,8 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 	Iterable<Jabatan> findByKodeOpd(@NonNull String kodeOpd);
 	@NonNull
 	Optional<Jabatan> findByNip(@NonNull String nip);
+	@NonNull
+	Iterable<Jabatan> findAllByNip(@NonNull String nip);
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM jabatan WHERE id = :id")
