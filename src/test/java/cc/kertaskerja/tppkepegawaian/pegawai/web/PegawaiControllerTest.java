@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Set;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.*;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
 import cc.kertaskerja.tppkepegawaian.role.domain.LevelRole;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
@@ -49,6 +53,8 @@ public class PegawaiControllerTest {
     
     private Pegawai testPegawai;
     private PegawaiRequest testPegawaiRequest;
+    private PegawaiWithJabatanResponse testPegawaiWithJabatanResponse;
+    private Jabatan testJabatan;
     
     @BeforeEach
     void setUp() {
@@ -63,29 +69,75 @@ public class PegawaiControllerTest {
                 Instant.now(),
                 Instant.now()
         );
+        
+        testJabatan = new Jabatan(
+                1L,
+                "198001012010011001",
+                "Kepala Seksi",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_STRUKTURAL,
+                Eselon.ESELON_III,
+                "Penata Muda",
+                "III/a",
+                new java.util.Date(),
+                new java.util.Date(),
+                Instant.now(),
+                Instant.now()
+        );
+        
+        testPegawaiWithJabatanResponse = PegawaiWithJabatanResponse.from(testPegawai, testJabatan);
     }
     
     @Test
-    void detailByNip_WhenPegawaiExists_ShouldReturnPegawai() throws Exception {
-        when(pegawaiService.detailPegawai("198001012010011001")).thenReturn(testPegawai);
+    void detailByNip_WhenPegawaiExists_ShouldReturnPegawaiWithJabatan() throws Exception {
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(testPegawaiWithJabatanResponse);
         
         mockMvc.perform(get("/pegawai/detail/198001012010011001"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.namaPegawai").value("John Doe"))
+                .andExpect(jsonPath("$.nama_pegawai").value("John Doe"))
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
-                .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$.namaRole").value("Admin"))
-                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"));
+                .andExpect(jsonPath("$.kode_opd").value("OPD-001"))
+                .andExpect(jsonPath("$.nama_role").value("Admin"))
+                .andExpect(jsonPath("$.status_pegawai").value("AKTIF"))
+                .andExpect(jsonPath("$.nama_jabatan").value("Kepala Seksi"))
+                .andExpect(jsonPath("$.status_jabatan").value("UTAMA"))
+                .andExpect(jsonPath("$.jenis_jabatan").value("JABATAN_STRUKTURAL"))
+                .andExpect(jsonPath("$.eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$.pangkat").value("Penata Muda"))
+                .andExpect(jsonPath("$.golongan").value("III/a"));
     }
     
     @Test
     void detailByNip_WhenPegawaiNotExists_ShouldReturnNotFound() throws Exception {
-        when(pegawaiService.detailPegawai("999999999999999999")).thenThrow(new PegawaiNotFoundException("999999999999999999"));
+        when(pegawaiService.detailPegawaiWithJabatan("999999999999999999")).thenThrow(new PegawaiNotFoundException("999999999999999999"));
         
         mockMvc.perform(get("/pegawai/detail/999999999999999999"))
                 .andExpect(status().isNotFound());
+    }
+    
+    @Test
+    void detailByNip_WhenPegawaiExistsWithoutJabatan_ShouldReturnPegawaiWithNullJabatanFields() throws Exception {
+        PegawaiWithJabatanResponse responseWithoutJabatan = PegawaiWithJabatanResponse.from(testPegawai, null);
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(responseWithoutJabatan);
+        
+        mockMvc.perform(get("/pegawai/detail/198001012010011001"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nama_pegawai").value("John Doe"))
+                .andExpect(jsonPath("$.nip").value("198001012010011001"))
+                .andExpect(jsonPath("$.kode_opd").value("OPD-001"))
+                .andExpect(jsonPath("$.nama_role").value("Admin"))
+                .andExpect(jsonPath("$.status_pegawai").value("AKTIF"))
+                .andExpect(jsonPath("$.nama_jabatan").isEmpty())
+                .andExpect(jsonPath("$.status_jabatan").isEmpty())
+                .andExpect(jsonPath("$.jenis_jabatan").isEmpty())
+                .andExpect(jsonPath("$.eselon").isEmpty())
+                .andExpect(jsonPath("$.pangkat").isEmpty())
+                .andExpect(jsonPath("$.golongan").isEmpty());
     }
     
     @Test
@@ -170,7 +222,7 @@ public class PegawaiControllerTest {
     }
     
     @Test
-    void tambah_WhenValidPegawaiRequest_ShouldCreateJabatan() throws Exception {
+    void tambah_WhenValidPegawaiRequest_ShouldCreatePegawai() throws Exception {
         testPegawaiRequest = new PegawaiRequest(
                 null,
                 "Jane Doe",

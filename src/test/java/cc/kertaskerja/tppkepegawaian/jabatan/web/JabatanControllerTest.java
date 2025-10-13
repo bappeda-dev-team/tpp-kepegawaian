@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +43,8 @@ public class JabatanControllerTest {
     private Jabatan testJabatan;
     private Jabatan testJabatan2;
     private JabatanRequest testJabatanRequest;
+    private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse1;
+    private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse2;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
     
@@ -98,6 +101,36 @@ public class JabatanControllerTest {
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime()
         );
+        
+        testJabatanWithPegawaiResponse1 = new JabatanWithPegawaiResponse(
+                1L,
+                "198001012010011001",
+                "John Doe",
+                "Kepala Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+        
+        testJabatanWithPegawaiResponse2 = new JabatanWithPegawaiResponse(
+                2L,
+                "199001012015021002",
+                "Jane Smith",
+                "Sekretaris Dinas",
+                "OPD-002",
+                StatusJabatan.PLT,
+                JenisJabatan.JABATAN_ADMINISTRASI,
+                Eselon.ESELON_III,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
     }
     
     @Test
@@ -129,8 +162,8 @@ public class JabatanControllerTest {
     }
 
     @Test
-    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanList() throws Exception {
-        when(jabatanService.listJabatanByKodeOpd("OPD-001")).thenReturn(List.of(testJabatan, testJabatan2));
+    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001")).thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-001"))
                 .andExpect(status().isOk())
@@ -139,6 +172,7 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
                 .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
                 .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
                 .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
@@ -150,6 +184,7 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
                 .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
+                .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
                 .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
                 .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
                 .andExpect(jsonPath("$[1].statusJabatan").value("PLT"))
@@ -161,7 +196,7 @@ public class JabatanControllerTest {
 
     @Test
     void getMasterByKodeOpd_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
-        when(jabatanService.listJabatanByKodeOpd("OPD-999")).thenReturn(List.of());
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-999")).thenReturn(List.of());
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-999"))
                 .andExpect(status().isOk())
