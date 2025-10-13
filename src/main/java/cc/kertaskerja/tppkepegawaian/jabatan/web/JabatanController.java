@@ -17,6 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -43,12 +44,12 @@ public class JabatanController {
 	/**
 	 * Get master jabatan by kode OPD
 	 * @param kodeOpd OPD code
-	 * @return List of Jabatan objects
+	 * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
 	 * url: /jabatan/master/{kodeOpd}
 	 */
 	@GetMapping("detail/master/opd/{kodeOpd}")
-	public ResponseEntity<List<Jabatan>> getByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
-		return ResponseEntity.ok((List<Jabatan>) jabatanService.listJabatanByKodeOpd(kodeOpd));
+	public ResponseEntity<List<JabatanWithPegawaiResponse>> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+		return ResponseEntity.ok(jabatanService.listJabatanByKodeOpdWithPegawai(kodeOpd));
 	}
 
 	/**

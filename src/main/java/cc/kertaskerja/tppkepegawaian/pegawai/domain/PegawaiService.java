@@ -1,5 +1,8 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,13 @@ public class PegawaiService {
     private final PegawaiRepository pegawaiRepository;
     private final OpdRepository opdRepository;
     private final RoleRepository roleRepository;
+    private final JabatanRepository jabatanRepository;
 
-    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository) {
+    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository, JabatanRepository jabatanRepository) {
 	this.pegawaiRepository = pegawaiRepository;
 	this.opdRepository = opdRepository;
 	this.roleRepository = roleRepository;
+	this.jabatanRepository = jabatanRepository;
     }
     
     public List<PegawaiWithRoles> listAllPegawaiByKodeOpd(String kodeOpd) {
@@ -51,6 +56,13 @@ public class PegawaiService {
     public Pegawai detailPegawai(String nip) {
 	return pegawaiRepository.findByNip(nip)
 		.orElseThrow(() -> new PegawaiNotFoundException(nip));
+    }
+
+    public PegawaiWithJabatanResponse detailPegawaiWithJabatan(String nip) {
+	Pegawai pegawai = detailPegawai(nip);
+	Jabatan jabatan = jabatanRepository.findByNip(nip).orElse(null);
+	
+	return PegawaiWithJabatanResponse.from(pegawai, jabatan);
     }
 
     public Pegawai ubahPegawai(String nip, Pegawai pegawai) {

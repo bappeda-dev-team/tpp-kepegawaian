@@ -3,6 +3,7 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;
@@ -26,12 +27,12 @@ public class PegawaiController {
      * Get pegawai by nip
      * @param nip
      * nip asn
-     * @return pegawai object
+     * @return pegawai object with jabatan information
      * url: /pegawai/detail/{nip}
      */
     @GetMapping("detail/{nip}")
-    public Pegawai getByNip(@PathVariable("nip") String nip) {
-        return pegawaiService.detailPegawai(nip);
+    public PegawaiWithJabatanResponse getByNip(@PathVariable("nip") String nip) {
+        return pegawaiService.detailPegawaiWithJabatan(nip);
     }
     
     /**
