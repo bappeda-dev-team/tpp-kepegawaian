@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Set;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.*;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
-import cc.kertaskerja.tppkepegawaian.role.domain.LevelRole;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,45 +144,90 @@ public class PegawaiControllerTest {
     @Test
     void getAllPegawaiByKodeOpd_WhenKodeOpdExists_ShouldReturnPegawaiWithRoleList() throws Exception {
         String kodeOpd = "OPD-001";
-        Set<Role> roles1 = Set.of(new Role(1L, "Admin", "198001012010011001", LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now()));
-        Set<Role> roles2 = Set.of(new Role(2L, "User", "201001012010011001", LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now()));
-
-        List<PegawaiWithRoles> pegawaiList = Arrays.asList(
-                new PegawaiWithRoles(1L, "John Doe", "198001012010011001", "OPD-001", roles1),
-                new PegawaiWithRoles(1L, "Jane Doe", "201001012010011001", "OPD-002", roles2)
+        Set<Role> roles1 = Set.of(new Role(1L, "Admin", "198001012010011001", null, IsActive.AKTIF, Instant.now(), Instant.now()));
+        Set<Role> roles2 = Set.of(new Role(2L, "User", "201001012010011001", null, IsActive.AKTIF, Instant.now(), Instant.now()));
+        Jabatan jabatan1 = new Jabatan(
+                1L,
+                "198001012010011001",
+                "Analis Kebijakan Industrialisasi",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_STRUKTURAL,
+                Eselon.ESELON_III,
+                "Senior",
+                "Golongan III",
+                new java.util.Date(),
+                new java.util.Date(),
+                Instant.now(),
+                Instant.now()
         );
-        
-        when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
-        
+        Jabatan jabatan2 = new Jabatan(
+                2L,
+                "201001012010011001",
+                "Analis Kebijakan",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_STRUKTURAL,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan II",
+                new java.util.Date(),
+                new java.util.Date(),
+                Instant.now(),
+                Instant.now()
+        );
+
+        List<PegawaiWithJabatanAndRolesResponse> pegawaiList = Arrays.asList(
+                PegawaiWithJabatanAndRolesResponse.of(1L, "John Doe", "198001012010011001", "OPD-001", roles1, jabatan1),
+                PegawaiWithJabatanAndRolesResponse.of(2L, "Jane Doe", "201001012010011001", "OPD-001", roles2, jabatan2)
+        );
+
+        when(pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
+
         mockMvc.perform(get("/pegawai/detail/master/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id", is(1)))
                 .andExpect(jsonPath("$[0].namaPegawai", is("John Doe")))
                 .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
                 .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
-                .andExpect(jsonPath("$[0].roles[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[0].namaRole", is("Admin")))
+                .andExpect(jsonPath("$[0].isActive", is("AKTIF")))
+                .andExpect(jsonPath("$[0].namaJabatan", is("Analis Kebijakan Industrialisasi")))
+                .andExpect(jsonPath("$[0].statusJabatan", is("UTAMA")))
+                .andExpect(jsonPath("$[0].jenisJabatan", is("JABATAN_STRUKTURAL")))
+                .andExpect(jsonPath("$[0].eselon", is("ESELON_III")))
+                .andExpect(jsonPath("$[0].pangkat", is("Senior")))
+                .andExpect(jsonPath("$[0].golongan", is("Golongan III")))
+                .andExpect(jsonPath("$[1].id", is(2)))
                 .andExpect(jsonPath("$[1].namaPegawai", is("Jane Doe")))
                 .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
-                .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
-                .andExpect(jsonPath("$[1].roles[0].namaRole", is("User"))
-                );
+                .andExpect(jsonPath("$[1].kodeOpd", is("OPD-001")))
+                .andExpect(jsonPath("$[1].namaRole", is("User")))
+                .andExpect(jsonPath("$[1].isActive", is("AKTIF")))
+                .andExpect(jsonPath("$[1].namaJabatan", is("Analis Kebijakan")))
+                .andExpect(jsonPath("$[1].statusJabatan", is("UTAMA")))
+                .andExpect(jsonPath("$[1].jenisJabatan", is("JABATAN_STRUKTURAL")))
+                .andExpect(jsonPath("$[1].eselon", is("ESELON_IV")))
+                .andExpect(jsonPath("$[1].pangkat", is("Junior")))
+                .andExpect(jsonPath("$[1].golongan", is("Golongan II")));
 
-        verify(pegawaiService).listAllPegawaiByKodeOpd(kodeOpd);
+        verify(pegawaiService).listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
     
     @Test
     void getAllPegawaiByKodeOpd_WhenKodeOpdNotExists_ShouldReturnEmptyList() throws Exception {
         String kodeOpd = "OPD-999";
-        List<PegawaiWithRoles> emptyList = Collections.emptyList();
-        
-        when(pegawaiService.listAllPegawaiByKodeOpd(kodeOpd)).thenReturn(emptyList);
-        
+        List<PegawaiWithJabatanAndRolesResponse> emptyList = Collections.emptyList();
+
+        when(pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd)).thenReturn(emptyList);
+
         mockMvc.perform(get("/pegawai/detail/master/opd/{kodeOpd}", kodeOpd))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(0)));
-        
-        verify(pegawaiService).listAllPegawaiByKodeOpd(kodeOpd);
+
+        verify(pegawaiService).listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
     
     @Test
@@ -189,11 +235,11 @@ public class PegawaiControllerTest {
         String namaRole = "Admin";
         List<Pegawai> pegawaiList = Arrays.asList(
                 new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", StatusPegawai.AKTIF, "hashedpassword123", Instant.now(), Instant.now()),
-                new Pegawai(1L, "John Doe", "201001012010011001", "OPD-002", "User", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
+                new Pegawai(2L, "Jane Doe", "201001012010011001", "OPD-002", "Admin", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
         );
-        
+
         when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(pegawaiList);
-        
+
         mockMvc.perform(get("/pegawai/role/{namaRole}", namaRole))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -203,8 +249,8 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$[0].namaRole", is("Admin")))
                 .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
                 .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
-                .andExpect(jsonPath("$[1].namaRole", is("User")));
-        
+                .andExpect(jsonPath("$[1].namaRole", is("Admin")));
+
         verify(pegawaiService).listAllPegawaiByRole(namaRole);
     }
     

@@ -2,14 +2,14 @@ package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
-import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanAndRolesResponse;
-import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
 import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 

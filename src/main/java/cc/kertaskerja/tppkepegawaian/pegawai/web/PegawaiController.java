@@ -3,8 +3,8 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
-import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanAndRolesResponse;
-import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiWithJabatanResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;

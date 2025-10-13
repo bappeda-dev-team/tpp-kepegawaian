@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.pegawai.web;
+package cc.kertaskerja.tppkepegawaian.pegawai.web.response;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
