@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 

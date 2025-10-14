@@ -7,6 +7,8 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 
 import java.util.ArrayList;
@@ -123,6 +125,12 @@ public class JabatanService {
         if (!pegawaiRepository.existsByNip(jabatan.nip())) {
             throw new PegawaiNotFoundException(jabatan.nip());
         }
+
+        Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(jabatan.nip());
+        if (existingJabatans.iterator().hasNext()) {
+            throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+        }
+
         return jabatanRepository.save(jabatan);
     }
 

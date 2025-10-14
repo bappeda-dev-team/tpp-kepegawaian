@@ -1,5 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
@@ -13,14 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class JabatanServiceTest {
@@ -115,6 +116,7 @@ public class JabatanServiceTest {
 
         when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
         when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(true);
+        when(jabatanRepository.findAllByNip(newJabatan.nip())).thenReturn(List.of());
         when(jabatanRepository.save(any(Jabatan.class))).thenReturn(
                 new Jabatan(
                         2L,
@@ -146,6 +148,7 @@ public class JabatanServiceTest {
         assertThat(result.golongan()).isEqualTo("Golongan III");
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
         verify(pegawaiRepository).existsByNip(newJabatan.nip());
+        verify(jabatanRepository).findAllByNip(newJabatan.nip());
         verify(jabatanRepository).save(newJabatan);
     }
     
@@ -202,6 +205,40 @@ public class JabatanServiceTest {
                 .hasMessageContaining(newJabatan.nip());
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
         verify(pegawaiRepository).existsByNip(newJabatan.nip());
+        verify(jabatanRepository, never()).save(any());
+    }
+
+    @Test
+    void tambahJabatan_WhenPegawaiAlreadyHasJabatan_ShouldThrowException() {
+        String existingNip = "200601012010012001";
+        Jabatan newJabatan = new Jabatan(
+                null,
+                existingNip,
+                "Sekretaris Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Senior",
+                "Golongan III",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                null,
+                null
+        );
+
+        List<Jabatan> existingJabatans = List.of(testJabatan);
+
+        when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(true);
+        when(jabatanRepository.findAllByNip(existingNip)).thenReturn(existingJabatans);
+
+        assertThatThrownBy(() -> jabatanService.tambahJabatan(newJabatan))
+                .isInstanceOf(JabatanPegawaiSudahAdaException.class)
+                .hasMessageContaining(existingNip);
+        verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
+        verify(pegawaiRepository).existsByNip(newJabatan.nip());
+        verify(jabatanRepository).findAllByNip(existingNip);
         verify(jabatanRepository, never()).save(any());
     }
     
