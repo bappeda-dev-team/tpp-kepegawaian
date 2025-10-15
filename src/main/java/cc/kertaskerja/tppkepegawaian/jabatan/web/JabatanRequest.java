@@ -10,6 +10,9 @@ import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import java.lang.annotation.*;
 
 public record JabatanRequest(
 		@Nullable
@@ -45,10 +48,10 @@ public record JabatanRequest(
 		String golongan,
 		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
-		@JsonFormat(pattern = "dd-MM-yy")
+		@JsonFormat(pattern = "dd-MM-yyyy")
 		Date tanggalMulai,
 		
-		@JsonFormat(pattern = "dd-MM-yy")
-		Date tanggalBerakhir
+		@JsonFormat(pattern = "dd-MM-yyyy")
+		Date tanggalAkhir
 ) {
 }

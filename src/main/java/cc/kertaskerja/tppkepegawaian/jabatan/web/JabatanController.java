@@ -17,7 +17,9 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("jabatan")
@@ -35,8 +37,30 @@ public class JabatanController {
 	 * url: /jabatan/detail/{id}
 	 */
 	@GetMapping("detail/{id}")
-	public Jabatan getById(@PathVariable("id") Long id) {
-		return jabatanService.detailJabatan(id);
+	public ResponseEntity<Jabatan> getById(@PathVariable("id") Long id) {
+		return ResponseEntity.ok(jabatanService.detailJabatan(id));
+	}
+
+	/**
+	 * Get master jabatan by kode OPD
+	 * @param kodeOpd OPD code
+	 * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
+	 * url: /jabatan/master/{kodeOpd}
+	 */
+	@GetMapping("detail/master/opd/{kodeOpd}")
+	public ResponseEntity<List<JabatanWithPegawaiResponse>> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+		return ResponseEntity.ok(jabatanService.listJabatanByKodeOpdWithPegawai(kodeOpd));
+	}
+
+	/**
+	 * Get jabatan by NIP
+	 * @param nip NIP pegawai
+	 * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
+	 * url: /jabatan/by-nip/{nip}
+	 */
+	@GetMapping("detail/nip/{nip}")
+	public ResponseEntity<List<JabatanWithPegawaiResponse>> getByNip(@PathVariable("nip") String nip) {
+		return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawai(nip));
 	}
 
 	/**
@@ -47,7 +71,7 @@ public class JabatanController {
 	 * url: /jabatan/update/{id}
 	 */
 	@PutMapping("update/{id}")
-	public Jabatan put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
+	public ResponseEntity<Jabatan> put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
 		// Ambil data jabatan yang sudah dibuat
 		Jabatan existingJabatan = jabatanService.detailJabatan(id);
 
@@ -62,12 +86,13 @@ public class JabatanController {
 				request.pangkat(),
 				request.golongan(),
 	            request.tanggalMulai(),
-	            request.tanggalBerakhir(),
+	            request.tanggalAkhir(),
 	            // saat update data ambil data createdDate dari jabatan yang sudah dibuat
 	            existingJabatan.createdDate(),
 	            null
 	    );
-	    return jabatanService.ubahJabatan(id, jabatan);
+	    Jabatan updatedJabatan = jabatanService.ubahJabatan(id, jabatan);
+	    return ResponseEntity.ok(updatedJabatan);
 	}
 
 	/**
@@ -89,7 +114,7 @@ public class JabatanController {
 		    request.pangkat(),
 		    request.golongan(),
 		    request.tanggalMulai(),
-		    request.tanggalBerakhir()
+		    request.tanggalAkhir()
 		    );
 	    Jabatan saved = jabatanService.tambahJabatan(jabatan);
 	    URI location = ServletUriComponentsBuilder

@@ -347,7 +347,7 @@ public class PegawaiServiceTest {
     void hapusPegawai_WhenPegawaiNotExists_ShouldThrowException() {
         String nip = "999999999999999999";
         when(pegawaiRepository.existsByNip(nip)).thenReturn(false);
-        
+
         assertThatThrownBy(() -> pegawaiService.hapusPegawai(nip))
                 .isInstanceOf(PegawaiNotFoundException.class)
                 .hasMessageContaining(nip);

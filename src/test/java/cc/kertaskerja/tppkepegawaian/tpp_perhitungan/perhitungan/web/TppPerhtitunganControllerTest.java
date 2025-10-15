@@ -54,6 +54,7 @@ public class TppPerhtitunganControllerTest {
             1L,
             JenisTpp.BEBAN_KERJA,
             "OPD-001",
+            "PEMDA-001",
             "198001012010011001",
             "John Doe",
             1,
@@ -69,6 +70,7 @@ public class TppPerhtitunganControllerTest {
             2L,
             JenisTpp.BEBAN_KERJA,
             "OPD-001",
+            "PEMDA-001",
             "198001012010011001",
             "John Doe",
             1,
@@ -85,7 +87,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             "Kehadiran",
             1,
             2024,
@@ -98,7 +100,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             "Kinerja",
             1,
             2024,
@@ -112,7 +114,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             1,
             2024,
             100.0f,
@@ -131,6 +133,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
             .andExpect(jsonPath("$.nama").value("John Doe"))
             .andExpect(jsonPath("$.maksimum").value(50.0))
@@ -161,6 +164,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[0].jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$[0].kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
             .andExpect(jsonPath("$[0].nama").value("John Doe"))
             .andExpect(jsonPath("$[0].maksimum").value(50.0))
@@ -194,6 +198,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
             .andExpect(jsonPath("$.nama").value("John Doe"))
             .andExpect(jsonPath("$.maksimum").value(100.0))
@@ -211,7 +216,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             1,
             2024,
             100.0f,
@@ -224,6 +229,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
             .andExpect(jsonPath("$.nama").value("John Doe"))
             .andExpect(jsonPath("$.maksimum").value(100.0))
@@ -252,7 +258,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             "Kehadiran",
             1,
             2024,
@@ -266,7 +272,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             1,
             2024,
             100.0f,
@@ -294,6 +300,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
             .andExpect(jsonPath("$.nama").value("John Doe"))
             .andExpect(jsonPath("$.maksimum").value(100.0))
@@ -311,7 +318,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "999999999999999999",
             "John Doe",
-            null,
+            "PEMDA-001",
             2,
             2025,
             100.0f,
@@ -332,7 +339,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             "Kehadiran",
             1,
             2024,
@@ -346,7 +353,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             1,
             2024,
             100.0f,
@@ -371,7 +378,7 @@ public class TppPerhtitunganControllerTest {
             "OPD-001",
             "198001012010011001",
             "John Doe",
-            null,
+            "PEMDA-001",
             1,
             2024,
             100.0f,
@@ -384,6 +391,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
             .andExpect(jsonPath("$.nama").value("John Doe"))
             .andExpect(jsonPath("$.maksimum").value(100.0))

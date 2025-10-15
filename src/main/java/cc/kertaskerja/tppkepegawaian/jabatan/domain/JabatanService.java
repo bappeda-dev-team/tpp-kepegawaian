@@ -4,50 +4,255 @@ import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class JabatanService {
-	private final JabatanRepository jabatanRepository;
-	private final OpdRepository opdRepository;
-	
-	public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository) {
-        this.jabatanRepository = jabatanRepository;
+
+    private final JabatanRepository jabatanRepository;
+    private final OpdRepository opdRepository;
+    private final PegawaiRepository pegawaiRepository;
+
+	public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository, PegawaiRepository pegawaiRepository) {
+	    this.jabatanRepository = jabatanRepository;
         this.opdRepository = opdRepository;
+        this.pegawaiRepository = pegawaiRepository;
     }
-	
-	public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
+
+   public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
         return jabatanRepository.findByKodeOpd(kodeOpd);
-    }
-	
-	public Jabatan detailJabatan(Long id) {
-        return jabatanRepository.findById(id)
-                .orElseThrow(() -> new JabatanNotFoundException(id));
-    }
-	
-	public Jabatan ubahJabatan(Long id, Jabatan jabatan) {
-		if (!jabatanRepository.existsById(id)) {
-			throw new JabatanNotFoundException(id);
-		}
+   }
 
-        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
-            throw new OpdNotFoundException(jabatan.kodeOpd());
+   public List<Jabatan> listJabatanByNip(String nip) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
+        List<Jabatan> result = new ArrayList<>();
+        jabatans.forEach(result::add);
+        return result;
+   }
+
+   public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawai(String nip) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
+        List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
+
+        for (Jabatan jabatan : jabatans) {
+            Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
+                .orElse(null); // return null jika pegawai tidak ditemukan
+
+            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+
+            responses.add(new JabatanWithPegawaiResponse(
+                jabatan.id(),
+                jabatan.nip(),
+                namaPegawai,
+                jabatan.namaJabatan(),
+                jabatan.kodeOpd(),
+                jabatan.statusJabatan(),
+                jabatan.jenisJabatan(),
+                jabatan.eselon(),
+                jabatan.pangkat(),
+                jabatan.golongan(),
+                jabatan.tanggalMulai(),
+                jabatan.tanggalAkhir()
+            ));
         }
-		return jabatanRepository.save(jabatan);
+
+        responses.sort((j1, j2) -> {
+            if (j1.statusJabatan() == StatusJabatan.UTAMA && j2.statusJabatan() != StatusJabatan.UTAMA) {
+                return -1;
+            } else if (j1.statusJabatan() != StatusJabatan.UTAMA && j2.statusJabatan() == StatusJabatan.UTAMA) {
+                return 1;
+            } else if (j1.statusJabatan() == StatusJabatan.PLT_UTAMA && j2.statusJabatan() != StatusJabatan.PLT_UTAMA) {
+                return -1;
+            } else if (j1.statusJabatan() != StatusJabatan.PLT_UTAMA && j2.statusJabatan() == StatusJabatan.PLT_UTAMA) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
+        return responses;
+   }
+
+   public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
+        List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
+        
+        for (Jabatan jabatan : jabatans) {
+            Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
+                .orElse(null); // return null jika pegawai tidak ditemukan
+            
+            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+            
+            responses.add(new JabatanWithPegawaiResponse(
+                jabatan.id(),
+                jabatan.nip(),
+                namaPegawai,
+                jabatan.namaJabatan(),
+                jabatan.kodeOpd(),
+                jabatan.statusJabatan(),
+                jabatan.jenisJabatan(),
+                jabatan.eselon(),
+                jabatan.pangkat(),
+                jabatan.golongan(),
+                jabatan.tanggalMulai(),
+                jabatan.tanggalAkhir()
+            ));
+        }
+        
+        return responses;
+   }
+
+   // Periksa apakah user memiliki salah satu status jabatan
+   private boolean isPltJabatan(StatusJabatan statusJabatan) {
+       return statusJabatan == StatusJabatan.PLT_UTAMA || statusJabatan == StatusJabatan.PLT_SEMENTARA;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan PLT saat tambah data
+   private boolean hasPltJabatan(String nip) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (isPltJabatan(jabatan.statusJabatan())) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan PLT saat update
+   private boolean hasPltJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (isPltJabatan(jabatan.statusJabatan()) && !jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan UTAMA saat update
+   private boolean hasUtamaJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (jabatan.statusJabatan() == StatusJabatan.UTAMA && !jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan lain (excluding current)
+   private boolean hasOtherJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (!jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   public Jabatan detailJabatan(Long id) {
+       return jabatanRepository.findById(id)
+               .orElseThrow(() -> new JabatanNotFoundException(id));
+   }
+
+   public Jabatan ubahJabatan(Long id, Jabatan jabatan) {
+    if (!jabatanRepository.existsById(id)) {
+        throw new JabatanNotFoundException(id);
+    }
+
+       if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
+           throw new OpdNotFoundException(jabatan.kodeOpd());
+       }
+
+       if (!pegawaiRepository.existsByNip(jabatan.nip())) {
+           throw new PegawaiNotFoundException(jabatan.nip());
+       }
+       Jabatan currentJabatan = jabatanRepository.findById(id).orElse(null);
+       if (currentJabatan == null) {
+           throw new JabatanNotFoundException(id);
+       }
+
+       // Cek jika pegawai memiliki status jabatan UTAMA, cek ada tidak nilai status jabatan PLT
+       if (jabatan.statusJabatan() == StatusJabatan.UTAMA) {
+           if (hasPltJabatanExcludingCurrent(jabatan.nip(), id)) {
+               return jabatanRepository.save(jabatan);
+           } else {
+               if (hasUtamaJabatanExcludingCurrent(jabatan.nip(), id)) {
+                   throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+               }
+           }
+       } else if (isPltJabatan(jabatan.statusJabatan())) {
+           // Cek apakah pegawai memiliki status jabatan PLT
+           if (hasPltJabatanExcludingCurrent(jabatan.nip(), id)) {
+               throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+           }
+       } else {
+           if (hasOtherJabatanExcludingCurrent(jabatan.nip(), id)) {
+               throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+           }
+       }
+
+    return jabatanRepository.save(jabatan);
 	}
-	
-	public Jabatan tambahJabatan(Jabatan jabatan) {
+
+    public Jabatan tambahJabatan(Jabatan jabatan) {
 
         if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
             throw new OpdNotFoundException(jabatan.kodeOpd());
         }
+
+        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
+            throw new PegawaiNotFoundException(jabatan.nip());
+        }
+
+        // Ambil semua data jabatan berdasarkan nip pegawai
+        Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(jabatan.nip());
+        boolean hasExistingJabatan = existingJabatans.iterator().hasNext();
+        boolean hasPlt = false;
+
+        // Check if there's any PLT jabatan
+        for (Jabatan existing : existingJabatans) {
+            if (isPltJabatan(existing.statusJabatan())) {
+                hasPlt = true;
+                break;
+            }
+        }
+
+        // Cek jika pegawai memiliki status jabatan UTAMA
+        if (jabatan.statusJabatan() == StatusJabatan.UTAMA) {
+            if (hasPlt) {
+                return jabatanRepository.save(jabatan);
+            } else if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
+        } else if (isPltJabatan(jabatan.statusJabatan())) {
+            // Cek apakah pegawai memiliki status jabatan PLT
+            if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
+        } else {
+            if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
+        }
+
         return jabatanRepository.save(jabatan);
     }
-	
-	public void hapusJabatan(Long id) {
-        if (!jabatanRepository.existsById(id)) {
-            throw new JabatanNotFoundException(id);
-        }
 
-        jabatanRepository.deleteById(id);
-    }
+   public void hapusJabatan(Long id) {
+	   if (!jabatanRepository.existsById(id)) {
+		   throw new JabatanNotFoundException(id);
+	   }
+
+	   jabatanRepository.deleteById(id);
+   }
 }

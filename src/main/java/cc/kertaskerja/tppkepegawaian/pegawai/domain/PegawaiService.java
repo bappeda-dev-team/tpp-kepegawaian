@@ -1,11 +1,15 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
 import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 
@@ -19,11 +23,13 @@ public class PegawaiService {
     private final PegawaiRepository pegawaiRepository;
     private final OpdRepository opdRepository;
     private final RoleRepository roleRepository;
+    private final JabatanRepository jabatanRepository;
 
-    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository) {
+    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository, JabatanRepository jabatanRepository) {
 	this.pegawaiRepository = pegawaiRepository;
 	this.opdRepository = opdRepository;
 	this.roleRepository = roleRepository;
+	this.jabatanRepository = jabatanRepository;
     }
     
     public List<PegawaiWithRoles> listAllPegawaiByKodeOpd(String kodeOpd) {
@@ -34,6 +40,29 @@ public class PegawaiService {
 
         return StreamSupport.stream(pegawais.spliterator(), false)
                 .map(p -> PegawaiWithRoles.of(p, getRolesByNip(p.nip())))
+                .toList();
+    }
+
+    public List<PegawaiWithJabatanAndRolesResponse> listAllPegawaiWithJabatanByKodeOpd(String kodeOpd) {
+        if (!opdRepository.existsByKodeOpd(kodeOpd)) {
+            throw new OpdNotFoundException(kodeOpd);
+            
+        }
+        Iterable<Pegawai> pegawais = pegawaiRepository.findByKodeOpd(kodeOpd);
+
+        return StreamSupport.stream(pegawais.spliterator(), false)
+                .map(p -> {
+                    Set<Role> roles = getRolesByNip(p.nip());
+                    Jabatan jabatan = jabatanRepository.findByNip(p.nip()).orElse(null);
+                    return PegawaiWithJabatanAndRolesResponse.of(
+                        p.id(),
+                        p.namaPegawai(),
+                        p.nip(),
+                        p.kodeOpd(),
+                        roles,
+                        jabatan
+                    );
+                })
                 .toList();
     }
 
@@ -51,6 +80,13 @@ public class PegawaiService {
     public Pegawai detailPegawai(String nip) {
 	return pegawaiRepository.findByNip(nip)
 		.orElseThrow(() -> new PegawaiNotFoundException(nip));
+    }
+
+    public PegawaiWithJabatanResponse detailPegawaiWithJabatan(String nip) {
+	Pegawai pegawai = detailPegawai(nip);
+	Jabatan jabatan = jabatanRepository.findByNip(nip).orElse(null);
+	
+	return PegawaiWithJabatanResponse.from(pegawai, jabatan);
     }
 
     public Pegawai ubahPegawai(String nip, Pegawai pegawai) {

@@ -10,8 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanNotFoundException;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanSudahAdaException;
 
 
 @RestControllerAdvice
@@ -24,9 +25,15 @@ public class JabatanControllerAdvice {
 	
 	@ExceptionHandler(JabatanSudahAdaException.class)
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    String opdSudahAdaHandler(JabatanSudahAdaException ex) {
+    String jabatanSudahAdaHandler(JabatanSudahAdaException ex) {
         return ex.getMessage();
     }
+	
+	@ExceptionHandler(JabatanPegawaiSudahAdaException.class)
+	@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+	String jabatanPegawaiSudahAdaHandler(JabatanPegawaiSudahAdaException ex) {
+		return ex.getMessage();
+	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

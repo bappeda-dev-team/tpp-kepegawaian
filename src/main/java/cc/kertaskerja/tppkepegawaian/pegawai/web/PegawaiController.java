@@ -3,6 +3,8 @@ package cc.kertaskerja.tppkepegawaian.pegawai.web;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;
@@ -26,24 +28,24 @@ public class PegawaiController {
      * Get pegawai by nip
      * @param nip
      * nip asn
-     * @return pegawai object
+     * @return pegawai object with jabatan information
      * url: /pegawai/detail/{nip}
      */
     @GetMapping("detail/{nip}")
-    public Pegawai getByNip(@PathVariable("nip") String nip) {
-        return pegawaiService.detailPegawai(nip);
+    public PegawaiWithJabatanResponse getByNip(@PathVariable("nip") String nip) {
+        return pegawaiService.detailPegawaiWithJabatan(nip);
     }
     
     /**
-     * Get all pegawai by kodeOpd
+     * Get master pegawai by kodeOpd
      * @param kodeOpd
      * kodeOpd: OPD unique code 1.23.4.56.7.89.1.0000
-     * @return list of all pegawai in the OPD
-     * url: /pegawai/opd/{kodeOpd}
+     * @return list of all pegawai in the OPD with jabatan information
+     * url: /pegawai/detail/master/opd/{kodeOpd}
      */
-    @GetMapping("opd/{kodeOpd}")
-    public List<PegawaiWithRoles> getAllPegawaiByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
-        return pegawaiService.listAllPegawaiByKodeOpd(kodeOpd);
+    @GetMapping("detail/master/opd/{kodeOpd}")
+    public List<PegawaiWithJabatanAndRolesResponse> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+        return pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
     
     /**

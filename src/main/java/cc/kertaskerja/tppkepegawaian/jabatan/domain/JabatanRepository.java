@@ -14,8 +14,12 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 	boolean existsById(@NonNull Long id);
 	@NonNull
 	Iterable<Jabatan> findByKodeOpd(@NonNull String kodeOpd);
+	@NonNull
+	Optional<Jabatan> findByNip(@NonNull String nip);
+	@NonNull
+	Iterable<Jabatan> findAllByNip(@NonNull String nip);
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM jabatan WHERE id = :id")
-	void deleteById(@NonNull String id);
+	void deleteById(@NonNull Long id);
 }

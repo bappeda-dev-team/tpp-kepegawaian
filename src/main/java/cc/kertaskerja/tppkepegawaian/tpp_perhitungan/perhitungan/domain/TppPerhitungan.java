@@ -20,6 +20,9 @@ public record TppPerhitungan(
         @Column("kode_opd")
         String kodeOpd,
 
+        @Column("kode_pemda")
+        String kodePemda,
+
         @Column("nip")
         String nip,
 
@@ -51,6 +54,7 @@ public record TppPerhitungan(
     public static TppPerhitungan of(
             JenisTpp jenisTpp,
             String kodeOpd,
+            String kodePemda,
             String nip,
             String nama,
             Integer bulan,
@@ -59,11 +63,12 @@ public record TppPerhitungan(
             String namaPerhitungan,
             Float nilaiPerhitungan
     ) {
-                
+
         return new TppPerhitungan(
                 null,
                 jenisTpp,
                 kodeOpd,
+                kodePemda,
                 nip,
                 nama,
                 bulan,

@@ -1,4 +1,4 @@
-package cc.kertaskerja.tppkepegawaian.jabatan.domain;
+package cc.kertaskerja.tppkepegawaian.jabatan.domain.exception;
 
 public class JabatanSudahAdaException extends RuntimeException {
 	public JabatanSudahAdaException(Long id) {

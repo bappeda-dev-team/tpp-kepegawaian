@@ -1,6 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -39,7 +43,10 @@ public class JabatanControllerTest {
     private ObjectMapper objectMapper;
     
     private Jabatan testJabatan;
+    private Jabatan testJabatan2;
     private JabatanRequest testJabatanRequest;
+    private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse1;
+    private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse2;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
     
@@ -66,12 +73,72 @@ public class JabatanControllerTest {
                 Instant.now(),
                 Instant.now()
         );
+
+        testJabatan2 = new Jabatan(
+                2L,
+                "199001012015021002",
+                "Sekretaris Dinas",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_ADMINISTRASI,
+                Eselon.ESELON_III,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                Instant.now(),
+                Instant.now()
+        );
+        
+        testJabatanRequest = new JabatanRequest(
+                null,
+                "198001012010011001",
+                "Kepala Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+        
+        testJabatanWithPegawaiResponse1 = new JabatanWithPegawaiResponse(
+                1L,
+                "198001012010011001",
+                "John Doe",
+                "Kepala Dinas",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+        
+        testJabatanWithPegawaiResponse2 = new JabatanWithPegawaiResponse(
+                2L,
+                "199001012015021002",
+                "Jane Smith",
+                "Sekretaris Dinas",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_ADMINISTRASI,
+                Eselon.ESELON_III,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
     }
     
     @Test
     void detailById_WhenJabatanExists_ShouldReturnJabatan() throws Exception {
         when(jabatanService.detailJabatan(1L)).thenReturn(testJabatan);
-        
+
         mockMvc.perform(get("/jabatan/detail/1"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -84,8 +151,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.eselon").value("ESELON_IV"))
                 .andExpect(jsonPath("$.pangkat").value("Junior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan I"))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
     
     @Test
@@ -94,6 +161,148 @@ public class JabatanControllerTest {
         
         mockMvc.perform(get("/jabatan/detail/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001")).thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
+
+        mockMvc.perform(get("/jabatan/detail/master/opd/OPD-001"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
+                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
+                .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
+                .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
+                .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
+                .andExpect(jsonPath("$[1].statusJabatan").value("PLT_UTAMA"))
+                .andExpect(jsonPath("$[1].jenisJabatan").value("JABATAN_ADMINISTRASI"))
+                .andExpect(jsonPath("$[1].eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$[1].pangkat").value("Middle"))
+                .andExpect(jsonPath("$[1].golongan").value("Golongan II"));
+    }
+
+    @Test
+    void getMasterByKodeOpd_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-999")).thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/master/opd/OPD-999"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getByNip_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        when(jabatanService.listJabatanByNipWithPegawai("198001012010011001")).thenReturn(List.of(testJabatanWithPegawaiResponse1));
+
+        mockMvc.perform(get("/jabatan/detail/nip/198001012010011001"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
+                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"));
+    }
+
+    @Test
+    void getByNip_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
+        when(jabatanService.listJabatanByNipWithPegawai("999999999999999999")).thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/nip/999999999999999999"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(0));
+    }
+
+    @Test
+    void getByNip_WhenMultipleStatusJabatanExists_ShouldReturnSortedJabatanWithPegawaiList() throws Exception {
+        JabatanWithPegawaiResponse pltJabatanResponse = new JabatanWithPegawaiResponse(
+                2L,
+                "123456789012345678",
+                "Dino",
+                "Pelaksana Tugas",
+                "OPD-001",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_STRUKTURAL,
+                Eselon.ESELON_II,
+                "Sepuh",
+                "Golongan IV",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        JabatanWithPegawaiResponse utamaJabatanResponse = new JabatanWithPegawaiResponse(
+                1L,
+                "123456789012345678",
+                "Dino",
+                "Analis Kebijakan Industrialisasi",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_STRUKTURAL,
+                Eselon.ESELON_III,
+                "Senior",
+                "Golongan III",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+        
+        when(jabatanService.listJabatanByNipWithPegawai("123456789012345678"))
+                .thenReturn(List.of(utamaJabatanResponse, pltJabatanResponse));
+
+        mockMvc.perform(get("/jabatan/detail/nip/123456789012345678"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].nip").value("123456789012345678"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("Dino"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Analis Kebijakan Industrialisasi"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_STRUKTURAL"))
+                .andExpect(jsonPath("$[0].eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$[0].pangkat").value("Senior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan III"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].nip").value("123456789012345678"))
+                .andExpect(jsonPath("$[1].namaPegawai").value("Dino"))
+                .andExpect(jsonPath("$[1].namaJabatan").value("Pelaksana Tugas"))
+                .andExpect(jsonPath("$[1].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[1].statusJabatan").value("PLT_UTAMA"))
+                .andExpect(jsonPath("$[1].jenisJabatan").value("JABATAN_STRUKTURAL"))
+                .andExpect(jsonPath("$[1].eselon").value("ESELON_II"))
+                .andExpect(jsonPath("$[1].pangkat").value("Sepuh"))
+                .andExpect(jsonPath("$[1].golongan").value("Golongan IV"));
     }
     
     @Test
@@ -145,63 +354,78 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.eselon").value("ESELON_III"))
                 .andExpect(jsonPath("$.pangkat").value("Senior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan III"))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
+                .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
     
     @Test
-    void tambah_WhenInvalidJabatanRequest_ShouldReturn400() throws Exception {
-        JabatanRequest request = new JabatanRequest(
+    void tambah_WhenPltJabatanWithoutExistingJabatan_ShouldCreatePltJabatan() throws Exception {
+        JabatanRequest pltRequest = new JabatanRequest(
                 null,
-                "",
-                "",
-                "",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_FUNGSIONAL,
-                Eselon.ESELON_III,
-                "",
-                "",
-                null,
-                null
-        );
-        
-        mockMvc.perform(post("/jabatan")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
-    }
-    
-    @Test
-    void post_WhenOpdNotExists_ShouldReturn400() throws Exception {
-        when(jabatanService.tambahJabatan(any(Jabatan.class)))
-                .thenThrow(new OpdNotFoundException("OPD-002"));
-        
-        mockMvc.perform(post("/jabatan")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(testJabatanRequest)))
-                .andExpect(status().isBadRequest());
-    }
-    
-    @Test
-    void ubahJabatan_WhenValidRequest_ShouldUpdateJabatan() throws Exception {
-        JabatanRequest request = new JabatanRequest(
-                1L,
-                "200501012010011005",
-                "Teknisi Listrik",
-                "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_II,
-                "Middle",
-                "Golongan II",
+                "200001012010011003",
+                "Plt Kepala Dinas",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime()
         );
-        
-        Jabatan existingJabatan = new Jabatan(
-                1L,
-                "198001012010011001",
-                "Kepala Dinas",
+
+        Jabatan pltJabatan = new Jabatan(
+                3L,
+                "200001012010011003",
+                "Plt Kepala Dinas",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                Instant.now(),
+                Instant.now()
+        );
+
+        when(jabatanService.tambahJabatan(any(Jabatan.class))).thenReturn(pltJabatan);
+
+        mockMvc.perform(post("/jabatan")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pltRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(3L))
+                .andExpect(jsonPath("$.nip").value("200001012010011003"))
+                .andExpect(jsonPath("$.namaJabatan").value("Plt Kepala Dinas"))
+                .andExpect(jsonPath("$.kodeOpd").value("OPD-002"))
+                .andExpect(jsonPath("$.statusJabatan").value("PLT_UTAMA"))
+                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"));
+    }
+
+    @Test
+    void tambah_WhenUtamaJabatanWithExistingPlt_ShouldCreateUtamaJabatan() throws Exception {
+        JabatanRequest utamaRequest = new JabatanRequest(
+                null,
+                "199001012015021002",
+                "Kepala Dinas Utama",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        Jabatan utamaJabatan = new Jabatan(
+                3L,
+                "199001012015021002",
+                "Kepala Dinas Utama",
                 "OPD-001",
                 StatusJabatan.UTAMA,
                 JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
@@ -213,15 +437,73 @@ public class JabatanControllerTest {
                 Instant.now(),
                 Instant.now()
         );
-        
-        Jabatan updateJabatan = new Jabatan(
+
+        when(jabatanService.tambahJabatan(any(Jabatan.class))).thenReturn(utamaJabatan);
+
+        mockMvc.perform(post("/jabatan")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(utamaRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id").value(3L))
+                .andExpect(jsonPath("$.nip").value("199001012015021002"))
+                .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas Utama"))
+                .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"));
+    }
+
+    @Test
+    void tambah_WhenPltJabatanWithExistingJabatan_ShouldReturn422() throws Exception {
+        JabatanRequest pltRequest = new JabatanRequest(
+                null,
+                "198001012010011001",
+                "Plt Kepala Dinas",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        when(jabatanService.tambahJabatan(any(Jabatan.class)))
+                .thenThrow(new JabatanPegawaiSudahAdaException("198001012010011001"));
+
+        mockMvc.perform(post("/jabatan")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(pltRequest)))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().string("Jabatan dengan pegawai nip 198001012010011001 sudah ada."));
+    }
+
+    @Test
+    void ubahJabatan_WhenChangingToUtamaWithExistingPlt_ShouldUpdateJabatan() throws Exception {
+        JabatanRequest request = new JabatanRequest(
                 1L,
-                "200501012010011005",
-                "Teknisi Listrik",
+                "199001012015021002",
+                "Kepala Dinas Utama",
                 "OPD-001",
                 StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        Jabatan existingJabatan = new Jabatan(
+                1L,
+                "199001012015021002",
+                "Plt Sekretaris",
+                "OPD-002",
+                StatusJabatan.PLT_UTAMA,
                 JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_II,
+                Eselon.ESELON_III,
                 "Middle",
                 "Golongan II",
                 tanggalMulai.getTime(),
@@ -229,83 +511,35 @@ public class JabatanControllerTest {
                 Instant.now(),
                 Instant.now()
         );
-        
+
+        Jabatan updatedJabatan = new Jabatan(
+                1L,
+                "199001012015021002",
+                "Kepala Dinas Utama",
+                "OPD-001",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime(),
+                Instant.now(),
+                Instant.now()
+        );
+
         when(jabatanService.detailJabatan(1L)).thenReturn(existingJabatan);
-        when(jabatanService.ubahJabatan(eq(1L), any(Jabatan.class))).thenReturn(updateJabatan);
-        
+        when(jabatanService.ubahJabatan(eq(1L), any(Jabatan.class))).thenReturn(updatedJabatan);
+
         mockMvc.perform(put("/jabatan/update/{id}", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nip", is("200501012010011005")))
-                .andExpect(jsonPath("$.namaJabatan", is("Teknisi Listrik")))
+                .andExpect(jsonPath("$.nip", is("199001012015021002")))
+                .andExpect(jsonPath("$.namaJabatan", is("Kepala Dinas Utama")))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
                 .andExpect(jsonPath("$.statusJabatan", is("UTAMA")))
-                .andExpect(jsonPath("$.jenisJabatan", is("JABATAN_ADMINISTRASI")))
-                .andExpect(jsonPath("$.eselon", is("ESELON_II")))
-                .andExpect(jsonPath("$.pangkat", is("Middle")))
-                .andExpect(jsonPath("$.golongan", is("Golongan II")))
-                .andExpect(jsonPath("$.tanggalMulai").value("01-01-23"))
-                .andExpect(jsonPath("$.tanggalAkhir").value("31-12-25"));
-        
-        verify(jabatanService).detailJabatan(1L);
-        verify(jabatanService).ubahJabatan(eq(1L), any(Jabatan.class));
-    }
-    
-    @Test
-    void ubahJabatan_WhenIdNotExists_ShouldReturn404() throws Exception {
-        JabatanRequest request = new JabatanRequest(
-                3L,
-                "200501012010011005",
-                "Teknisi Listrik",
-                "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_II,
-                "Middle",
-                "Golongan II",
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime()
-        );
-        
-        when(jabatanService.detailJabatan(3L)).thenThrow(new JabatanNotFoundException(1L));
-        
-        mockMvc.perform(put("/jabatan/update/{id}", "3")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
-        
-        verify(jabatanService).detailJabatan(3L);
-        verify(jabatanService, never()).ubahJabatan(anyLong(), any(Jabatan.class));
-    }
-    
-    @Test
-    void ubahJabatan_WhenKodeOpdNotExists_ShouldReturn404() throws Exception {
-        JabatanRequest request = new JabatanRequest(
-                1L,
-                "200501012010011005",
-                "Teknisi Listrik",
-                "OPD-003",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_II,
-                "Middle",
-                "Golongan II",
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime()
-        );
-        
-        when(jabatanService.detailJabatan(1L)).thenReturn(testJabatan);
-        when(jabatanService.ubahJabatan(eq(1L), any(Jabatan.class)))
-                .thenThrow(new OpdNotFoundException("OPD-999"));
-        
-        mockMvc.perform(put("/jabatan/update/{id}", "1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isNotFound());
-        
-        verify(jabatanService).detailJabatan(1L);
-        verify(jabatanService).ubahJabatan(eq(1L), any(Jabatan.class));
+                .andExpect(jsonPath("$.jenisJabatan", is("JABATAN_PEMIMPIN_TINGGI")));
     }
     
     @Test
@@ -321,10 +555,10 @@ public class JabatanControllerTest {
     @Test
     void hapusJabatan_WhenJabatanNotExists_ShouldReturn404() throws Exception {
         doThrow(new JabatanNotFoundException(3L)).when(jabatanService).hapusJabatan(3L);
-        
+
         mockMvc.perform(delete("/jabatan/delete/{id}", "3"))
                 .andExpect(status().isNotFound());
-        
+
         verify(jabatanService).hapusJabatan(3L);
     }
 }

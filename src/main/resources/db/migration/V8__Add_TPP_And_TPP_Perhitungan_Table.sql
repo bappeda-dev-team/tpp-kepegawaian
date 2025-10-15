@@ -2,6 +2,7 @@ CREATE TABLE tpp_perhitungan (
     id                  BIGSERIAL PRIMARY KEY NOT NULL,
     jenis_tpp           VARCHAR(50) NOT NULL DEFAULT('BELUM_DIATUR'),
     kode_opd            VARCHAR(30),
+    kode_pemda          VARCHAR(30),
     nip                 VARCHAR(30) NOT NULL,
     nama                VARCHAR(255),
     bulan               INTEGER NOT NULL,

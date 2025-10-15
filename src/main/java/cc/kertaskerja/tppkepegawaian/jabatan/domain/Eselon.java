@@ -5,5 +5,5 @@ public enum Eselon {
 	ESELON_II,
 	ESELON_III,
 	ESELON_IV,
-	NON_ESELON,
+	NON_ESELON;
 }
