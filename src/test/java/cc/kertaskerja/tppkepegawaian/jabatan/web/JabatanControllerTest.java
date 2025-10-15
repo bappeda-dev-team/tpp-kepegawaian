@@ -3,8 +3,6 @@ package cc.kertaskerja.tppkepegawaian.jabatan.web;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
-import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
-import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,20 +16,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(JabatanController.class)
+@SuppressWarnings("unused")
 public class JabatanControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -43,7 +41,6 @@ public class JabatanControllerTest {
     private ObjectMapper objectMapper;
     
     private Jabatan testJabatan;
-    private Jabatan testJabatan2;
     private JabatanRequest testJabatanRequest;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse1;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse2;
@@ -52,10 +49,10 @@ public class JabatanControllerTest {
     
     @BeforeEach
     void setUp() {
-        tanggalMulai = Calendar.getInstance();
+        tanggalMulai = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         tanggalMulai.set(2023, Calendar.JANUARY, 1);
         
-        tanggalAkhir = Calendar.getInstance();
+        tanggalAkhir = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         tanggalAkhir.set(2025, Calendar.DECEMBER, 31);
         
         testJabatan = new Jabatan(
@@ -74,7 +71,7 @@ public class JabatanControllerTest {
                 Instant.now()
         );
 
-        testJabatan2 = new Jabatan(
+        Jabatan testJabatan2 = new Jabatan(
                 2L,
                 "199001012015021002",
                 "Sekretaris Dinas",
@@ -320,7 +317,7 @@ public class JabatanControllerTest {
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime()
         );
-        
+
         Jabatan createJabatan = new Jabatan(
                 2L, 
                 "201001012010011001",
