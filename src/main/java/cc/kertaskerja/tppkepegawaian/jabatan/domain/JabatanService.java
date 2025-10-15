@@ -64,6 +64,20 @@ public class JabatanService {
             ));
         }
 
+        responses.sort((j1, j2) -> {
+            if (j1.statusJabatan() == StatusJabatan.UTAMA && j2.statusJabatan() != StatusJabatan.UTAMA) {
+                return -1;
+            } else if (j1.statusJabatan() != StatusJabatan.UTAMA && j2.statusJabatan() == StatusJabatan.UTAMA) {
+                return 1;
+            } else if (j1.statusJabatan() == StatusJabatan.PLT_UTAMA && j2.statusJabatan() != StatusJabatan.PLT_UTAMA) {
+                return -1;
+            } else if (j1.statusJabatan() != StatusJabatan.PLT_UTAMA && j2.statusJabatan() == StatusJabatan.PLT_UTAMA) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+
         return responses;
    }
 
@@ -96,6 +110,55 @@ public class JabatanService {
         return responses;
    }
 
+   // Periksa apakah user memiliki salah satu status jabatan
+   private boolean isPltJabatan(StatusJabatan statusJabatan) {
+       return statusJabatan == StatusJabatan.PLT_UTAMA || statusJabatan == StatusJabatan.PLT_SEMENTARA;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan PLT saat tambah data
+   private boolean hasPltJabatan(String nip) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (isPltJabatan(jabatan.statusJabatan())) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan PLT saat update
+   private boolean hasPltJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (isPltJabatan(jabatan.statusJabatan()) && !jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan UTAMA saat update
+   private boolean hasUtamaJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (jabatan.statusJabatan() == StatusJabatan.UTAMA && !jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
+   // Periksa apakah pegawai sudah memiliki jabatan lain (excluding current)
+   private boolean hasOtherJabatanExcludingCurrent(String nip, Long currentJabatanId) {
+       Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(nip);
+       for (Jabatan jabatan : existingJabatans) {
+           if (!jabatan.id().equals(currentJabatanId)) {
+               return true;
+           }
+       }
+       return false;
+   }
+
    public Jabatan detailJabatan(Long id) {
        return jabatanRepository.findById(id)
                .orElseThrow(() -> new JabatanNotFoundException(id));
@@ -113,6 +176,31 @@ public class JabatanService {
        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
            throw new PegawaiNotFoundException(jabatan.nip());
        }
+       Jabatan currentJabatan = jabatanRepository.findById(id).orElse(null);
+       if (currentJabatan == null) {
+           throw new JabatanNotFoundException(id);
+       }
+
+       // Cek jika pegawai memiliki status jabatan UTAMA, cek ada tidak nilai status jabatan PLT
+       if (jabatan.statusJabatan() == StatusJabatan.UTAMA) {
+           if (hasPltJabatanExcludingCurrent(jabatan.nip(), id)) {
+               return jabatanRepository.save(jabatan);
+           } else {
+               if (hasUtamaJabatanExcludingCurrent(jabatan.nip(), id)) {
+                   throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+               }
+           }
+       } else if (isPltJabatan(jabatan.statusJabatan())) {
+           // Cek apakah pegawai memiliki status jabatan PLT
+           if (hasPltJabatanExcludingCurrent(jabatan.nip(), id)) {
+               throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+           }
+       } else {
+           if (hasOtherJabatanExcludingCurrent(jabatan.nip(), id)) {
+               throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+           }
+       }
+
     return jabatanRepository.save(jabatan);
 	}
 
@@ -126,9 +214,35 @@ public class JabatanService {
             throw new PegawaiNotFoundException(jabatan.nip());
         }
 
+        // Ambil semua data jabatan berdasarkan nip pegawai
         Iterable<Jabatan> existingJabatans = jabatanRepository.findAllByNip(jabatan.nip());
-        if (existingJabatans.iterator().hasNext()) {
-            throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+        boolean hasExistingJabatan = existingJabatans.iterator().hasNext();
+        boolean hasPlt = false;
+
+        // Check if there's any PLT jabatan
+        for (Jabatan existing : existingJabatans) {
+            if (isPltJabatan(existing.statusJabatan())) {
+                hasPlt = true;
+                break;
+            }
+        }
+
+        // Cek jika pegawai memiliki status jabatan UTAMA
+        if (jabatan.statusJabatan() == StatusJabatan.UTAMA) {
+            if (hasPlt) {
+                return jabatanRepository.save(jabatan);
+            } else if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
+        } else if (isPltJabatan(jabatan.statusJabatan())) {
+            // Cek apakah pegawai memiliki status jabatan PLT
+            if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
+        } else {
+            if (hasExistingJabatan) {
+                throw new JabatanPegawaiSudahAdaException(jabatan.nip());
+            }
         }
 
         return jabatanRepository.save(jabatan);
