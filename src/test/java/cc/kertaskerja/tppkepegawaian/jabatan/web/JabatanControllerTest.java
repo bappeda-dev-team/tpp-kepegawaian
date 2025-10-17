@@ -164,8 +164,46 @@ public class JabatanControllerTest {
     }
 
     @Test
-    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
-        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001")).thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
+    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnPegawaiWithJabatanList() throws Exception {
+        PegawaiWithJabatanListResponse.JabatanDetail jabatanDetail1 = new PegawaiWithJabatanListResponse.JabatanDetail(
+                "Kepala Dinas",
+                StatusJabatan.UTAMA,
+                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
+                Eselon.ESELON_IV,
+                "Junior",
+                "Golongan I",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        PegawaiWithJabatanListResponse.JabatanDetail jabatanDetail2 = new PegawaiWithJabatanListResponse.JabatanDetail(
+                "Sekretaris Dinas",
+                StatusJabatan.PLT_UTAMA,
+                JenisJabatan.JABATAN_ADMINISTRASI,
+                Eselon.ESELON_III,
+                "Middle",
+                "Golongan II",
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        PegawaiWithJabatanListResponse testResponse1 = new PegawaiWithJabatanListResponse(
+                1L,
+                "198001012010011001",
+                "John Doe",
+                "OPD-001",
+                List.of(jabatanDetail1)
+        );
+
+        PegawaiWithJabatanListResponse testResponse2 = new PegawaiWithJabatanListResponse(
+                2L,
+                "199001012015021002",
+                "Jane Smith",
+                "OPD-002",
+                List.of(jabatanDetail2)
+        );
+
+        when(jabatanService.listPegawaiWithJabatanByKodeOpd("OPD-001")).thenReturn(List.of(testResponse1, testResponse2));
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-001"))
                 .andExpect(status().isOk())
@@ -175,30 +213,34 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
                 .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
-                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
                 .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
-                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
-                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
-                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
-                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
-                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+                .andExpect(jsonPath("$[0].jabatan").isArray())
+                .andExpect(jsonPath("$[0].jabatan.length()").value(1))
+                .andExpect(jsonPath("$[0].jabatan[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].jabatan[0].statusJabatan").value("UTAMA"))
+                .andExpect(jsonPath("$[0].jabatan[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
+                .andExpect(jsonPath("$[0].jabatan[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].jabatan[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].jabatan[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].jabatan[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].jabatan[0].tanggalAkhir").value("31-12-2025"))
                 .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
                 .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
-                .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
                 .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
-                .andExpect(jsonPath("$[1].statusJabatan").value("PLT_UTAMA"))
-                .andExpect(jsonPath("$[1].jenisJabatan").value("JABATAN_ADMINISTRASI"))
-                .andExpect(jsonPath("$[1].eselon").value("ESELON_III"))
-                .andExpect(jsonPath("$[1].pangkat").value("Middle"))
-                .andExpect(jsonPath("$[1].golongan").value("Golongan II"));
+                .andExpect(jsonPath("$[1].jabatan").isArray())
+                .andExpect(jsonPath("$[1].jabatan.length()").value(1))
+                .andExpect(jsonPath("$[1].jabatan[0].namaJabatan").value("Sekretaris Dinas"))
+                .andExpect(jsonPath("$[1].jabatan[0].statusJabatan").value("PLT_UTAMA"))
+                .andExpect(jsonPath("$[1].jabatan[0].jenisJabatan").value("JABATAN_ADMINISTRASI"))
+                .andExpect(jsonPath("$[1].jabatan[0].eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$[1].jabatan[0].pangkat").value("Middle"))
+                .andExpect(jsonPath("$[1].jabatan[0].golongan").value("Golongan II"));
     }
 
     @Test
     void getMasterByKodeOpd_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
-        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-999")).thenReturn(List.of());
+        when(jabatanService.listPegawaiWithJabatanByKodeOpd("OPD-999")).thenReturn(List.of());
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-999"))
                 .andExpect(status().isOk())

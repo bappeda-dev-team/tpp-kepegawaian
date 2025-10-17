@@ -35,13 +35,6 @@ public class JabatanService {
         return jabatanRepository.findByKodeOpd(kodeOpd);
    }
 
-   public List<Jabatan> listJabatanByNip(String nip) {
-        Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
-        List<Jabatan> result = new ArrayList<>();
-        jabatans.forEach(result::add);
-        return result;
-   }
-
    public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawai(String nip) {
         Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
@@ -155,7 +148,6 @@ public class JabatanService {
 
         // Urutkan response berdasarkan prioritas status jabatan
         responses.sort((p1, p2) -> {
-            // Get the highest priority status for each pegawai
             StatusJabatan p1HighestStatus = getHighestPriorityStatus(p1.jabatan());
             StatusJabatan p2HighestStatus = getHighestPriorityStatus(p2.jabatan());
 
