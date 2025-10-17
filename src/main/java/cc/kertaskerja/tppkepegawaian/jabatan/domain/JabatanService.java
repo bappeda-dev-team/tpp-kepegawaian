@@ -10,9 +10,13 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.PegawaiWithJabatanListResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class JabatanService {
@@ -108,6 +112,78 @@ public class JabatanService {
         }
         
         return responses;
+   }
+
+   public List<PegawaiWithJabatanListResponse> listPegawaiWithJabatanByKodeOpd(String kodeOpd) {
+        Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
+
+        // Grup jabatan berdasarkan nip
+        Map<String, List<Jabatan>> groupedByNip = StreamSupport.stream(jabatans.spliterator(), false)
+            .collect(Collectors.groupingBy(Jabatan::nip));
+
+        List<PegawaiWithJabatanListResponse> responses = new ArrayList<>();
+
+        for (Map.Entry<String, List<Jabatan>> entry : groupedByNip.entrySet()) {
+            String nip = entry.getKey();
+            List<Jabatan> jabatanList = entry.getValue();
+            Pegawai pegawai = pegawaiRepository.findByNip(nip).orElse(null);
+            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+
+            Jabatan firstJabatan = jabatanList.get(0);
+
+            List<PegawaiWithJabatanListResponse.JabatanDetail> jabatanDetails = jabatanList.stream()
+                .map(jabatan -> new PegawaiWithJabatanListResponse.JabatanDetail(
+                    jabatan.namaJabatan(),
+                    jabatan.statusJabatan(),
+                    jabatan.jenisJabatan(),
+                    jabatan.eselon(),
+                    jabatan.pangkat(),
+                    jabatan.golongan(),
+                    jabatan.tanggalMulai(),
+                    jabatan.tanggalAkhir()
+                ))
+                .collect(Collectors.toList());
+
+            responses.add(new PegawaiWithJabatanListResponse(
+                firstJabatan.id(),
+                nip,
+                namaPegawai,
+                firstJabatan.kodeOpd(),
+                jabatanDetails
+            ));
+        }
+
+        // Urutkan response berdasarkan prioritas status jabatan
+        responses.sort((p1, p2) -> {
+            // Get the highest priority status for each pegawai
+            StatusJabatan p1HighestStatus = getHighestPriorityStatus(p1.jabatan());
+            StatusJabatan p2HighestStatus = getHighestPriorityStatus(p2.jabatan());
+
+            return compareStatusPriority(p1HighestStatus, p2HighestStatus);
+        });
+
+        return responses;
+   }
+
+   private StatusJabatan getHighestPriorityStatus(List<PegawaiWithJabatanListResponse.JabatanDetail> jabatanDetails) {
+        return jabatanDetails.stream()
+            .map(PegawaiWithJabatanListResponse.JabatanDetail::statusJabatan)
+            .min(this::compareStatusPriority)
+            .orElse(StatusJabatan.UTAMA);
+   }
+
+   private int compareStatusPriority(StatusJabatan s1, StatusJabatan s2) {
+        if (s1 == StatusJabatan.UTAMA && s2 != StatusJabatan.UTAMA) {
+            return -1;
+        } else if (s1 != StatusJabatan.UTAMA && s2 == StatusJabatan.UTAMA) {
+            return 1;
+        } else if (s1 == StatusJabatan.PLT_UTAMA && s2 != StatusJabatan.PLT_UTAMA) {
+            return -1;
+        } else if (s1 != StatusJabatan.PLT_UTAMA && s2 == StatusJabatan.PLT_UTAMA) {
+            return 1;
+        } else {
+            return 0;
+        }
    }
 
    // Periksa apakah user memiliki salah satu status jabatan
