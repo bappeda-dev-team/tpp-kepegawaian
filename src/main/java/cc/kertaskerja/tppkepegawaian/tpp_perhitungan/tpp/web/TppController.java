@@ -435,8 +435,8 @@ public class TppController {
     }
     
     /**
-     * Delete tpp by ID
-     * @param id tpp ID
+     * Delete tpp by nip, bulan, tahun
+     * @param nip, bulan, tahun tpp
      * url: /tpp/{id}
      */
     @DeleteMapping("delete/{nip}/{bulan}/{tahun}")

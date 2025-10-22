@@ -200,51 +200,44 @@ public class TppPerhitunganController {
                 // Jika tidak ada record yang sama untuk nip, bulan, tahun, maka ini adalah operasi create, bukan update.
                 throw new TppPerhitunganNipBulanTahunSudahAdaException(nip, bulan, tahun);
             }
+
+            // Validasi bahwa semua perhitungan di request sudah ada di database
+            for (PerhitunganRequest p : request.perhitungans()) {
+                boolean exists = existingRecords.stream()
+                    .anyMatch(record -> java.util.Objects.equals(record.namaPerhitungan(), p.namaPerhitungan()));
+
+                if (!exists) {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Data perhitungan dengan nama " + p.namaPerhitungan() +
+                              " tidak ditemukan. Tidak dapat membuat data baru saat update. ");
+                }
+            }
             
             var perhitungans = request.perhitungans().stream()
                     .map(p -> {
                         // Temukan data yang sudah ada berdasarkan nama perhitungan
                         TppPerhitungan existingRecord = existingRecords.stream()
-                                .filter(record -> record.namaPerhitungan().equals(p.namaPerhitungan()))
+                                .filter(record -> java.util.Objects.equals(record.namaPerhitungan(), p.namaPerhitungan()))
                                 .findFirst()
-                                .orElse(null);
-                        
-                        if (existingRecord != null) {
-                            // Update data yang sudah ada
-                            TppPerhitungan updatedRecord = new TppPerhitungan(
-                                    existingRecord.id(),
-                                    request.jenisTpp(),
-                                    request.kodeOpd(),
-                                    request.kodePemda(),
-                                    request.nip(),
-                                    request.nama(),
-                                    request.bulan(),
-                                    request.tahun(),
-                                    p.maksimum(),
-                                    p.namaPerhitungan(),
-                                    p.nilaiPerhitungan(),
-                                    existingRecord.createdDate(),
-                                    null
-                            );
-                            return tppPerhitunganService.ubahTppPerhitungan(updatedRecord);
-                        } else {
-                            // Buat data baru jika data yang diubah tidak ada, tetapi pastikan ini masih dalam konteks update
-                            // (yaitu, setidaknya satu record untuk nip/bulan/tahun sudah ada)
-                            TppPerhitungan newRecord = TppPerhitungan.of(
-                                    request.jenisTpp(),
-                                    request.kodeOpd(),
-                                    request.kodePemda(),
-                                    request.nip(),
-                                    request.nama(),
-                                    request.bulan(),
-                                    request.tahun(),
-                                    p.maksimum(),
-                                    p.namaPerhitungan(),
-                                    p.nilaiPerhitungan()
-                            );
-                            // Tambahkan item baru ke set yang sudah ada.
-                            return tppPerhitunganService.tambahTppPerhitungan(newRecord);
-                        }
+                                .orElseThrow(); // Aman karena sudah divalidasi sebelumnya
+
+                        // Update data yang sudah ada
+                        TppPerhitungan updatedRecord = new TppPerhitungan(
+                                existingRecord.id(),
+                                request.jenisTpp(),
+                                request.kodeOpd(),
+                                request.kodePemda(),
+                                request.nip(),
+                                request.nama(),
+                                request.bulan(),
+                                request.tahun(),
+                                p.maksimum(),
+                                p.namaPerhitungan(),
+                                p.nilaiPerhitungan(),
+                                existingRecord.createdDate(),
+                                null
+                        );
+                        return tppPerhitunganService.ubahTppPerhitungan(updatedRecord);
                     })
                     .map(saved -> new PerhitunganResponse(
                             saved.namaPerhitungan(),

@@ -60,7 +60,7 @@ public class TppService {
 
         Iterable<Tpp> tppList = tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
         if (!tppList.iterator().hasNext()) {
-            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(JenisTpp.BEBAN_KERJA, kodeOpd, bulan, tahun);
+            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(JenisTpp.KONDISI_KERJA, kodeOpd, bulan, tahun);
         }
 
         return tppList;

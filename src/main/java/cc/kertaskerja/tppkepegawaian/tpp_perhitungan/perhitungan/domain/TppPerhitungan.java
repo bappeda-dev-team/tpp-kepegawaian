@@ -39,7 +39,7 @@ public record TppPerhitungan(
         Float maksimum,
 
         @Column("nama_perhitungan")
-        String namaPerhitungan,
+        NamaPerhitungan namaPerhitungan,
 
         @Column("nilai_perhitungan")
         Float nilaiPerhitungan,
@@ -60,7 +60,7 @@ public record TppPerhitungan(
             Integer bulan,
             Integer tahun,
             Float maksimum,
-            String namaPerhitungan,
+            NamaPerhitungan namaPerhitungan,
             Float nilaiPerhitungan
     ) {
 

@@ -26,12 +26,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.NamaPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.TppPerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.PerhitunganRequest;
 
 @WebMvcTest(TppPerhitunganController.class)
-public class TppPerhtitunganControllerTest {
+public class TppPerhitunganControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,7 +53,7 @@ public class TppPerhtitunganControllerTest {
     void setUp() {
         testTppPerhitungan = new TppPerhitungan(
             1L,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "PEMDA-001",
             "198001012010011001",
@@ -60,7 +61,7 @@ public class TppPerhtitunganControllerTest {
             1,
             2024,
             50.0f,
-            "Kehadiran",
+            NamaPerhitungan.KEHADIRAN,
             80.0f,
             Instant.now(),
             Instant.now()
@@ -68,7 +69,7 @@ public class TppPerhtitunganControllerTest {
 
         testTppPerhitungan2 = new TppPerhitungan(
             2L,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "PEMDA-001",
             "198001012010011001",
@@ -76,19 +77,19 @@ public class TppPerhtitunganControllerTest {
             1,
             2024,
             50.0f,
-            "Kinerja",
+            NamaPerhitungan.PRODUKTIFITAS_KERJA,
             90.0f,
             Instant.now(),
             Instant.now()
         );
 
         testPerhitunganRequest = new PerhitunganRequest(
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
             "PEMDA-001",
-            "Kehadiran",
+            NamaPerhitungan.KEHADIRAN,
             1,
             2024,
             50.0f,
@@ -96,12 +97,12 @@ public class TppPerhtitunganControllerTest {
         );
 
         testPerhitunganRequest2 = new PerhitunganRequest(
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
             "PEMDA-001",
-            "Kinerja",
+            NamaPerhitungan.PRODUKTIFITAS_KERJA,
             1,
             2024,
             50.0f,
@@ -110,7 +111,7 @@ public class TppPerhtitunganControllerTest {
 
         testTppPerhitunganRequest = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
@@ -131,7 +132,7 @@ public class TppPerhtitunganControllerTest {
         mockMvc.perform(get("/tppPerhitungan/detail/nip/{nip}/{bulan}/{tahun}", "198001012010011001", 1, 2024))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$.jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
@@ -162,7 +163,7 @@ public class TppPerhtitunganControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$", hasSize(1)))
-            .andExpect(jsonPath("$[0].jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$[0].jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$[0].kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
@@ -196,7 +197,7 @@ public class TppPerhtitunganControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(testTppPerhitunganRequest)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$.jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
@@ -212,7 +213,7 @@ public class TppPerhtitunganControllerTest {
     void post_WhenValidRequestWithoutPerhitungans_ShouldCreateTppPerhitungan() throws Exception {
         TppPerhitunganRequest requestWithoutPerhitungans = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
@@ -227,7 +228,7 @@ public class TppPerhtitunganControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestWithoutPerhitungans)))
             .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$.jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
@@ -254,12 +255,12 @@ public class TppPerhtitunganControllerTest {
     @Test
     void post_WhenTotalMaksimumExceeds_ShouldReturnBadRequest() throws Exception {
         PerhitunganRequest excessiveRequest = new PerhitunganRequest(
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
             "PEMDA-001",
-            "Kehadiran",
+            NamaPerhitungan.KEHADIRAN,
             1,
             2024,
             150.0f,
@@ -268,7 +269,7 @@ public class TppPerhtitunganControllerTest {
 
         TppPerhitunganRequest requestWithExcessiveMaksimum = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
@@ -298,7 +299,7 @@ public class TppPerhtitunganControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(testTppPerhitunganRequest)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$.jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
@@ -314,7 +315,7 @@ public class TppPerhtitunganControllerTest {
     void put_WhenPathVariablesDoNotMatchRequestBody_ShouldReturnBadRequest() throws Exception {
         TppPerhitunganRequest mismatchedRequest = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "999999999999999999",
             "John Doe",
@@ -335,12 +336,12 @@ public class TppPerhtitunganControllerTest {
     @Test
     void put_WhenTotalMaksimumExceeds_ShouldReturnBadRequest() throws Exception {
         PerhitunganRequest excessiveRequest = new PerhitunganRequest(
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
             "PEMDA-001",
-            "Kehadiran",
+            NamaPerhitungan.KEHADIRAN,
             1,
             2024,
             150.0f,
@@ -349,7 +350,7 @@ public class TppPerhtitunganControllerTest {
 
         TppPerhitunganRequest requestWithExcessiveMaksimum = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
@@ -374,7 +375,7 @@ public class TppPerhtitunganControllerTest {
     void put_WhenValidRequestWithoutPerhitungans_ShouldUpdateTppPerhitungan() throws Exception {
         TppPerhitunganRequest requestWithoutPerhitungans = new TppPerhitunganRequest(
             null,
-            JenisTpp.BEBAN_KERJA,
+            JenisTpp.KONDISI_KERJA,
             "OPD-001",
             "198001012010011001",
             "John Doe",
@@ -389,7 +390,7 @@ public class TppPerhtitunganControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(requestWithoutPerhitungans)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.jenisTpp").value("BEBAN_KERJA"))
+            .andExpect(jsonPath("$.jenisTpp").value("KONDISI_KERJA"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.kodePemda").value("PEMDA-001"))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))

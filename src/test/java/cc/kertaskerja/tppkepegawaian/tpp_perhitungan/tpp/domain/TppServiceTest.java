@@ -49,7 +49,7 @@ class TppServiceTest {
 
     private Tpp createTestTpp() {
         return Tpp.of(
-                JenisTpp.BEBAN_KERJA,
+                JenisTpp.KONDISI_KERJA,
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",
@@ -202,7 +202,7 @@ class TppServiceTest {
 
     @Test
     void detailTpp_WhenTppExists_ShouldReturnTpp() {
-        JenisTpp jenisTpp = JenisTpp.BEBAN_KERJA;
+        JenisTpp jenisTpp = JenisTpp.KONDISI_KERJA;
         String nip = "201001012010011001";
         Integer bulan = 9;
         Integer tahun = 2024;
@@ -219,7 +219,7 @@ class TppServiceTest {
 
     @Test
     void detailTpp_WhenTppNotExists_ShouldThrowException() {
-        JenisTpp jenisTpp = JenisTpp.BEBAN_KERJA;
+        JenisTpp jenisTpp = JenisTpp.KONDISI_KERJA;
         String nip = "123456789012345678";
         Integer bulan = 9;
         Integer tahun = 2024;
@@ -238,7 +238,7 @@ class TppServiceTest {
     void ubahTpp_WhenValid_ShouldReturnUpdatedTpp() {
         Tpp tpp = createTestTpp();
         Tpp updatedTpp = Tpp.of(
-                JenisTpp.BEBAN_KERJA,
+                JenisTpp.KONDISI_KERJA,
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",
@@ -280,7 +280,7 @@ class TppServiceTest {
     void tambahTpp_WhenValid_ShouldReturnNewTpp() {
         Tpp tpp = createTestTpp();
         Tpp savedTpp = Tpp.of(
-                JenisTpp.BEBAN_KERJA,
+                JenisTpp.KONDISI_KERJA,
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",

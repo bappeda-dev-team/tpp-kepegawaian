@@ -41,7 +41,7 @@ class TppPerhitunganServiceTest {
         tppPerhitunganService = new TppPerhitunganService(tppPerhitunganRepository, pegawaiRepository, opdRepository);
         sampleTppPerhitungan = new TppPerhitungan(
             1L,
-            JenisTpp.ABSENSI,
+            JenisTpp.KONDISI_KERJA,
             "OPD001",
             "PEMDA001",
             "701301613358689213",
@@ -49,7 +49,7 @@ class TppPerhitunganServiceTest {
             2,
             2024,
             5000000.0f,
-            "ABSENSI",
+            NamaPerhitungan.KEHADIRAN,
             27.0f,
             Instant.now(),
             Instant.now()
@@ -123,6 +123,22 @@ class TppPerhitunganServiceTest {
 
         assertEquals(expected, result);
         verify(tppPerhitunganRepository).findByNipAndBulanAndTahun(nip, bulan, tahun);
+    }
+
+    @Test
+    void listTppPerhitunganByNipBulanTahun_ShouldBehaveIdenticallyToListTppPerhitunganByNipAndBulanAndTahun() {
+        String nip = "701301613358689213";
+        Integer bulan = 2;
+        Integer tahun = 2024;
+        List<TppPerhitungan> expected = List.of(sampleTppPerhitungan);
+
+        when(tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun)).thenReturn(expected);
+
+        Iterable<TppPerhitungan> result1 = tppPerhitunganService.listTppPerhitunganByNipBulanTahun(nip, bulan, tahun);
+        Iterable<TppPerhitungan> result2 = tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, bulan, tahun);
+
+        assertEquals(result1, result2);
+        verify(tppPerhitunganRepository, times(2)).findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
 
     @Test
@@ -225,15 +241,15 @@ class TppPerhitunganServiceTest {
     }
 
     @Test
-    void tambahTppPerhitungan_WhenNipNull_ShouldThrowException() {
+    void tambahTppPerhitungan_WhenNipNull_ShouldThrowPegawaiNotFoundException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", null, "John Doe", 1, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", null, "John Doe", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
-        when(pegawaiRepository.existsByNip(null)).thenThrow(new IllegalArgumentException("NIP tidak boleh null"));
+        when(pegawaiRepository.existsByNip(null)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(PegawaiNotFoundException.class, () -> {
             tppPerhitunganService.tambahTppPerhitungan(invalidTpp);
         });
     }
@@ -241,7 +257,7 @@ class TppPerhitunganServiceTest {
     @Test
     void tambahTppPerhitungan_WhenBulanNull_ShouldThrowException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", "123456789", "John Doe", null, 2024, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "John Doe", null, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
@@ -256,7 +272,7 @@ class TppPerhitunganServiceTest {
     @Test
     void tambahTppPerhitungan_WhenTahunNull_ShouldThrowException() {
         TppPerhitungan invalidTpp = new TppPerhitungan(
-            1L, JenisTpp.ABSENSI, "OPD001", "PEMDA001", "123456789", "John Doe", 1, null, 5000000.0f, "ABSENSI", 27.0f, Instant.now(), Instant.now()
+            1L, JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "John Doe", 1, null, 5000000.0f, NamaPerhitungan.KEHADIRAN, 27.0f, Instant.now(), Instant.now()
         );
 
         when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
@@ -301,5 +317,96 @@ class TppPerhitunganServiceTest {
         });
 
         verify(tppPerhitunganRepository).deleteByNipAndBulanAndTahun(nip, bulan, tahun);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenOpdNotFound_ShouldThrowException() {
+        when(opdRepository.existsByKodeOpd(sampleTppPerhitungan.kodeOpd())).thenReturn(false);
+
+        assertThrows(OpdNotFoundException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(sampleTppPerhitungan);
+        });
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenPegawaiNotFound_ShouldThrowException() {
+        when(opdRepository.existsByKodeOpd(sampleTppPerhitungan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(sampleTppPerhitungan.nip())).thenReturn(false);
+
+        assertThrows(PegawaiNotFoundException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(sampleTppPerhitungan);
+        });
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenNamaPegawaiNotFound_ShouldThrowException() {
+        when(opdRepository.existsByKodeOpd(sampleTppPerhitungan.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(sampleTppPerhitungan.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(sampleTppPerhitungan.nama())).thenReturn(false);
+
+        assertThrows(NamaPegawaiNotFoundException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(sampleTppPerhitungan);
+        });
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenNipBulanTahunNull_ShouldThrowIllegalArgumentException() {
+        TppPerhitungan invalidTpp = new TppPerhitungan(
+            1L, JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "John Doe", null, null, 5000000.0f, NamaPerhitungan.KEHADIRAN, 27.0f, Instant.now(), Instant.now()
+        );
+
+        when(opdRepository.existsByKodeOpd(invalidTpp.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(invalidTpp.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(invalidTpp.nama())).thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(invalidTpp);
+        });
+    }
+
+    @Test
+    void listTppPerhitunganByNip_WhenEmptyList_ShouldReturnEmptyIterable() {
+        String nip = "123456789";
+        when(tppPerhitunganRepository.findByNip(nip)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByNip(nip);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByNip(nip);
+    }
+
+    @Test
+    void listTppPerhitunganByNama_WhenEmptyList_ShouldReturnEmptyIterable() {
+        String nama = "NonExistent";
+        when(tppPerhitunganRepository.findByNama(nama)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByNama(nama);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByNama(nama);
+    }
+
+    @Test
+    void listTppPerhitunganByKodeOpd_WhenEmptyList_ShouldReturnEmptyIterable() {
+        String kodeOpd = "NONEXISTENT";
+        when(tppPerhitunganRepository.findByKodeOpd(kodeOpd)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByKodeOpd(kodeOpd);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByKodeOpd(kodeOpd);
+    }
+
+    @Test
+    void listTppPerhitunganByNipAndBulanAndTahun_WhenEmptyList_ShouldReturnEmptyIterable() {
+        String nip = "123456789";
+        Integer bulan = 1;
+        Integer tahun = 2024;
+        when(tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, bulan, tahun);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
 }
