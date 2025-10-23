@@ -28,6 +28,12 @@ public record Tpp(
         @Column("maksimum_tpp")
         Float maksimumTpp,
 
+        @Column("pajak")
+        Float pajak,
+
+        @Column("bpjs")
+        Float bpjs,
+
         @Column("bulan")
         Integer bulan,
 
@@ -46,6 +52,8 @@ public record Tpp(
             String nip,
             String kodePemda,
             Float maksimumTpp,
+            Float pajak,
+            Float bpjs,
             Integer bulan,
             Integer tahun
     ) {
@@ -56,6 +64,8 @@ public record Tpp(
                 nip,
                 kodePemda,
                 maksimumTpp,
+                pajak,
+                bpjs,
                 bulan,
                 tahun,
                 null,

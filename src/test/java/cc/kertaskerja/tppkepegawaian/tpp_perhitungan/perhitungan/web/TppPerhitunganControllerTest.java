@@ -403,6 +403,44 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
+    void put_WhenPerhitunganDoesNotExist_ShouldReturnBadRequest() throws Exception {
+        PerhitunganRequest newPerhitunganRequest = new PerhitunganRequest(
+            JenisTpp.KONDISI_KERJA,
+            "OPD-001",
+            "198001012010011001",
+            "John Doe",
+            "PEMDA-001",
+            NamaPerhitungan.BELUM_DIATUR,
+            1,
+            2024,
+            60.0f,
+            70.0f
+        );
+
+        TppPerhitunganRequest requestWithNewPerhitungan = new TppPerhitunganRequest(
+            null,
+            JenisTpp.KONDISI_KERJA,
+            "OPD-001",
+            "198001012010011001",
+            "John Doe",
+            "PEMDA-001",
+            1,
+            2024,
+            100.0f,
+            Arrays.asList(newPerhitunganRequest)
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
+            .thenReturn(Arrays.asList(testTppPerhitungan, testTppPerhitungan2));
+
+        mockMvc.perform(put("/tppPerhitungan/update/{nip}/{bulan}/{tahun}", "198001012010011001", 1, 2024)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestWithNewPerhitungan)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string("Data perhitungan dengan nama BELUM_DIATUR tidak ditemukan. Tidak dapat membuat data baru saat update. "));
+    }
+
+    @Test
     void delete_WhenDataExists_ShouldDeleteTppPerhitungan() throws Exception {
         doNothing().when(tppPerhitunganService).hapusTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024);
 

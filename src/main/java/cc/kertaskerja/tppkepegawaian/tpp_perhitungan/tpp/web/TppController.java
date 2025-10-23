@@ -24,6 +24,8 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.DataTppRes
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.DetailTppResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.RekapTppResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.TppTotalTppResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
+import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import jakarta.validation.Valid;
 
 @RestController
@@ -31,10 +33,12 @@ import jakarta.validation.Valid;
 public class TppController {
     private final TppService tppService;
     private final TppPerhitunganService tppPerhitunganService;
+    private final PegawaiService pegawaiService;
 
-    public TppController(TppService tppService, TppPerhitunganService tppPerhitunganService) {
+    public TppController(TppService tppService, TppPerhitunganService tppPerhitunganService, PegawaiService pegawaiService) {
         this.tppService = tppService;
         this.tppPerhitunganService = tppPerhitunganService;
+        this.pegawaiService = pegawaiService;
     }
 
     /**
@@ -65,26 +69,18 @@ public class TppController {
         
         // Group data tpp berdasarkan nip
         Map<String, List<TppPerhitungan>> perhitunganByJenisTpp = new HashMap<>();
-        String employeeName = "";
-        
+
         for (var perhitungan : perhitunganList) {
             String jenisTppKey = perhitungan.jenisTpp().name();
             perhitunganByJenisTpp.computeIfAbsent(jenisTppKey, k -> new ArrayList<>()).add(perhitungan);
-            
-            if (employeeName.isEmpty() && perhitungan.nama() != null) {
-                employeeName = perhitungan.nama();
-            }
         }
-        
-        // cek apakah ada data nama di tpp perhitungan
-        if (employeeName.isEmpty()) {
-            List<TppPerhitungan> specificJenisTppList = perhitunganByJenisTpp.get(jenisTpp.name());
-            if (specificJenisTppList != null && !specificJenisTppList.isEmpty()) {
-                TppPerhitungan firstPerhitungan = specificJenisTppList.get(0);
-                if (firstPerhitungan.nama() != null) {
-                    employeeName = firstPerhitungan.nama();
-                }
-            }
+
+        // Ambil nama pegawai dari data pegawai yang sudah ada
+        String employeeName;
+        try {
+            employeeName = pegawaiService.detailPegawai(nip).namaPegawai();
+        } catch (PegawaiNotFoundException e) {
+            employeeName = "";
         }
         
         // Buat list untuk simpan semua data pegawai
@@ -105,14 +101,28 @@ public class TppController {
             
             // Kalkulasi total tpp untuk jenis tpp
             Long totalTpp = (long) Math.round(tpp.maksimumTpp() * (totalPersen / 100.0f));
-            
+
+            // Kalkulasi total pajak = totalTpp * pajak%
+            Long totalPajak = (long) Math.round(totalTpp * (tpp.pajak() / 100.0f));
+
+            // Kalkulasi total bpjs = totalTpp * bpjs%
+            Long totalBpjs = (long) Math.round(totalTpp * (tpp.bpjs() / 100.0f));
+
+            // Kalkulasi total terima TPP = totalTpp - totalPajak - totalBpjs
+            Long totalTerimaTpp = totalTpp - totalPajak - totalBpjs;
+
             // Create detail TPP response
             DetailTppResponse detailTpp = new DetailTppResponse(
                     tpp.id(),
                     tpp.jenisTpp().name(),
                     (long) Math.round(tpp.maksimumTpp()),
+                    tpp.pajak(),
+                    tpp.bpjs(),
                     totalPersen,
-                    totalTpp);
+                    totalTpp,
+                    totalPajak,
+                    totalBpjs,
+                    totalTerimaTpp);
             
             // Cek jika pegawai sudah ada
             DataTppResponse existingData = null;
@@ -127,27 +137,22 @@ public class TppController {
                 // Tambah data yang ada
                 List<DetailTppResponse> updatedDetails = new ArrayList<>(existingData.detailTpp());
                 updatedDetails.add(detailTpp);
-                
-                // Kalkilasi total perolehan
-                Long newTotalPerolehan = existingData.totalPerolehan() + totalTpp;
-                
+
                 // Ganti dengan data yang sudah ada
                 dataResponses.remove(existingData);
                 dataResponses.add(new DataTppResponse(
                         existingData.id(),
                         existingData.nama(),
                         existingData.opd(),
-                        newTotalPerolehan,
                         updatedDetails));
             } else {
                 List<DetailTppResponse> details = new ArrayList<>();
                 details.add(detailTpp);
-                
+
                 dataResponses.add(new DataTppResponse(
                         tpp.id(),
                         employeeName,
                         tpp.kodeOpd(),
-                        totalTpp,
                         details));
             }
         }
@@ -203,26 +208,18 @@ public class TppController {
 
             // Group kalkulasi berdasarkan jenis tpp
             Map<String, List<TppPerhitungan>> perhitunganByJenisTpp = new HashMap<>();
-            String employeeName = "";
 
             for (var perhitungan : perhitunganList) {
                 String jenisTppKey = perhitungan.jenisTpp().name();
                 perhitunganByJenisTpp.computeIfAbsent(jenisTppKey, k -> new ArrayList<>()).add(perhitungan);
-
-                if (employeeName.isEmpty() && perhitungan.nama() != null) {
-                    employeeName = perhitungan.nama();
-                }
             }
 
-            // cek apakah ada data nama di tpp perhitungan
-            if (employeeName.isEmpty()) {
-                List<TppPerhitungan> specificJenisTppList = perhitunganByJenisTpp.get(jenisTpp.name());
-                if (specificJenisTppList != null && !specificJenisTppList.isEmpty()) {
-                    TppPerhitungan firstPerhitungan = specificJenisTppList.get(0);
-                    if (firstPerhitungan.nama() != null) {
-                        employeeName = firstPerhitungan.nama();
-                    }
-                }
+            // Ambil nama pegawai dari data pegawai yang sudah ada
+            String employeeName;
+            try {
+                employeeName = pegawaiService.detailPegawai(nip).namaPegawai();
+            } catch (PegawaiNotFoundException e) {
+                employeeName = "";
             }
 
             // Buat list untuk simpan semua data pegawai
@@ -244,13 +241,27 @@ public class TppController {
                 // Kalkulasi tpp berdasarkan jenis tpp
                 Long totalTpp = (long) Math.round(tpp.maksimumTpp() * (totalPersen / 100.0f));
 
+                // Kalkulasi total pajak = totalTpp * pajak%
+                Long totalPajak = (long) Math.round(totalTpp * (tpp.pajak() / 100.0f));
+
+                // Kalkulasi total bpjs = totalTpp * bpjs%
+                Long totalBpjs = (long) Math.round(totalTpp * (tpp.bpjs() / 100.0f));
+
+                // Kalkulasi total terima TPP = totalTpp - totalPajak - totalBpjs
+                Long totalTerimaTpp = totalTpp - totalPajak - totalBpjs;
+
                 // Buat detail Tpp response
                 DetailTppResponse detailTpp = new DetailTppResponse(
                         tpp.id(),
                         tpp.jenisTpp().name(),
                         (long) Math.round(tpp.maksimumTpp()),
+                        tpp.pajak(),
+                        tpp.bpjs(),
                         totalPersen,
-                        totalTpp);
+                        totalTpp,
+                        totalPajak,
+                        totalBpjs,
+                        totalTerimaTpp);
 
                 // Cek jika sudah ada data di pegawai
                 DataTppResponse existingData = null;
@@ -266,16 +277,12 @@ public class TppController {
                     List<DetailTppResponse> updatedDetails = new ArrayList<>(existingData.detailTpp());
                     updatedDetails.add(detailTpp);
 
-                    // Kalkilasi total perolehan
-                    Long newTotalPerolehan = existingData.totalPerolehan() + totalTpp;
-
                     // Ganti dengan data yang sudah ada
                     dataResponses.remove(existingData);
                     dataResponses.add(new DataTppResponse(
                             existingData.id(),
                             existingData.nama(),
                             existingData.opd(),
-                            newTotalPerolehan,
                             updatedDetails));
                 } else {
                     List<DetailTppResponse> details = new ArrayList<>();
@@ -285,7 +292,6 @@ public class TppController {
                             tpp.id(),
                             employeeName,
                             tpp.kodeOpd(),
-                            totalTpp,
                             details));
                 }
             }
@@ -333,6 +339,8 @@ public class TppController {
                 nip,
                 request.kodePemda(),
                 request.maksimumTpp(),
+                request.pajak(),
+                request.bpjs(),
                 bulan,
                 tahun,
                 existingTpp.createdDate(),
@@ -359,7 +367,16 @@ public class TppController {
         
         // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
         Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
-        
+
+        // Kalkulasi total pajak = totaltpp * pajak%
+        Float totalPajak = (float) Math.round(totaltpp * (request.pajak() / 100.0f));
+
+        // Kalkulasi total bpjs = totaltpp * bpjs%
+        Float totalBpjs = (float) Math.round(totaltpp * (request.bpjs() / 100.0f));
+
+        // Kalkulasi total terima TPP = totaltpp - totalPajak - totalBpjs
+        Float totalTerimaTpp = totaltpp - totalPajak - totalBpjs;
+
         // Buat respons dengan nilai terhitung (bulan dan tahun dari path variables)
         TppTotalTppResponse response = new TppTotalTppResponse(
                 saved.jenisTpp().name(),
@@ -367,10 +384,15 @@ public class TppController {
                 saved.nip(),
                 saved.kodePemda(),
                 saved.maksimumTpp(),
+                saved.pajak(),
+                saved.bpjs(),
                 bulan,
                 tahun,
                 hasilPerhitungan,
-                totaltpp);
+                totaltpp,
+                totalPajak,
+                totalBpjs,
+                totalTerimaTpp);
         
         return ResponseEntity.ok(response);
     }
@@ -390,6 +412,8 @@ public class TppController {
                 request.nip(),
                 request.kodePemda(),
                 request.maksimumTpp(),
+                request.pajak(),
+                request.bpjs(),
                 request.bulan(),
                 request.tahun());
         Tpp saved = tppService.tambahTpp(tpp);
@@ -413,6 +437,15 @@ public class TppController {
         // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
         Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
 
+        // Kalkulasi total pajak = totaltpp * pajak%
+        Float totalPajak = (float) Math.round(totaltpp * (request.pajak() / 100.0f));
+
+        // Kalkulasi total bpjs = totaltpp * bpjs%
+        Float totalBpjs = (float) Math.round(totaltpp * (request.bpjs() / 100.0f));
+
+        // Kalkulasi total terima TPP = totaltpp - totalPajak - totalBpjs
+        Float totalTerimaTpp = totaltpp - totalPajak - totalBpjs;
+
         // Buat respons dengan nilai terhitung (bulan dan tahun saja dalam respons)
         TppTotalTppResponse response = new TppTotalTppResponse(
                 saved.jenisTpp().name(),
@@ -420,10 +453,15 @@ public class TppController {
                 saved.nip(),
                 saved.kodePemda(),
                 saved.maksimumTpp(),
+                saved.pajak(),
+                saved.bpjs(),
                 request.bulan(),
                 request.tahun(),
                 hasilPerhitungan,
-                totaltpp);
+                totaltpp,
+                totalPajak,
+                totalBpjs,
+                totalTerimaTpp);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

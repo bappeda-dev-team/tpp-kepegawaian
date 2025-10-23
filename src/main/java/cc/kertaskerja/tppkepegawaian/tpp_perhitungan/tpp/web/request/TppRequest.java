@@ -28,6 +28,10 @@ public record TppRequest(
         @jakarta.validation.constraints.Max(value = 10000000, message = "Nilai maksimum lebih dari 10 juta")
         Float maksimumTpp,
 
+        Float pajak,
+
+        Float bpjs,
+
         @NotNull
         Integer bulan,
 
