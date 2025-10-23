@@ -19,6 +19,7 @@ import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.PegawaiWithJabatanListResponse;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.MasterJabatanByOpdResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -45,12 +46,12 @@ public class JabatanController {
 	/**
 	 * Get master jabatan by kode OPD
 	 * @param kodeOpd OPD code
-	 * @return List of PegawaiWithJabatanListResponse objects (groups jabatan by pegawai)
+	 * @return List of MasterJabatanByOpdResponse objects (groups jabatan by pegawai with OPD info)
 	 * url: /jabatan/master/{kodeOpd}
 	 */
 	@GetMapping("detail/master/opd/{kodeOpd}")
-	public ResponseEntity<List<PegawaiWithJabatanListResponse>> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
-		return ResponseEntity.ok(jabatanService.listPegawaiWithJabatanByKodeOpd(kodeOpd));
+	public ResponseEntity<List<MasterJabatanByOpdResponse>> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+		return ResponseEntity.ok(jabatanService.listMasterJabatanByKodeOpd(kodeOpd));
 	}
 
 	/**

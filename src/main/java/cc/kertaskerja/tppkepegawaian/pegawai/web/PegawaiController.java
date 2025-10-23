@@ -5,6 +5,7 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.response.MasterPegawaiByOpdResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;
@@ -44,7 +45,7 @@ public class PegawaiController {
      * url: /pegawai/detail/master/opd/{kodeOpd}
      */
     @GetMapping("detail/master/opd/{kodeOpd}")
-    public List<PegawaiWithJabatanAndRolesResponse> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+    public MasterPegawaiByOpdResponse getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
     
