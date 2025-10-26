@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -553,5 +554,361 @@ class TppPerhitunganServiceTest {
         assertThrows(NamaPegawaiNotFoundException.class, () -> {
             tppPerhitunganService.tambahTppPerhitungan(tppWithEmptyNama);
         });
+    }
+
+    // Additional comprehensive test cases
+
+    @Test
+    void tambahTppPerhitungan_WhenNegativeMaksimum_ShouldWork() {
+        TppPerhitungan tppWithNegativeMaksimum = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, -1000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(tppWithNegativeMaksimum.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppWithNegativeMaksimum.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(tppWithNegativeMaksimum.nama())).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithNegativeMaksimum)).thenReturn(tppWithNegativeMaksimum);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithNegativeMaksimum);
+
+        assertEquals(tppWithNegativeMaksimum, result);
+        assertEquals(-1000000.0f, result.maksimum());
+        verify(tppPerhitunganRepository).save(tppWithNegativeMaksimum);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenNegativeNilaiPerhitungan_ShouldWork() {
+        TppPerhitungan tppWithNegativeNilai = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, -5.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(tppWithNegativeNilai.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppWithNegativeNilai.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(tppWithNegativeNilai.nama())).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithNegativeNilai)).thenReturn(tppWithNegativeNilai);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithNegativeNilai);
+
+        assertEquals(tppWithNegativeNilai, result);
+        assertEquals(-5.0f, result.nilaiPerhitungan());
+        verify(tppPerhitunganRepository).save(tppWithNegativeNilai);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WithMaximumBoundaryValues_ShouldWork() {
+        TppPerhitungan tppWithMaxValues = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 12, 9999, 100.0f, NamaPerhitungan.KEHADIRAN, 100.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(tppWithMaxValues.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppWithMaxValues.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(tppWithMaxValues.nama())).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithMaxValues)).thenReturn(tppWithMaxValues);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithMaxValues);
+
+        assertEquals(tppWithMaxValues, result);
+        assertEquals(100.0f, result.maksimum());
+        assertEquals(100.0f, result.nilaiPerhitungan());
+        assertEquals(12, result.bulan());
+        assertEquals(9999, result.tahun());
+        verify(tppPerhitunganRepository).save(tppWithMaxValues);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WithMinimumBoundaryValues_ShouldWork() {
+        TppPerhitungan tppWithMinValues = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 1900, Float.MIN_VALUE, NamaPerhitungan.KEHADIRAN, Float.MIN_VALUE
+        );
+
+        when(opdRepository.existsByKodeOpd(tppWithMinValues.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppWithMinValues.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(tppWithMinValues.nama())).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithMinValues)).thenReturn(tppWithMinValues);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithMinValues);
+
+        assertEquals(tppWithMinValues, result);
+        assertEquals(Float.MIN_VALUE, result.maksimum());
+        assertEquals(Float.MIN_VALUE, result.nilaiPerhitungan());
+        assertEquals(1, result.bulan());
+        assertEquals(1900, result.tahun());
+        verify(tppPerhitunganRepository).save(tppWithMinValues);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WithAllEnumCombinations_ShouldWork() {
+        // Test KONDISI_KERJA + PRODUKTIFITAS_KERJA
+        TppPerhitungan tpp1 = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User 1", 1, 2024, 5000000.0f, NamaPerhitungan.PRODUKTIFITAS_KERJA, 25.0f
+        );
+
+        // Test BELUM_DIATUR + KEHADIRAN
+        TppPerhitungan tpp2 = TppPerhitungan.of(
+            JenisTpp.BELUM_DIATUR, "OPD002", "PEMDA001", "987654321", "Test User 2", 2, 2024, 4000000.0f, NamaPerhitungan.KEHADIRAN, 20.0f
+        );
+
+        // Test BELUM_DIATUR + PRODUKTIFITAS_KERJA
+        TppPerhitungan tpp3 = TppPerhitungan.of(
+            JenisTpp.BELUM_DIATUR, "OPD003", "PEMDA001", "555666777", "Test User 3", 3, 2024, 3000000.0f, NamaPerhitungan.PRODUKTIFITAS_KERJA, 15.0f
+        );
+
+        // Test KONDISI_KERJA + BELUM_DIATUR
+        TppPerhitungan tpp4 = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD004", "PEMDA001", "111222333", "Test User 4", 4, 2024, 6000000.0f, NamaPerhitungan.BELUM_DIATUR, 35.0f
+        );
+
+        // Test BELUM_DIATUR + BELUM_DIATUR
+        TppPerhitungan tpp5 = TppPerhitungan.of(
+            JenisTpp.BELUM_DIATUR, "OPD005", "PEMDA001", "999888777", "Test User 5", 5, 2024, 2000000.0f, NamaPerhitungan.BELUM_DIATUR, 10.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(anyString())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(anyString())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(anyString())).thenReturn(true);
+        when(tppPerhitunganRepository.save(any(TppPerhitungan.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        TppPerhitungan result1 = tppPerhitunganService.tambahTppPerhitungan(tpp1);
+        TppPerhitungan result2 = tppPerhitunganService.tambahTppPerhitungan(tpp2);
+        TppPerhitungan result3 = tppPerhitunganService.tambahTppPerhitungan(tpp3);
+        TppPerhitungan result4 = tppPerhitunganService.tambahTppPerhitungan(tpp4);
+        TppPerhitungan result5 = tppPerhitunganService.tambahTppPerhitungan(tpp5);
+
+        // Verify all combinations work
+        assertEquals(JenisTpp.KONDISI_KERJA, result1.jenisTpp());
+        assertEquals(NamaPerhitungan.PRODUKTIFITAS_KERJA, result1.namaPerhitungan());
+
+        assertEquals(JenisTpp.BELUM_DIATUR, result2.jenisTpp());
+        assertEquals(NamaPerhitungan.KEHADIRAN, result2.namaPerhitungan());
+
+        assertEquals(JenisTpp.BELUM_DIATUR, result3.jenisTpp());
+        assertEquals(NamaPerhitungan.PRODUKTIFITAS_KERJA, result3.namaPerhitungan());
+
+        assertEquals(JenisTpp.KONDISI_KERJA, result4.jenisTpp());
+        assertEquals(NamaPerhitungan.BELUM_DIATUR, result4.namaPerhitungan());
+
+        assertEquals(JenisTpp.BELUM_DIATUR, result5.jenisTpp());
+        assertEquals(NamaPerhitungan.BELUM_DIATUR, result5.namaPerhitungan());
+
+        verify(tppPerhitunganRepository, times(5)).save(any(TppPerhitungan.class));
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenEmptyKodeOpd_ShouldThrowOpdNotFoundException() {
+        TppPerhitungan tppWithEmptyKodeOpd = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(opdRepository.existsByKodeOpd("")).thenReturn(false);
+
+        assertThrows(OpdNotFoundException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(tppWithEmptyKodeOpd);
+        });
+    }
+
+    @Test
+    void tambahTppPerhitungan_WhenNullKodeOpd_ShouldThrowNullPointerException() {
+        TppPerhitungan tppWithNullKodeOpd = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, null, "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(null)).thenReturn(false);
+
+        assertThrows(OpdNotFoundException.class, () -> {
+            tppPerhitunganService.tambahTppPerhitungan(tppWithNullKodeOpd);
+        });
+    }
+
+    @Test
+    void listTppPerhitunganByKodeOpd_WithNullKodeOpd_ShouldWork() {
+        when(tppPerhitunganRepository.findByKodeOpd(null)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByKodeOpd(null);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByKodeOpd(null);
+    }
+
+    @Test
+    void listTppPerhitunganByKodeOpd_WithEmptyKodeOpd_ShouldWork() {
+        when(tppPerhitunganRepository.findByKodeOpd("")).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByKodeOpd("");
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByKodeOpd("");
+    }
+
+    @Test
+    void detailTppPerhitungan_WithNullParameters_ShouldThrowException() {
+        assertThrows(TppPerhitunganNipBulanTahunNotFoundException.class, () -> {
+            tppPerhitunganService.detailTppPerhitungan(null, null, null);
+        });
+    }
+
+    @Test
+    void ubahTppPerhitungan_WhenMaksimumChanged_ShouldSaveWithNewValue() {
+        TppPerhitungan originalTpp = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+        TppPerhitungan updatedTpp = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 7000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(pegawaiRepository.existsByNip(updatedTpp.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(updatedTpp.nama())).thenReturn(true);
+        when(opdRepository.existsByKodeOpd(updatedTpp.kodeOpd())).thenReturn(true);
+        when(tppPerhitunganRepository.save(updatedTpp)).thenReturn(updatedTpp);
+
+        TppPerhitungan result = tppPerhitunganService.ubahTppPerhitungan(updatedTpp);
+
+        assertEquals(updatedTpp, result);
+        assertEquals(7000000.0f, result.maksimum());
+        verify(tppPerhitunganRepository).save(updatedTpp);
+    }
+
+    @Test
+    void ubahTppPerhitungan_WhenNilaiPerhitunganChanged_ShouldSaveWithNewValue() {
+        TppPerhitungan originalTpp = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+        TppPerhitungan updatedTpp = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 45.0f
+        );
+
+        when(pegawaiRepository.existsByNip(updatedTpp.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(updatedTpp.nama())).thenReturn(true);
+        when(opdRepository.existsByKodeOpd(updatedTpp.kodeOpd())).thenReturn(true);
+        when(tppPerhitunganRepository.save(updatedTpp)).thenReturn(updatedTpp);
+
+        TppPerhitungan result = tppPerhitunganService.ubahTppPerhitungan(updatedTpp);
+
+        assertEquals(updatedTpp, result);
+        assertEquals(45.0f, result.nilaiPerhitungan());
+        verify(tppPerhitunganRepository).save(updatedTpp);
+    }
+
+    @Test
+    void listTppPerhitunganByKodeOpdAndBulanAndTahun_WhenEmptyList_ShouldReturnEmptyIterable() {
+        String kodeOpd = "NONEXISTENT";
+        Integer bulan = 13;
+        Integer tahun = 2025;
+        when(tppPerhitunganRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
+    }
+
+    @Test
+    void listTppPerhitunganByKodeOpdAndBulanAndTahun_WithBoundaryMonth_ShouldWork() {
+        String kodeOpd = "OPD001";
+
+        // Test month 1
+        when(tppPerhitunganRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, 1, 2024)).thenReturn(List.of(sampleTppPerhitungan));
+        Iterable<TppPerhitungan> resultJan = tppPerhitunganService.listTppPerhitunganByKodeOpdAndBulanAndTahun(kodeOpd, 1, 2024);
+        assertEquals(List.of(sampleTppPerhitungan), resultJan);
+
+        // Test month 12
+        when(tppPerhitunganRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, 12, 2024)).thenReturn(List.of(sampleTppPerhitungan));
+        Iterable<TppPerhitungan> resultDec = tppPerhitunganService.listTppPerhitunganByKodeOpdAndBulanAndTahun(kodeOpd, 12, 2024);
+        assertEquals(List.of(sampleTppPerhitungan), resultDec);
+
+        verify(tppPerhitunganRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, 1, 2024);
+        verify(tppPerhitunganRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, 12, 2024);
+    }
+
+    @Test
+    void hapusTppPerhitunganByNipBulanTahun_WithNullParameters_ShouldCallRepository() {
+        assertDoesNotThrow(() -> {
+            tppPerhitunganService.hapusTppPerhitunganByNipBulanTahun(null, null, null);
+        });
+
+        verify(tppPerhitunganRepository).deleteByNipAndBulanAndTahun(null, null, null);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WithLongStrings_ShouldWork() {
+        String longNip = "12345678901234567890";
+        String longNama = "A".repeat(255);
+        String longKodeOpd = "OPD" + "A".repeat(100);
+        String longKodePemda = "PEMDA" + "B".repeat(100);
+
+        TppPerhitungan tppWithLongStrings = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, longKodeOpd, longKodePemda, longNip, longNama, 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(longKodeOpd)).thenReturn(true);
+        when(pegawaiRepository.existsByNip(longNip)).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(longNama)).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithLongStrings)).thenReturn(tppWithLongStrings);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithLongStrings);
+
+        assertEquals(tppWithLongStrings, result);
+        assertEquals(longNip, result.nip());
+        assertEquals(longNama, result.nama());
+        assertEquals(longKodeOpd, result.kodeOpd());
+        assertEquals(longKodePemda, result.kodePemda());
+        verify(tppPerhitunganRepository).save(tppWithLongStrings);
+    }
+
+    @Test
+    void tambahTppPerhitungan_WithSpecialCharactersInNama_ShouldWork() {
+        String namaWithSpecialChars = "John O'Connor-Niño @#$%^&*()";
+
+        TppPerhitungan tppWithSpecialChars = TppPerhitungan.of(
+            JenisTpp.KONDISI_KERJA, "OPD001", "PEMDA001", "123456789", namaWithSpecialChars, 1, 2024, 5000000.0f, NamaPerhitungan.KEHADIRAN, 30.0f
+        );
+
+        when(opdRepository.existsByKodeOpd(tppWithSpecialChars.kodeOpd())).thenReturn(true);
+        when(pegawaiRepository.existsByNip(tppWithSpecialChars.nip())).thenReturn(true);
+        when(pegawaiRepository.existsByNamaPegawai(namaWithSpecialChars)).thenReturn(true);
+        when(tppPerhitunganRepository.save(tppWithSpecialChars)).thenReturn(tppWithSpecialChars);
+
+        TppPerhitungan result = tppPerhitunganService.tambahTppPerhitungan(tppWithSpecialChars);
+
+        assertEquals(tppWithSpecialChars, result);
+        assertEquals(namaWithSpecialChars, result.nama());
+        verify(tppPerhitunganRepository).save(tppWithSpecialChars);
+    }
+
+    @Test
+    void listTppPerhitunganByNip_WithVeryLongNip_ShouldCallRepository() {
+        String veryLongNip = "1".repeat(100);
+
+        when(tppPerhitunganRepository.findByNip(veryLongNip)).thenReturn(Collections.emptyList());
+
+        Iterable<TppPerhitungan> result = tppPerhitunganService.listTppPerhitunganByNip(veryLongNip);
+
+        assertFalse(result.iterator().hasNext());
+        verify(tppPerhitunganRepository).findByNip(veryLongNip);
+    }
+
+    @Test
+    void ubahTppPerhitungan_WithAllEnumTypes_ShouldWork() {
+        // Test updating to each enum combination
+        for (JenisTpp jenisTpp : JenisTpp.values()) {
+            for (NamaPerhitungan namaPerhitungan : NamaPerhitungan.values()) {
+                TppPerhitungan tppToUpdate = TppPerhitungan.of(
+                    jenisTpp, "OPD001", "PEMDA001", "123456789", "Test User", 1, 2024, 5000000.0f, namaPerhitungan, 30.0f
+                );
+
+                when(pegawaiRepository.existsByNip(tppToUpdate.nip())).thenReturn(true);
+                when(pegawaiRepository.existsByNamaPegawai(tppToUpdate.nama())).thenReturn(true);
+                when(opdRepository.existsByKodeOpd(tppToUpdate.kodeOpd())).thenReturn(true);
+                when(tppPerhitunganRepository.save(tppToUpdate)).thenReturn(tppToUpdate);
+
+                TppPerhitungan result = tppPerhitunganService.ubahTppPerhitungan(tppToUpdate);
+
+                assertEquals(jenisTpp, result.jenisTpp());
+                assertEquals(namaPerhitungan, result.namaPerhitungan());
+                verify(tppPerhitunganRepository).save(tppToUpdate);
+
+                // Reset mock for next iteration
+                reset(tppPerhitunganRepository);
+            }
+        }
     }
 }

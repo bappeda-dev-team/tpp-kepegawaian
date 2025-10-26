@@ -59,6 +59,7 @@ public class TppPerhitunganController {
             // Konversi menjadi response object
             var perhitungans = StreamSupport.stream(tppPerhitungans.spliterator(), false)
                     .map(tpp -> new PerhitunganResponse(
+                            tpp.id(),
                             tpp.namaPerhitungan(),
                             tpp.maksimum(),
                             tpp.nilaiPerhitungan()
@@ -130,6 +131,7 @@ public class TppPerhitunganController {
                     TppPerhitungan first = group.get(0);
                     var perhitungans = group.stream()
                             .map(tpp -> new PerhitunganResponse(
+                                    tpp.id(),
                                     tpp.namaPerhitungan(),
                                     tpp.maksimum(),
                                     tpp.nilaiPerhitungan()
@@ -240,6 +242,7 @@ public class TppPerhitunganController {
                         return tppPerhitunganService.ubahTppPerhitungan(updatedRecord);
                     })
                     .map(saved -> new PerhitunganResponse(
+                            saved.id(),
                             saved.namaPerhitungan(),
                             saved.maksimum(),
                             saved.nilaiPerhitungan()
@@ -321,6 +324,7 @@ public class TppPerhitunganController {
                     ))
                     .map(tppPerhitunganService::tambahTppPerhitungan)
                     .map(saved -> new PerhitunganResponse(
+                            saved.id(),
                             saved.namaPerhitungan(),
                             saved.maksimum(),
                             saved.nilaiPerhitungan()
