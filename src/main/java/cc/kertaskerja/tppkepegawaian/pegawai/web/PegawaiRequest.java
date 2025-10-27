@@ -1,6 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.web;
 
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -30,8 +29,7 @@ public record PegawaiRequest(
         @NotEmpty(message = "Nama role tidak boleh kosong")
         String namaRole,
 		
-		@NotNull(message = "Status Pegawai harus terdefinisi")
-		StatusPegawai statusPegawai,
+		String statusPegawai,
 		
 		@NotNull(message = "Password Hash harus terdefinisi")
 		@NotEmpty(message = "Password Hash tidak boleh kosong")

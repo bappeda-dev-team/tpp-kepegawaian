@@ -3,16 +3,9 @@ package cc.kertaskerja.tppkepegawaian.jabatan.web;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.Constraint;
-import jakarta.validation.Payload;
-import java.lang.annotation.*;
 
 public record JabatanRequest(
 		@Nullable
@@ -31,13 +24,13 @@ public record JabatanRequest(
 		String kodeOpd,
 		
 		@NotNull(message = "Pilih status jabatan")
-		StatusJabatan statusJabatan,
+		String statusJabatan,
 		
 		@NotNull(message = "Pilih jenis jabatan")
-		JenisJabatan jenisJabatan,
+		String jenisJabatan,
 		
 		@NotNull(message = "Pilih eselon")
-		Eselon eselon,
+		String eselon,
 		
 		@NotNull(message = "Pangkat harus terdefinisi")
 		@NotEmpty(message = "Pangkat tidak boleh kosong")

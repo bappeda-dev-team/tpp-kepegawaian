@@ -1,7 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.role.web;
 
-import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
-import cc.kertaskerja.tppkepegawaian.role.domain.LevelRole;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -19,9 +17,9 @@ public record RoleRequest(
         String nip,
 
         @NotNull(message = "Level role harus terdefinisi")
-        LevelRole levelRole,
+        String levelRole,
 
         @NotNull(message = "Is active harus terdefinisi")
-        IsActive isActive
+        String isActive
 ) {
 }

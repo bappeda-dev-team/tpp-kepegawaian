@@ -1,11 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.web.response;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
-import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
 
 import java.util.Set;
 
@@ -15,13 +11,13 @@ public record PegawaiWithJabatanAndRolesResponse(
         String nip,
         String kodeOpd,
         String namaJabatan,
-        StatusJabatan statusJabatan,
-        JenisJabatan jenisJabatan,
-        Eselon eselon,
+        String statusJabatan,
+        String jenisJabatan,
+        String eselon,
         String pangkat,
         String golongan,
         String namaRole,
-        IsActive isActive
+        String isActive
 ) {
     public static PegawaiWithJabatanAndRolesResponse of(
             Long id,
@@ -31,24 +27,26 @@ public record PegawaiWithJabatanAndRolesResponse(
             Set<Role> roles,
             Jabatan jabatan
     ) {
-        // Default values for role
+        // Nilai default untuk role
         String namaRole = null;
-        IsActive isActive = null;
+        String isActive = null;
 
+        // Extract role data if available
         if (roles != null && !roles.isEmpty()) {
-            Role role = roles.iterator().next();
-            namaRole = role.namaRole();
-            isActive = role.isActive();
+            Role firstRole = roles.iterator().next();
+            namaRole = firstRole.namaRole();
+            isActive = firstRole.isActive();
         }
 
-        // Default values for jabatan
+        // Nilai default untuk jabatan
         String namaJabatan = null;
-        StatusJabatan statusJabatan = null;
-        JenisJabatan jenisJabatan = null;
-        Eselon eselon = null;
+        String statusJabatan = null;
+        String jenisJabatan = null;
+        String eselon = null;
         String pangkat = null;
         String golongan = null;
 
+        // Ekstrak data jabatan jika ada
         if (jabatan != null) {
             namaJabatan = jabatan.namaJabatan();
             statusJabatan = jabatan.statusJabatan();

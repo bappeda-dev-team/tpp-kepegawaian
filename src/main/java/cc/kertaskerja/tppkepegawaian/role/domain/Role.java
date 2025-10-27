@@ -8,6 +8,9 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 @Table(name = "role")
 public record Role(
 	@Id
@@ -20,10 +23,10 @@ public record Role(
 	String nip,
 
 	@Column("level_role")
-	LevelRole levelRole,
+	String levelRole,
 
 	@Column("is_active")
-	IsActive isActive,
+	String isActive,
 
 	@CreatedDate
 	Instant createdDate,
@@ -32,10 +35,10 @@ public record Role(
 	Instant lastModifiedDate
 ) {
     public static Role of(
-            String namaRole, 
+            String namaRole,
             String nip,
-            LevelRole levelRole,
-            IsActive isActive
+            String levelRole,
+            String isActive
     ) {
         return new Role(
                 null, 

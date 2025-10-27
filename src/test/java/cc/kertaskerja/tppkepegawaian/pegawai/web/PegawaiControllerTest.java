@@ -11,11 +11,7 @@ import java.util.Set;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.*;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
-import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,7 +61,7 @@ public class PegawaiControllerTest {
                 "198001012010011001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 "hashedpassword",
                 Instant.now(),
                 Instant.now()
@@ -76,9 +72,9 @@ public class PegawaiControllerTest {
                 "198001012010011001",
                 "Kepala Seksi",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_STRUKTURAL,
-                Eselon.ESELON_III,
+                "Utama",
+                "Jabatan Struktural",
+                "Eselon III",
                 "Penata Muda",
                 "III/a",
                 new java.util.Date(),
@@ -102,11 +98,11 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
                 .andExpect(jsonPath("$.kode_opd").value("OPD-001"))
                 .andExpect(jsonPath("$.nama_role").value("Admin"))
-                .andExpect(jsonPath("$.status_pegawai").value("AKTIF"))
+                .andExpect(jsonPath("$.status_pegawai").value("Aktif"))
                 .andExpect(jsonPath("$.nama_jabatan").value("Kepala Seksi"))
-                .andExpect(jsonPath("$.status_jabatan").value("UTAMA"))
-                .andExpect(jsonPath("$.jenis_jabatan").value("JABATAN_STRUKTURAL"))
-                .andExpect(jsonPath("$.eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$.status_jabatan").value("Utama"))
+                .andExpect(jsonPath("$.jenis_jabatan").value("Jabatan Struktural"))
+                .andExpect(jsonPath("$.eselon").value("Eselon III"))
                 .andExpect(jsonPath("$.pangkat").value("Penata Muda"))
                 .andExpect(jsonPath("$.golongan").value("III/a"));
     }
@@ -132,7 +128,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
                 .andExpect(jsonPath("$.kode_opd").value("OPD-001"))
                 .andExpect(jsonPath("$.nama_role").value("Admin"))
-                .andExpect(jsonPath("$.status_pegawai").value("AKTIF"))
+                .andExpect(jsonPath("$.status_pegawai").value("Aktif"))
                 .andExpect(jsonPath("$.nama_jabatan").isEmpty())
                 .andExpect(jsonPath("$.status_jabatan").isEmpty())
                 .andExpect(jsonPath("$.jenis_jabatan").isEmpty())
@@ -144,16 +140,16 @@ public class PegawaiControllerTest {
     @Test
     void getAllPegawaiByKodeOpd_WhenKodeOpdExists_ShouldReturnPegawaiWithRoleList() throws Exception {
         String kodeOpd = "OPD-001";
-        Set<Role> roles1 = Set.of(new Role(1L, "Admin", "198001012010011001", null, IsActive.AKTIF, Instant.now(), Instant.now()));
-        Set<Role> roles2 = Set.of(new Role(2L, "User", "201001012010011001", null, IsActive.AKTIF, Instant.now(), Instant.now()));
+        Set<Role> roles1 = Set.of(new Role(1L, "Admin", "198001012010011001", null, "Aktif", Instant.now(), Instant.now()));
+        Set<Role> roles2 = Set.of(new Role(2L, "User", "201001012010011001", null, "Aktif", Instant.now(), Instant.now()));
         Jabatan jabatan1 = new Jabatan(
                 1L,
                 "198001012010011001",
                 "Analis Kebijakan Industrialisasi",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_STRUKTURAL,
-                Eselon.ESELON_III,
+                "Utama",
+                "Jabatan Struktural",
+                "Eselon III",
                 "Senior",
                 "Golongan III",
                 new java.util.Date(),
@@ -166,9 +162,9 @@ public class PegawaiControllerTest {
                 "201001012010011001",
                 "Analis Kebijakan",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_STRUKTURAL,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Struktural",
+                "Eselon III",
                 "Junior",
                 "Golongan II",
                 new java.util.Date(),
@@ -193,11 +189,11 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
                 .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
                 .andExpect(jsonPath("$[0].namaRole", is("Admin")))
-                .andExpect(jsonPath("$[0].isActive", is("AKTIF")))
+                .andExpect(jsonPath("$[0].isActive", is("Aktif")))
                 .andExpect(jsonPath("$[0].namaJabatan", is("Analis Kebijakan Industrialisasi")))
-                .andExpect(jsonPath("$[0].statusJabatan", is("UTAMA")))
-                .andExpect(jsonPath("$[0].jenisJabatan", is("JABATAN_STRUKTURAL")))
-                .andExpect(jsonPath("$[0].eselon", is("ESELON_III")))
+                .andExpect(jsonPath("$[0].statusJabatan", is("Utama")))
+                .andExpect(jsonPath("$[0].jenisJabatan", is("Jabatan Struktural")))
+                .andExpect(jsonPath("$[0].eselon", is("Eselon III")))
                 .andExpect(jsonPath("$[0].pangkat", is("Senior")))
                 .andExpect(jsonPath("$[0].golongan", is("Golongan III")))
                 .andExpect(jsonPath("$[1].id", is(2)))
@@ -205,11 +201,11 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
                 .andExpect(jsonPath("$[1].kodeOpd", is("OPD-001")))
                 .andExpect(jsonPath("$[1].namaRole", is("User")))
-                .andExpect(jsonPath("$[1].isActive", is("AKTIF")))
+                .andExpect(jsonPath("$[1].isActive", is("Aktif")))
                 .andExpect(jsonPath("$[1].namaJabatan", is("Analis Kebijakan")))
-                .andExpect(jsonPath("$[1].statusJabatan", is("UTAMA")))
-                .andExpect(jsonPath("$[1].jenisJabatan", is("JABATAN_STRUKTURAL")))
-                .andExpect(jsonPath("$[1].eselon", is("ESELON_IV")))
+                .andExpect(jsonPath("$[1].statusJabatan", is("Utama")))
+                .andExpect(jsonPath("$[1].jenisJabatan", is("Jabatan Struktural")))
+                .andExpect(jsonPath("$[1].eselon", is("Eselon III")))
                 .andExpect(jsonPath("$[1].pangkat", is("Junior")))
                 .andExpect(jsonPath("$[1].golongan", is("Golongan II")));
 
@@ -234,8 +230,8 @@ public class PegawaiControllerTest {
     void getAllPegawaiByRole_WhenRoleExists_ShouldReturnPegawaiList() throws Exception {
         String namaRole = "Admin";
         List<Pegawai> pegawaiList = Arrays.asList(
-                new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", StatusPegawai.AKTIF, "hashedpassword123", Instant.now(), Instant.now()),
-                new Pegawai(2L, "Jane Doe", "201001012010011001", "OPD-002", "Admin", StatusPegawai.AKTIF, "hashedpassword456", Instant.now(), Instant.now())
+                new Pegawai(1L, "John Doe", "198001012010011001", "OPD-001", "Admin", "Aktif", "hashedpassword123", Instant.now(), Instant.now()),
+                new Pegawai(2L, "Jane Doe", "201001012010011001", "OPD-002", "Admin", "Aktif", "hashedpassword456", Instant.now(), Instant.now())
         );
 
         when(pegawaiService.listAllPegawaiByRole(namaRole)).thenReturn(pegawaiList);
@@ -275,7 +271,7 @@ public class PegawaiControllerTest {
                 "201001012010011001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 "hashedpassword123"
         );
         
@@ -285,7 +281,7 @@ public class PegawaiControllerTest {
                 "201001012010011001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 "hashedpassword123",
                 Instant.now(),
                 Instant.now()
@@ -303,7 +299,7 @@ public class PegawaiControllerTest {
                 .andExpect(jsonPath("$.nip").value("201001012010011001"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
                 .andExpect(jsonPath("$.namaRole").value("Admin"))
-                .andExpect(jsonPath("$.statusPegawai").value("AKTIF"));
+                .andExpect(jsonPath("$.statusPegawai").value("Aktif"));
     }
     
     @Test
@@ -314,7 +310,7 @@ public class PegawaiControllerTest {
                 "",
                 "",
                 "",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 ""
         );
         
@@ -332,7 +328,7 @@ public class PegawaiControllerTest {
                 "201001012010011001",
                 "OPD-002",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 "hashedpassword123"
         );
 
@@ -353,7 +349,7 @@ public class PegawaiControllerTest {
                 "199501012012011003",
                 "OPD-001",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "password213"
         );
         
@@ -363,7 +359,7 @@ public class PegawaiControllerTest {
                 "198001012010011001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "Aktif",
                 "hashedpassword",
                 Instant.now(),
                 Instant.now()
@@ -375,7 +371,7 @@ public class PegawaiControllerTest {
                 "199501012012011003",
                 "OPD-001",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "password213",
                 Instant.now(),
                 Instant.now()
@@ -406,7 +402,7 @@ public class PegawaiControllerTest {
                 "198201012010011002",
                 "OPD-001",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "password213"
         );
         
@@ -429,7 +425,7 @@ public class PegawaiControllerTest {
                 "198001012010011001",
                 "OPD-003",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "password213"
         );
         

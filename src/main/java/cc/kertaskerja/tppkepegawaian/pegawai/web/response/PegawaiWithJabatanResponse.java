@@ -1,9 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.web.response;
 
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
@@ -24,19 +20,19 @@ public record PegawaiWithJabatanResponse(
         String namaRole,
         
         @JsonProperty("status_pegawai")
-        StatusPegawai statusPegawai,
+        String statusPegawai,
 
         @JsonProperty("nama_jabatan")
         String namaJabatan,
 
         @JsonProperty("status_jabatan")
-        StatusJabatan statusJabatan,
+        String statusJabatan,
 
         @JsonProperty("jenis_jabatan")
-        JenisJabatan jenisJabatan,
+        String jenisJabatan,
 
         @JsonProperty("eselon")
-        Eselon eselon,
+        String eselon,
 
         @JsonProperty("pangkat")
         String pangkat,
