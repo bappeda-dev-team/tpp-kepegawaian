@@ -26,13 +26,13 @@ public record Jabatan(
 	String kodeOpd,
 
 	@Column("status_jabatan")
-	StatusJabatan statusJabatan,
+	String statusJabatan,
 
 	@Column("jenis_jabatan")
-	JenisJabatan jenisJabatan,
+	String jenisJabatan,
 
 	@Column("eselon")
-	Eselon eselon,
+	String eselon,
 
     @Column("pangkat")
     String pangkat,
@@ -58,9 +58,9 @@ public record Jabatan(
             String nip,
             String namaJabatan,
             String kodeOpd,
-            StatusJabatan statusJabatan,
-            JenisJabatan jenisJabatan,
-            Eselon eselon,
+            String statusJabatan,
+            String jenisJabatan,
+            String eselon,
             String pangkat,
             String golongan,
             Date   tanggalMulai,

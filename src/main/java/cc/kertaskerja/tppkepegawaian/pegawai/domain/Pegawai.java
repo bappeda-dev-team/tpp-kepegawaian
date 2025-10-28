@@ -29,7 +29,8 @@ public record Pegawai(
         String namaRole,
         
         @Column("status_pegawai")
-        StatusPegawai statusPegawai,
+        @Nullable
+        String statusPegawai,
 
         @Column("password_hash")
         @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -42,11 +43,11 @@ public record Pegawai(
         Instant lastModifiedDate
 ) {
     public static Pegawai of(
-            String namaPegawai, 
+            String namaPegawai,
             String nip,
             String kodeOpd,
             String namaRole,
-            StatusPegawai statusPegawai,
+            String statusPegawai,
             String passwordHash
     ) {
         return new Pegawai(

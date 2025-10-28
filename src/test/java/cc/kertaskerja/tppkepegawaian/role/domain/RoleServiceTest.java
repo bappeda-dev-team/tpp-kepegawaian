@@ -44,8 +44,8 @@ public class RoleServiceTest {
                 1L,
                 "Admin",
                 "198001012010011001",
-                LevelRole.LEVEL_1,
-                IsActive.AKTIF,
+                "1",
+                "Y",
                 Instant.now(),
                 Instant.now()
         );
@@ -87,12 +87,12 @@ public class RoleServiceTest {
                 null,
                 "User",
                 "198001012010011001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF,
+                "3",
+                "Y",
                 null,
                 null
         );
-        
+
         when(pegawaiRepository.existsByNip(newRole.nip())).thenReturn(true);
         when(roleRepository.save(any(Role.class))).thenReturn(
                 new Role(
@@ -105,14 +105,14 @@ public class RoleServiceTest {
                         Instant.now()
                 )
         );
-        
+
         Role result = roleService.tambahRole(newRole);
-        
+
         assertThat(result.id()).isEqualTo(2L);
         assertThat(result.namaRole()).isEqualTo("User");
         assertThat(result.nip()).isEqualTo("198001012010011001");
-        assertThat(result.levelRole()).isEqualTo(LevelRole.LEVEL_3);
-        assertThat(result.isActive()).isEqualTo(IsActive.AKTIF);
+        assertThat(result.levelRole()).isEqualTo("3");
+        assertThat(result.isActive()).isEqualTo("Y");
         verify(pegawaiRepository).existsByNip(newRole.nip());
         verify(roleRepository).save(newRole);
     }
@@ -123,8 +123,8 @@ public class RoleServiceTest {
                 null,
                 "User",
                 "200601012010012001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF,
+                "3",
+                "Y",
                 null,
                 null
         );
@@ -145,8 +145,8 @@ public class RoleServiceTest {
                 id,
                 "Guest",
                 "198001012010011001",
-                LevelRole.LEVEL_4,
-                IsActive.AKTIF,
+                "4",
+                "Y",
                 testRole.createdDate(),
                 Instant.now()
         );
@@ -183,8 +183,8 @@ public class RoleServiceTest {
                 id,
                 "Guest",
                 "200601012010012001",
-                LevelRole.LEVEL_4,
-                IsActive.AKTIF,
+                "4",
+                "Y",
                 testRole.createdDate(),
                 Instant.now()
         );

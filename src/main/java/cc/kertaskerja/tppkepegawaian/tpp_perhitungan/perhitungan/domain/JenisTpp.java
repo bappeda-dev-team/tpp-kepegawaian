@@ -2,5 +2,5 @@ package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain;
 
 public enum JenisTpp {
     KONDISI_KERJA,
-    BELUM_DIATUR;
+    BELUM_DIATUR
 }

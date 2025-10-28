@@ -50,7 +50,7 @@ public class PegawaiServiceTest {
                 "198001012010011001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "AKTIF",
                 "hashedpassword",
                 Instant.now(),
                 Instant.now()
@@ -83,14 +83,14 @@ public class PegawaiServiceTest {
     void listPegawaiAktif_WhenOpdExists_ShouldReturnPegawaiWithRoleList() {
         String kodeOpd = "OPD-001";
         Set<Role> rolePegawai = Set.of(new Role(1L, "admin", "200601012010012001",
-                LevelRole.LEVEL_1, IsActive.AKTIF, Instant.now(), Instant.now() ));
+                "1", "AKTIF", Instant.now(), Instant.now() ));
         Pegawai pegawai = new Pegawai(
                         2L,
                         "Jane Doe",
                         "200601012010012001",
                         "OPD-001",
                         "User",
-                        StatusPegawai.AKTIF,
+                        "AKTIF",
                         "hashedpassword123",
                         Instant.now(),
                         Instant.now()
@@ -139,7 +139,7 @@ public class PegawaiServiceTest {
                         "200601012010012001",
                         "OPD-001",
                         "Admin",
-                        StatusPegawai.AKTIF,
+                        "AKTIF",
                         "hashedpassword123",
                         Instant.now(),
                         Instant.now()
@@ -173,7 +173,7 @@ public class PegawaiServiceTest {
                 "200601012010012001",
                 "OPD-001",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "AKTIF",
                 "hashedpassword123",
                 null,
                 null
@@ -226,7 +226,7 @@ public class PegawaiServiceTest {
                 "198001012010011001",
                 "OPD-9999",
                 "Admin",
-                StatusPegawai.AKTIF,
+                "AKTIF",
                 "hashedpassword123",
                 null,
                 null);
@@ -252,7 +252,7 @@ public class PegawaiServiceTest {
                 nip,
                 "OPD-001",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "newhash123",
                 testPegawai.createdDate(),
                 Instant.now()
@@ -293,7 +293,7 @@ public class PegawaiServiceTest {
                 nip,
                 "OPD-9999",
                 "User",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "newhash123",
                 testPegawai.createdDate(),
                 Instant.now());
@@ -319,7 +319,7 @@ public class PegawaiServiceTest {
                 nip,
                 "OPD-001",
                 "Salah",
-                StatusPegawai.CUTI,
+                "CUTI",
                 "newhash123",
                 testPegawai.createdDate(),
                 Instant.now());

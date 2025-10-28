@@ -1,9 +1,6 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.StatusJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.JenisJabatan;
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.Eselon;
 import java.util.Date;
 
 public record JabatanWithPegawaiResponse(
@@ -12,9 +9,9 @@ public record JabatanWithPegawaiResponse(
     String namaPegawai,
     String namaJabatan,
     String kodeOpd,
-    StatusJabatan statusJabatan,
-    JenisJabatan jenisJabatan,
-    Eselon eselon,
+    String statusJabatan,
+    String jenisJabatan,
+    String eselon,
     String pangkat,
     String golongan,
     @JsonFormat(pattern = "dd-MM-yyyy")

@@ -31,8 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
-import cc.kertaskerja.tppkepegawaian.role.domain.IsActive;
-import cc.kertaskerja.tppkepegawaian.role.domain.LevelRole;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
 import cc.kertaskerja.tppkepegawaian.role.domain.RoleNotFoundException;
 import cc.kertaskerja.tppkepegawaian.role.domain.RoleService;
@@ -57,8 +55,8 @@ public class RoleControllerTest {
                 1L,
                 "Admin",
                 "198001012010011001",
-                LevelRole.LEVEL_1,
-                IsActive.AKTIF,
+                "LEVEL_1",
+                "AKTIF",
                 Instant.now(),
                 Instant.now()
         );
@@ -92,22 +90,22 @@ public class RoleControllerTest {
                 null,
                 "User",
                 "198001012010011001",
-                LevelRole.LEVEL_2,
-                IsActive.AKTIF
+                "LEVEL_2",
+                "AKTIF"
         );
-        
+
         Role createRole = new Role(
-                2L, 
+                2L,
                 "Admin",
                 "198001012010011001",
-                LevelRole.LEVEL_2,
-                IsActive.AKTIF,
+                "LEVEL_2",
+                "AKTIF",
                 Instant.now(),
                 Instant.now()
         );
-        
+
         when(roleService.tambahRole(any(Role.class))).thenReturn(createRole);
-        
+
         mockMvc.perform(post("/role")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testRoleRequest)))
@@ -124,11 +122,11 @@ public class RoleControllerTest {
     @Test
     void tambah_WhenInvalidRoleRequest_ShouldReturn400() throws Exception {
         RoleRequest request = new RoleRequest(
-                null, 
+                null,
                 "",
                 "",
-                LevelRole.LEVEL_2,
-                IsActive.AKTIF
+                "LEVEL_2",
+                "AKTIF"
         );
         
         mockMvc.perform(post("/role")
@@ -154,26 +152,26 @@ public class RoleControllerTest {
                 1L,
                 "Guest",
                 "198001012010011001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF
+                "LEVEL_3",
+                "AKTIF"
         );
-        
+
         Role existingRole = new Role(
                 1L,
                 "Admin",
                 "198001012010011001",
-                LevelRole.LEVEL_1,
-                IsActive.AKTIF,
+                "LEVEL_1",
+                "AKTIF",
                 Instant.now(),
                 Instant.now()
         );
-        
+
         Role updateRole = new Role(
                 1L,
                 "Guest",
                 "198001012010011001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF,
+                "LEVEL_3",
+                "AKTIF",
                 Instant.now(),
                 Instant.now()
         );
@@ -200,8 +198,8 @@ public class RoleControllerTest {
                 3L,
                 "Guest",
                 "198001012010011001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF
+                "LEVEL_3",
+                "AKTIF"
         );
         
         when(roleService.detailRole(3L)).thenThrow(new RoleNotFoundException(1L));
@@ -221,8 +219,8 @@ public class RoleControllerTest {
                 1L,
                 "Guest",
                 "201001012010011001",
-                LevelRole.LEVEL_3,
-                IsActive.AKTIF
+                "LEVEL_3",
+                "AKTIF"
         );
         
         when(roleService.detailRole(1L)).thenReturn(testRole);

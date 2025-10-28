@@ -1,11 +1,9 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
-import cc.kertaskerja.tppkepegawaian.jabatan.domain.*;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
-import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
-import cc.kertaskerja.tppkepegawaian.jabatan.web.MasterJabatanByOpdResponse;
-import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,20 +17,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(JabatanController.class)
+@SuppressWarnings("unused")
 public class JabatanControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -44,21 +42,18 @@ public class JabatanControllerTest {
     private ObjectMapper objectMapper;
     
     private Jabatan testJabatan;
-    private Jabatan testJabatan2;
     private JabatanRequest testJabatanRequest;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse1;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse2;
-    private MasterJabatanByOpdResponse testMasterJabatanByOpdResponse1;
-    private MasterJabatanByOpdResponse testMasterJabatanByOpdResponse2;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
     
     @BeforeEach
     void setUp() {
-        tanggalMulai = Calendar.getInstance();
+        tanggalMulai = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         tanggalMulai.set(2023, Calendar.JANUARY, 1);
         
-        tanggalAkhir = Calendar.getInstance();
+        tanggalAkhir = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         tanggalAkhir.set(2025, Calendar.DECEMBER, 31);
         
         testJabatan = new Jabatan(
@@ -66,9 +61,9 @@ public class JabatanControllerTest {
                 "198001012010011001",
                 "Kepala Dinas",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -77,14 +72,14 @@ public class JabatanControllerTest {
                 Instant.now()
         );
 
-        testJabatan2 = new Jabatan(
+        Jabatan testJabatan2 = new Jabatan(
                 2L,
                 "199001012015021002",
                 "Sekretaris Dinas",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_III,
+                "PLT Utama",
+                "Jabatan Administrasi",
+                "Eselon III",
                 "Middle",
                 "Golongan II",
                 tanggalMulai.getTime(),
@@ -98,9 +93,9 @@ public class JabatanControllerTest {
                 "198001012010011001",
                 "Kepala Dinas",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -113,9 +108,9 @@ public class JabatanControllerTest {
                 "John Doe",
                 "Kepala Dinas",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -128,53 +123,13 @@ public class JabatanControllerTest {
                 "Jane Smith",
                 "Sekretaris Dinas",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_III,
+                "PLT Utama",
+                "Jabatan Administrasi",
+                "Eselon III",
                 "Middle",
                 "Golongan II",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime()
-        );
-
-        MasterJabatanByOpdResponse.JabatanDetail jabatanDetail1 = new MasterJabatanByOpdResponse.JabatanDetail(
-                1L,
-                "Kepala Dinas",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
-                "Junior",
-                "Golongan I",
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime()
-        );
-
-        MasterJabatanByOpdResponse.JabatanDetail jabatanDetail2 = new MasterJabatanByOpdResponse.JabatanDetail(
-                2L,
-                "Sekretaris Dinas",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_III,
-                "Middle",
-                "Golongan II",
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime()
-        );
-
-        testMasterJabatanByOpdResponse1 = new MasterJabatanByOpdResponse(
-                "OPD-001",
-                "Dinas Pemerintahan",
-                "198001012010011001",
-                "John Doe",
-                List.of(jabatanDetail1)
-        );
-
-        testMasterJabatanByOpdResponse2 = new MasterJabatanByOpdResponse(
-                "OPD-002",
-                "Dinas Administrasi",
-                "199001012015021002",
-                "Jane Smith",
-                List.of(jabatanDetail2)
         );
     }
     
@@ -189,9 +144,9 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.nip").value("198001012010011001"))
                 .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
-                .andExpect(jsonPath("$.eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$.statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+                .andExpect(jsonPath("$.eselon").value("Eselon IV"))
                 .andExpect(jsonPath("$.pangkat").value("Junior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan I"))
                 .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
@@ -207,47 +162,41 @@ public class JabatanControllerTest {
     }
 
     @Test
-    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnMasterJabatanByOpdList() throws Exception {
-        when(jabatanService.listMasterJabatanByKodeOpd("OPD-001")).thenReturn(List.of(testMasterJabatanByOpdResponse1, testMasterJabatanByOpdResponse2));
+    void getMasterByKodeOpd_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001")).thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-001"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$[0].namaOpd").value("Dinas Pemerintahan"))
+                .andExpect(jsonPath("$[0].id").value(1L))
                 .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
                 .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
-                .andExpect(jsonPath("$[0].jabatan").isArray())
-                .andExpect(jsonPath("$[0].jabatan.length()").value(1))
-                .andExpect(jsonPath("$[0].jabatan[0].id").value(1L))
-                .andExpect(jsonPath("$[0].jabatan[0].namaJabatan").value("Kepala Dinas"))
-                .andExpect(jsonPath("$[0].jabatan[0].statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$[0].jabatan[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
-                .andExpect(jsonPath("$[0].jabatan[0].eselon").value("ESELON_IV"))
-                .andExpect(jsonPath("$[0].jabatan[0].pangkat").value("Junior"))
-                .andExpect(jsonPath("$[0].jabatan[0].golongan").value("Golongan I"))
-                .andExpect(jsonPath("$[0].jabatan[0].tanggalMulai").value("01-01-2023"))
-                .andExpect(jsonPath("$[0].jabatan[0].tanggalAkhir").value("31-12-2025"))
-                .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
-                .andExpect(jsonPath("$[1].namaOpd").value("Dinas Administrasi"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+                .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
+                .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+                .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+                .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+                .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+                .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
                 .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
-                .andExpect(jsonPath("$[1].jabatan").isArray())
-                .andExpect(jsonPath("$[1].jabatan.length()").value(1))
-                .andExpect(jsonPath("$[1].jabatan[0].id").value(2L))
-                .andExpect(jsonPath("$[1].jabatan[0].namaJabatan").value("Sekretaris Dinas"))
-                .andExpect(jsonPath("$[1].jabatan[0].statusJabatan").value("PLT_UTAMA"))
-                .andExpect(jsonPath("$[1].jabatan[0].jenisJabatan").value("JABATAN_ADMINISTRASI"))
-                .andExpect(jsonPath("$[1].jabatan[0].eselon").value("ESELON_III"))
-                .andExpect(jsonPath("$[1].jabatan[0].pangkat").value("Middle"))
-                .andExpect(jsonPath("$[1].jabatan[0].golongan").value("Golongan II"));
+                .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
+                .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
+                .andExpect(jsonPath("$[1].statusJabatan").value("PLT Utama"))
+                .andExpect(jsonPath("$[1].jenisJabatan").value("Jabatan Administrasi"))
+                .andExpect(jsonPath("$[1].eselon").value("Eselon III"))
+                .andExpect(jsonPath("$[1].pangkat").value("Middle"))
+                .andExpect(jsonPath("$[1].golongan").value("Golongan II"));
     }
 
     @Test
     void getMasterByKodeOpd_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
-        when(jabatanService.listMasterJabatanByKodeOpd("OPD-999")).thenReturn(List.of());
+        when(jabatanService.listJabatanByKodeOpdWithPegawai("OPD-999")).thenReturn(List.of());
 
         mockMvc.perform(get("/jabatan/detail/master/opd/OPD-999"))
                 .andExpect(status().isOk())
@@ -270,9 +219,9 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
                 .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
                 .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"))
-                .andExpect(jsonPath("$[0].eselon").value("ESELON_IV"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+                .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
                 .andExpect(jsonPath("$[0].pangkat").value("Junior"))
                 .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
                 .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
@@ -298,9 +247,9 @@ public class JabatanControllerTest {
                 "Dino",
                 "Pelaksana Tugas",
                 "OPD-001",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_STRUKTURAL,
-                Eselon.ESELON_II,
+                "PLT Utama",
+                "Jabatan Struktural",
+                "Eselon II",
                 "Sepuh",
                 "Golongan IV",
                 tanggalMulai.getTime(),
@@ -313,9 +262,9 @@ public class JabatanControllerTest {
                 "Dino",
                 "Analis Kebijakan Industrialisasi",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_STRUKTURAL,
-                Eselon.ESELON_III,
+                "Utama",
+                "Jabatan Struktural",
+                "Eselon III",
                 "Senior",
                 "Golongan III",
                 tanggalMulai.getTime(),
@@ -335,9 +284,9 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[0].namaPegawai").value("Dino"))
                 .andExpect(jsonPath("$[0].namaJabatan").value("Analis Kebijakan Industrialisasi"))
                 .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$[0].statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$[0].jenisJabatan").value("JABATAN_STRUKTURAL"))
-                .andExpect(jsonPath("$[0].eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$[0].statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("Jabatan Struktural"))
+                .andExpect(jsonPath("$[0].eselon").value("Eselon III"))
                 .andExpect(jsonPath("$[0].pangkat").value("Senior"))
                 .andExpect(jsonPath("$[0].golongan").value("Golongan III"))
                 .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
@@ -347,9 +296,9 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[1].namaPegawai").value("Dino"))
                 .andExpect(jsonPath("$[1].namaJabatan").value("Pelaksana Tugas"))
                 .andExpect(jsonPath("$[1].kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$[1].statusJabatan").value("PLT_UTAMA"))
-                .andExpect(jsonPath("$[1].jenisJabatan").value("JABATAN_STRUKTURAL"))
-                .andExpect(jsonPath("$[1].eselon").value("ESELON_II"))
+                .andExpect(jsonPath("$[1].statusJabatan").value("PLT Utama"))
+                .andExpect(jsonPath("$[1].jenisJabatan").value("Jabatan Struktural"))
+                .andExpect(jsonPath("$[1].eselon").value("Eselon II"))
                 .andExpect(jsonPath("$[1].pangkat").value("Sepuh"))
                 .andExpect(jsonPath("$[1].golongan").value("Golongan IV"));
     }
@@ -361,23 +310,23 @@ public class JabatanControllerTest {
                 "201001012010011001",
                 "Analis Ahli Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_FUNGSIONAL,
-                Eselon.ESELON_III,
+                "Utama",
+                "Jabatan Fungsional",
+                "Eselon III",
                 "Senior",
                 "Golongan III",
                 tanggalMulai.getTime(),
                 tanggalAkhir.getTime()
         );
-        
+
         Jabatan createJabatan = new Jabatan(
                 2L, 
                 "201001012010011001",
                 "Analis Ahli Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_FUNGSIONAL,
-                Eselon.ESELON_III,
+                "Utama",
+                "Jabatan Fungsional",
+                "Eselon III",
                 "Senior",
                 "Golongan III",
                 tanggalMulai.getTime(),
@@ -398,9 +347,9 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.nip").value("201001012010011001"))
                 .andExpect(jsonPath("$.namaJabatan").value("Analis Ahli Utama"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_FUNGSIONAL"))
-                .andExpect(jsonPath("$.eselon").value("ESELON_III"))
+                .andExpect(jsonPath("$.statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Fungsional"))
+                .andExpect(jsonPath("$.eselon").value("Eselon III"))
                 .andExpect(jsonPath("$.pangkat").value("Senior"))
                 .andExpect(jsonPath("$.golongan").value("Golongan III"))
                 .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
@@ -414,9 +363,9 @@ public class JabatanControllerTest {
                 "200001012010011003",
                 "Plt Kepala Dinas",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "PLT Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -428,9 +377,9 @@ public class JabatanControllerTest {
                 "200001012010011003",
                 "Plt Kepala Dinas",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "PLT Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -451,8 +400,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.nip").value("200001012010011003"))
                 .andExpect(jsonPath("$.namaJabatan").value("Plt Kepala Dinas"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-002"))
-                .andExpect(jsonPath("$.statusJabatan").value("PLT_UTAMA"))
-                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"));
+                .andExpect(jsonPath("$.statusJabatan").value("PLT Utama"))
+                .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"));
     }
 
     @Test
@@ -462,9 +411,9 @@ public class JabatanControllerTest {
                 "199001012015021002",
                 "Kepala Dinas Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -476,9 +425,9 @@ public class JabatanControllerTest {
                 "199001012015021002",
                 "Kepala Dinas Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -499,8 +448,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.nip").value("199001012015021002"))
                 .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas Utama"))
                 .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
-                .andExpect(jsonPath("$.statusJabatan").value("UTAMA"))
-                .andExpect(jsonPath("$.jenisJabatan").value("JABATAN_PEMIMPIN_TINGGI"));
+                .andExpect(jsonPath("$.statusJabatan").value("Utama"))
+                .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"));
     }
 
     @Test
@@ -510,9 +459,9 @@ public class JabatanControllerTest {
                 "198001012010011001",
                 "Plt Kepala Dinas",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "PLT Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -536,9 +485,9 @@ public class JabatanControllerTest {
                 "199001012015021002",
                 "Kepala Dinas Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -550,9 +499,9 @@ public class JabatanControllerTest {
                 "199001012015021002",
                 "Plt Sekretaris",
                 "OPD-002",
-                StatusJabatan.PLT_UTAMA,
-                JenisJabatan.JABATAN_ADMINISTRASI,
-                Eselon.ESELON_III,
+                "PLT Utama",
+                "Jabatan Administrasi",
+                "Eselon III",
                 "Middle",
                 "Golongan II",
                 tanggalMulai.getTime(),
@@ -566,9 +515,9 @@ public class JabatanControllerTest {
                 "199001012015021002",
                 "Kepala Dinas Utama",
                 "OPD-001",
-                StatusJabatan.UTAMA,
-                JenisJabatan.JABATAN_PEMIMPIN_TINGGI,
-                Eselon.ESELON_IV,
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
                 "Junior",
                 "Golongan I",
                 tanggalMulai.getTime(),
@@ -587,8 +536,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$.nip", is("199001012015021002")))
                 .andExpect(jsonPath("$.namaJabatan", is("Kepala Dinas Utama")))
                 .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
-                .andExpect(jsonPath("$.statusJabatan", is("UTAMA")))
-                .andExpect(jsonPath("$.jenisJabatan", is("JABATAN_PEMIMPIN_TINGGI")));
+                .andExpect(jsonPath("$.statusJabatan", is("Utama")))
+                .andExpect(jsonPath("$.jenisJabatan", is("Jabatan Pemimpin Tinggi")));
     }
     
     @Test
