@@ -5,7 +5,6 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiWithRoles;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
-import cc.kertaskerja.tppkepegawaian.pegawai.web.response.MasterPegawaiByOpdResponse;
 import jakarta.validation.Valid;
 
 import java.net.URI;
@@ -36,7 +35,7 @@ public class PegawaiController {
     public PegawaiWithJabatanResponse getByNip(@PathVariable("nip") String nip) {
         return pegawaiService.detailPegawaiWithJabatan(nip);
     }
-    
+
     /**
      * Get master pegawai by kodeOpd
      * @param kodeOpd
@@ -45,10 +44,10 @@ public class PegawaiController {
      * url: /pegawai/detail/master/opd/{kodeOpd}
      */
     @GetMapping("detail/master/opd/{kodeOpd}")
-    public MasterPegawaiByOpdResponse getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+    public List<PegawaiWithJabatanAndRolesResponse> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
         return pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
-    
+
     /**
      * Get all pegawai by role name
      * @param namaRole role name
@@ -59,7 +58,7 @@ public class PegawaiController {
     public Iterable<Pegawai> getAllPegawaiByRole(@PathVariable("namaRole") String namaRole) {
         return pegawaiService.listAllPegawaiByRole(namaRole);
     }
-    
+
     /**
      * Update pegawai by NIP
      * @param nip pegawai NIP
@@ -71,7 +70,7 @@ public class PegawaiController {
     public Pegawai put(@PathVariable("nip") String nip, @Valid @RequestBody PegawaiRequest request) {
         // Ambil data pegawai yang sudah dibuat
         Pegawai existingPegawai = pegawaiService.detailPegawai(nip);
-        
+
         Pegawai pegawai = new Pegawai(
             request.pegawaiId(),
             request.namaPegawai(),
@@ -96,23 +95,23 @@ public class PegawaiController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Pegawai> post(@Valid @RequestBody PegawaiRequest request) {
-	Pegawai pegawai = Pegawai.of(
-		request.namaPegawai(), 
-		request.nip(),
-		request.kodeOpd(),
-		request.namaRole(),
-		request.statusPegawai(),
-		request.passwordHash()
-		);
-	Pegawai saved = pegawaiService.tambahPegawai(pegawai);
-	URI location = ServletUriComponentsBuilder
-		.fromCurrentRequest()
-		.path("/{id}")
-		.buildAndExpand(saved.id())
-		.toUri();
-	return ResponseEntity.created(location).body(saved);
+        Pegawai pegawai = Pegawai.of(
+            request.namaPegawai(),
+            request.nip(),
+            request.kodeOpd(),
+            request.namaRole(),
+            request.statusPegawai(),
+            request.passwordHash()
+        );
+        Pegawai saved = pegawaiService.tambahPegawai(pegawai);
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(saved.id())
+            .toUri();
+        return ResponseEntity.created(location).body(saved);
     }
-    
+
     /**
      * Delete pegawai by nip
      * @param nip pegawai

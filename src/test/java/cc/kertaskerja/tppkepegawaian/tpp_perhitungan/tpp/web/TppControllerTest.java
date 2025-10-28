@@ -33,7 +33,6 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request.TppRequest;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
-import cc.kertaskerja.tppkepegawaian.pegawai.domain.StatusPegawai;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(TppController.class)
@@ -75,7 +74,7 @@ class TppControllerTest {
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         // Create mock pegawai
-        Pegawai pegawai = new Pegawai(1L, "John Doe", nip, "OPD001", "Admin", StatusPegawai.AKTIF, "hashedPassword", Instant.now(), Instant.now());
+        Pegawai pegawai = new Pegawai(1L, "John Doe", nip, "OPD001", "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
 
         when(tppService.listTppByNipBulanTahun(nip, bulan, tahun)).thenReturn(tppList);
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, bulan, tahun)).thenReturn(perhitunganList);
@@ -112,8 +111,8 @@ class TppControllerTest {
         TppPerhitungan perhitungan2 = new TppPerhitungan(2L, convertJenisTpp(jenisTpp), kodeOpd, "PEMDA001", "152020342189755645", "Jane Smith", bulan, tahun, 100.0f, NamaPerhitungan.KEHADIRAN, 90.0f, Instant.now(), Instant.now());
 
         // Create mock pegawai objects
-        Pegawai pegawai1 = new Pegawai(1L, "John Doe", nip1, kodeOpd, "Admin", StatusPegawai.AKTIF, "hashedPassword", Instant.now(), Instant.now());
-        Pegawai pegawai2 = new Pegawai(2L, "Jane Smith", nip2, kodeOpd, "Admin", StatusPegawai.AKTIF, "hashedPassword", Instant.now(), Instant.now());
+        Pegawai pegawai1 = new Pegawai(1L, "John Doe", nip1, kodeOpd, "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
+        Pegawai pegawai2 = new Pegawai(2L, "Jane Smith", nip2, kodeOpd, "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
 
         when(tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun)).thenReturn(tppList);
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip1, bulan, tahun)).thenReturn(Arrays.asList(perhitungan1));
@@ -161,7 +160,7 @@ class TppControllerTest {
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
         // Create mock pegawai
-        Pegawai pegawai = new Pegawai(1L, "John Doe", nip, kodeOpd, "Admin", StatusPegawai.AKTIF, "hashedPassword", Instant.now(), Instant.now());
+        Pegawai pegawai = new Pegawai(1L, "John Doe", nip, kodeOpd, "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
 
         when(tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun)).thenReturn(tppList);
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, bulan, tahun)).thenReturn(perhitunganList);
