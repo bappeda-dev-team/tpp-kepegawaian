@@ -6,13 +6,17 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.*;
+import cc.kertaskerja.tppkepegawaian.pegawai.web.PegawaiRequest;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanAndRolesResponse;
 import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResponse;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +55,11 @@ public class PegawaiControllerTest {
     private Pegawai testPegawai;
     private PegawaiRequest testPegawaiRequest;
     private PegawaiWithJabatanResponse testPegawaiWithJabatanResponse;
+    private PegawaiWithJabatanResponse testPegawaiWithJabatanAndTppResponse;
+    private PegawaiWithJabatanResponse testPegawaiWithJabatanWithoutTppResponse;
     private Jabatan testJabatan;
+    private Tpp testTpp;
+    private List<TppPerhitungan> testPerhitunganList;
 
     @BeforeEach
     void setUp() {
@@ -72,9 +80,9 @@ public class PegawaiControllerTest {
             "198001012010011001",
             "Kepala Seksi",
             "OPD-001",
-            "Utama",
-            "Jabatan Struktural",
-            "Eselon III",
+            "AKTIF",
+            "STRUKTURAL",
+            "III/a",
             "Penata Muda",
             "III/a",
             new java.util.Date(),
@@ -83,12 +91,68 @@ public class PegawaiControllerTest {
             Instant.now()
         );
 
-        testPegawaiWithJabatanResponse = PegawaiWithJabatanResponse.from(testPegawai, testJabatan);
+        testTpp = new Tpp(
+            1L,
+            "TPP_REGULER",
+            "OPD-001",
+            "198001012010011001",
+            "KODE_PEMDA_001",
+            5000000.0f,
+            10.0f,
+            2.0f,
+            10,
+            2024,
+            Instant.now(),
+            Instant.now()
+        );
+
+        // Create test perhitungan list
+        testPerhitunganList = Arrays.asList(
+            new TppPerhitungan(
+                1L,
+                "TPP_REGULER",
+                "OPD-001",
+                "KODE_PEMDA_001",
+                "198001012010011001",
+                "John Doe",
+                10,
+                2024,
+                5000000.0f,
+                "Kehadiran",
+                80.0f,
+                Instant.now(),
+                Instant.now()
+            ),
+            new TppPerhitungan(
+                2L,
+                "TPP_REGULER",
+                "OPD-001",
+                "KODE_PEMDA_001",
+                "198001012010011001",
+                "John Doe",
+                10,
+                2024,
+                5000000.0f,
+                "Kinerja",
+                100.0f,
+                Instant.now(),
+                Instant.now()
+            )
+        );
+
+        // Create response with TPP data
+        testPegawaiWithJabatanAndTppResponse = PegawaiWithJabatanResponse.from(testPegawai, testJabatan, Optional.of(testTpp), testPerhitunganList);
+
+        // Create response without TPP data
+        testPegawaiWithJabatanWithoutTppResponse = PegawaiWithJabatanResponse.from(testPegawai, testJabatan, Optional.empty(), List.of());
+
+        // Keep existing response for backward compatibility test
+        testPegawaiWithJabatanResponse = testPegawaiWithJabatanAndTppResponse;
     }
 
     @Test
-    void detailByNip_WhenPegawaiExists_ShouldReturnPegawaiWithJabatan() throws Exception {
-        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(testPegawaiWithJabatanResponse);
+    void detailByNip_WhenPegawaiExists_ShouldReturnPegawaiWithJabatanAndTpp() throws Exception {
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(testPegawaiWithJabatanAndTppResponse);
 
         mockMvc.perform(get("/pegawai/detail/198001012010011001"))
             .andExpect(status().isOk())
@@ -100,11 +164,15 @@ public class PegawaiControllerTest {
             .andExpect(jsonPath("$.nama_role").value("Admin"))
             .andExpect(jsonPath("$.status_pegawai").value("Aktif"))
             .andExpect(jsonPath("$.nama_jabatan").value("Kepala Seksi"))
-            .andExpect(jsonPath("$.status_jabatan").value("Utama"))
-            .andExpect(jsonPath("$.jenis_jabatan").value("Jabatan Struktural"))
-            .andExpect(jsonPath("$.eselon").value("Eselon III"))
+            .andExpect(jsonPath("$.status_jabatan").value("AKTIF"))
+            .andExpect(jsonPath("$.jenis_jabatan").value("STRUKTURAL"))
+            .andExpect(jsonPath("$.eselon").value("III/a"))
             .andExpect(jsonPath("$.pangkat").value("Penata Muda"))
-            .andExpect(jsonPath("$.golongan").value("III/a"));
+            .andExpect(jsonPath("$.golongan").value("III/a"))
+            .andExpect(jsonPath("$.jenis_tpp").value("TPP_REGULER"))
+            .andExpect(jsonPath("$.bulan").value(10))
+            .andExpect(jsonPath("$.tahun").value(2024))
+            .andExpect(jsonPath("$.total_terima_tpp").value(7920000L));
     }
 
     @Test
@@ -116,9 +184,9 @@ public class PegawaiControllerTest {
     }
 
     @Test
-    void detailByNip_WhenPegawaiExistsWithoutJabatan_ShouldReturnPegawaiWithNullJabatanFields() throws Exception {
-        PegawaiWithJabatanResponse responseWithoutJabatan = PegawaiWithJabatanResponse.from(testPegawai, null);
-        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(responseWithoutJabatan);
+    void detailByNip_WhenPegawaiExistsWithoutJabatanAndTpp_ShouldReturnPegawaiWithNullJabatanAndTppFields() throws Exception {
+        PegawaiWithJabatanResponse responseWithoutJabatanAndTpp = PegawaiWithJabatanResponse.from(testPegawai, null, Optional.empty(), List.of());
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(responseWithoutJabatanAndTpp);
 
         mockMvc.perform(get("/pegawai/detail/198001012010011001"))
             .andExpect(status().isOk())
@@ -134,7 +202,11 @@ public class PegawaiControllerTest {
             .andExpect(jsonPath("$.jenis_jabatan").isEmpty())
             .andExpect(jsonPath("$.eselon").isEmpty())
             .andExpect(jsonPath("$.pangkat").isEmpty())
-            .andExpect(jsonPath("$.golongan").isEmpty());
+            .andExpect(jsonPath("$.golongan").isEmpty())
+            .andExpect(jsonPath("$.jenis_tpp").isEmpty())
+            .andExpect(jsonPath("$.bulan").isEmpty())
+            .andExpect(jsonPath("$.tahun").isEmpty())
+            .andExpect(jsonPath("$.total_terima_tpp").isEmpty());
     }
 
     @Test
@@ -147,11 +219,11 @@ public class PegawaiControllerTest {
             "198001012010011001",
             "Analis Kebijakan Industrialisasi",
             "OPD-001",
-            "Utama",
-            "Jabatan Struktural",
-            "Eselon III",
+            "AKTIF",
+            "STRUKTURAL",
+            "III/a",
             "Senior",
-            "Golongan III",
+            "III/a",
             new java.util.Date(),
             new java.util.Date(),
             Instant.now(),
@@ -162,11 +234,11 @@ public class PegawaiControllerTest {
             "201001012010011001",
             "Analis Kebijakan",
             "OPD-001",
-            "Utama",
-            "Jabatan Struktural",
-            "Eselon III",
+            "AKTIF",
+            "STRUKTURAL",
+            "III/a",
             "Junior",
-            "Golongan II",
+            "II/a",
             new java.util.Date(),
             new java.util.Date(),
             Instant.now(),
@@ -191,11 +263,11 @@ public class PegawaiControllerTest {
             .andExpect(jsonPath("$[0].namaRole", is("Admin")))
             .andExpect(jsonPath("$[0].isActive", is("Aktif")))
             .andExpect(jsonPath("$[0].namaJabatan", is("Analis Kebijakan Industrialisasi")))
-            .andExpect(jsonPath("$[0].statusJabatan", is("Utama")))
-            .andExpect(jsonPath("$[0].jenisJabatan", is("Jabatan Struktural")))
-            .andExpect(jsonPath("$[0].eselon", is("Eselon III")))
+            .andExpect(jsonPath("$[0].statusJabatan", is("AKTIF")))
+            .andExpect(jsonPath("$[0].jenisJabatan", is("STRUKTURAL")))
+            .andExpect(jsonPath("$[0].eselon", is("III/a")))
             .andExpect(jsonPath("$[0].pangkat", is("Senior")))
-            .andExpect(jsonPath("$[0].golongan", is("Golongan III")))
+            .andExpect(jsonPath("$[0].golongan", is("III/a")))
             .andExpect(jsonPath("$[1].id", is(2)))
             .andExpect(jsonPath("$[1].namaPegawai", is("Jane Doe")))
             .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
@@ -203,11 +275,11 @@ public class PegawaiControllerTest {
             .andExpect(jsonPath("$[1].namaRole", is("User")))
             .andExpect(jsonPath("$[1].isActive", is("Aktif")))
             .andExpect(jsonPath("$[1].namaJabatan", is("Analis Kebijakan")))
-            .andExpect(jsonPath("$[1].statusJabatan", is("Utama")))
-            .andExpect(jsonPath("$[1].jenisJabatan", is("Jabatan Struktural")))
-            .andExpect(jsonPath("$[1].eselon", is("Eselon III")))
+            .andExpect(jsonPath("$[1].statusJabatan", is("AKTIF")))
+            .andExpect(jsonPath("$[1].jenisJabatan", is("STRUKTURAL")))
+            .andExpect(jsonPath("$[1].eselon", is("III/a")))
             .andExpect(jsonPath("$[1].pangkat", is("Junior")))
-            .andExpect(jsonPath("$[1].golongan", is("Golongan II")));
+            .andExpect(jsonPath("$[1].golongan", is("II/a")));
 
         verify(pegawaiService).listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
     }
@@ -321,7 +393,25 @@ public class PegawaiControllerTest {
     }
 
     @Test
-    void tambah_WhenPegawaiNotExists_ShouldReturn404() throws Exception {
+    void tambah_WhenInvalidNipFormat_ShouldReturn400() throws Exception {
+        PegawaiRequest request = new PegawaiRequest(
+            null,
+            "Jane Doe",
+            "12345", // Invalid NIP format - should be 18 digits
+            "OPD-001",
+            "Admin",
+            "Aktif",
+            "hashedpassword123"
+        );
+
+        mockMvc.perform(post("/pegawai")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void tambah_WhenOpdNotExists_ShouldReturn404() throws Exception {
         testPegawaiRequest = new PegawaiRequest(
             null,
             "Test User",
@@ -343,10 +433,11 @@ public class PegawaiControllerTest {
 
     @Test
     void ubahPegawai_WhenValidRequest_ShouldUpdatePegawai() throws Exception {
+        String nipToUpdate = "198001012010011001";
         PegawaiRequest request = new PegawaiRequest(
             1L,
             "Rohman",
-            "199501012012011003",
+            nipToUpdate,
             "OPD-001",
             "User",
             "CUTI",
@@ -356,7 +447,7 @@ public class PegawaiControllerTest {
         Pegawai existingPegawai = new Pegawai(
             1L,
             "John Doe",
-            "198001012010011001",
+            nipToUpdate,
             "OPD-001",
             "Admin",
             "Aktif",
@@ -368,30 +459,30 @@ public class PegawaiControllerTest {
         Pegawai updatePegawai = new Pegawai(
             1L,
             "Rohman",
-            "199501012012011003",
+            nipToUpdate,
             "OPD-001",
             "User",
             "CUTI",
             "password213",
-            Instant.now(),
+            existingPegawai.createdDate(), // Keep original created date
             Instant.now()
         );
 
-        when(pegawaiService.detailPegawai("199501012012011003")).thenReturn(existingPegawai);
-        when(pegawaiService.ubahPegawai(eq("199501012012011003"), any(Pegawai.class))).thenReturn(updatePegawai);
+        when(pegawaiService.detailPegawai(nipToUpdate)).thenReturn(existingPegawai);
+        when(pegawaiService.ubahPegawai(eq(nipToUpdate), any(Pegawai.class))).thenReturn(updatePegawai);
 
-        mockMvc.perform(put("/pegawai/update/{nip}", "199501012012011003")
+        mockMvc.perform(put("/pegawai/update/{nip}", nipToUpdate)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.namaPegawai", is("Rohman")))
-            .andExpect(jsonPath("$.nip", is("199501012012011003")))
+            .andExpect(jsonPath("$.nip", is(nipToUpdate)))
             .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
             .andExpect(jsonPath("$.namaRole", is("User")))
             .andExpect(jsonPath("$.statusPegawai", is("CUTI")));
 
-        verify(pegawaiService).detailPegawai("199501012012011003");
-        verify(pegawaiService).ubahPegawai(eq("199501012012011003"), any(Pegawai.class));
+        verify(pegawaiService).detailPegawai(nipToUpdate);
+        verify(pegawaiService).ubahPegawai(eq(nipToUpdate), any(Pegawai.class));
     }
 
     @Test
@@ -415,6 +506,24 @@ public class PegawaiControllerTest {
 
         verify(pegawaiService).detailPegawai("198201012010011002");
         verify(pegawaiService, never()).ubahPegawai(anyString(), any(Pegawai.class));
+    }
+
+    @Test
+    void ubahPegawai_WhenInvalidNipFormat_ShouldReturn400() throws Exception {
+        PegawaiRequest request = new PegawaiRequest(
+            1L,
+            "Rohman",
+            "12345", // Invalid NIP format - should be 18 digits
+            "OPD-001",
+            "User",
+            "CUTI",
+            "password213"
+        );
+
+        mockMvc.perform(put("/pegawai/update/{nip}", "198001012010011001")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -460,5 +569,114 @@ public class PegawaiControllerTest {
             .andExpect(status().isNotFound());
 
         verify(pegawaiService).hapusPegawai("198001012010011001");
+    }
+
+    @Test
+    void detailByNip_WhenPegawaiHasTppWithDifferentPerhitungan_ShouldCalculateCorrectTotalTerimaTpp() throws Exception {
+        Tpp differentTpp = new Tpp(
+            2L,
+            "TPP_TUNJANGAN",
+            "OPD-001",
+            "198001012010011001",
+            "KODE_PEMDA_001",
+            10000000.0f,
+            10.0f,
+            3.0f,
+            11,
+            2024,
+            Instant.now(),
+            Instant.now()
+        );
+
+        // Create perhitungan list with different values
+        List<TppPerhitungan> differentPerhitunganList = Arrays.asList(
+            new TppPerhitungan(
+                3L,
+                "TPP_TUNJANGAN",
+                "OPD-001",
+                "KODE_PEMDA_001",
+                "198001012010011001",
+                "John Doe",
+                11,
+                2024,
+                10000000.0f,
+                "Kehadiran",
+                50.0f,
+                Instant.now(),
+                Instant.now()
+            ),
+            new TppPerhitungan(
+                4L,
+                "TPP_TUNJANGAN",
+                "OPD-001",
+                "KODE_PEMDA_001",
+                "198001012010011001",
+                "John Doe",
+                11,
+                2024,
+                10000000.0f,
+                "Kinerja",
+                75.0f,
+                Instant.now(),
+                Instant.now()
+            )
+        );
+
+        // Expected calculation:
+        // Maximum TPP: 10,000,000
+        // Total percentage: 50% + 75% = 125%
+        // Total TPP: 10,000,000 * (125/100) = 12,500,000
+        // Tax (10%): 1,250,000
+        // BPJS (3%): 375,000
+        // Total received: 12,500,000 - 1,250,000 - 375,000 = 10,875,000
+
+        PegawaiWithJabatanResponse responseWithDifferentTpp = PegawaiWithJabatanResponse.from(
+            testPegawai, testJabatan, Optional.of(differentTpp), differentPerhitunganList);
+
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(responseWithDifferentTpp);
+
+        mockMvc.perform(get("/pegawai/detail/198001012010011001"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.id").value(1L))
+            .andExpect(jsonPath("$.nama_pegawai").value("John Doe"))
+            .andExpect(jsonPath("$.jenis_tpp").value("TPP_TUNJANGAN"))
+            .andExpect(jsonPath("$.bulan").value(11))
+            .andExpect(jsonPath("$.tahun").value(2024))
+            .andExpect(jsonPath("$.total_terima_tpp").value(10875000L));
+    }
+
+    @Test
+    void detailByNip_WhenPegawaiHasTppWithoutPerhitungan_ShouldReturnZeroTotalTerimaTpp() throws Exception {
+        Tpp tppWithoutPerhitungan = new Tpp(
+            3L,
+            "TPP_LEMBUR",
+            "OPD-001",
+            "198001012010011001",
+            "KODE_PEMDA_001",
+            3000000.0f,
+            5.0f,
+            1.0f,
+            12,
+            2024,
+            Instant.now(),
+            Instant.now()
+        );
+
+        // Empty perhitungan list
+        List<TppPerhitungan> emptyPerhitunganList = List.of();
+
+        PegawaiWithJabatanResponse responseWithoutPerhitungan = PegawaiWithJabatanResponse.from(
+            testPegawai, testJabatan, Optional.of(tppWithoutPerhitungan), emptyPerhitunganList);
+
+        when(pegawaiService.detailPegawaiWithJabatan("198001012010011001")).thenReturn(responseWithoutPerhitungan);
+
+        mockMvc.perform(get("/pegawai/detail/198001012010011001"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.jenis_tpp").value("TPP_LEMBUR"))
+            .andExpect(jsonPath("$.bulan").value(12))
+            .andExpect(jsonPath("$.tahun").value(2024))
+            .andExpect(jsonPath("$.total_terima_tpp").value(0));
     }
 }

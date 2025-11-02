@@ -3,6 +3,10 @@ package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
 import cc.kertaskerja.tppkepegawaian.role.domain.Role;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppRepository;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +17,10 @@ import cc.kertaskerja.tppkepegawaian.pegawai.web.response.PegawaiWithJabatanResp
 import cc.kertaskerja.tppkepegawaian.role.domain.NamaRoleNotFoundException;
 import cc.kertaskerja.tppkepegawaian.role.domain.RoleRepository;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -24,12 +31,16 @@ public class PegawaiService {
     private final OpdRepository opdRepository;
     private final RoleRepository roleRepository;
     private final JabatanRepository jabatanRepository;
+    private final TppRepository tppRepository;
+    private final TppPerhitunganService tppPerhitunganService;
 
-    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository, JabatanRepository jabatanRepository) {
+    public PegawaiService(PegawaiRepository pegawaiRepository, OpdRepository opdRepository, RoleRepository roleRepository, JabatanRepository jabatanRepository, TppRepository tppRepository, TppPerhitunganService tppPerhitunganService) {
         this.pegawaiRepository = pegawaiRepository;
         this.opdRepository = opdRepository;
         this.roleRepository = roleRepository;
         this.jabatanRepository = jabatanRepository;
+        this.tppRepository = tppRepository;
+        this.tppPerhitunganService = tppPerhitunganService;
     }
 
     public List<PegawaiWithRoles> listAllPegawaiByKodeOpd(String kodeOpd) {
@@ -86,7 +97,28 @@ public class PegawaiService {
         Pegawai pegawai = detailPegawai(nip);
         Jabatan jabatan = jabatanRepository.findByNip(nip).orElse(null);
 
-        return PegawaiWithJabatanResponse.from(pegawai, jabatan);
+        LocalDate currentDate = LocalDate.now();
+        int currentMonth = currentDate.getMonthValue();
+        int currentYear = currentDate.getYear();
+
+        Iterable<Tpp> currentTppRecords = tppRepository.findByNipAndBulanAndTahun(nip, currentMonth, currentYear);
+        Optional<Tpp> tpp = StreamSupport.stream(currentTppRecords.spliterator(), false).findFirst();
+
+        if (tpp.isEmpty()) {
+            Iterable<Tpp> allTppRecords = tppRepository.findByNip(nip);
+            tpp = StreamSupport.stream(allTppRecords.spliterator(), false).findFirst();
+        }
+
+        List<TppPerhitungan> perhitunganList = new ArrayList<>();
+        if (tpp.isPresent()) {
+            Tpp foundTpp = tpp.get();
+
+            perhitunganList = StreamSupport.stream(
+                    tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, foundTpp.bulan(), foundTpp.tahun()).spliterator(), false)
+                    .collect(Collectors.toList());
+        }
+
+        return PegawaiWithJabatanResponse.from(pegawai, jabatan, tpp, perhitunganList);
     }
 
     public Pegawai ubahPegawai(String nip, Pegawai pegawai) {
