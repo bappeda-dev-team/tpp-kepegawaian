@@ -16,7 +16,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.JenisTpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request.TppRequest;
@@ -52,7 +51,7 @@ public class TppController {
      */
     @GetMapping("rekapTppNip/{jenisTpp}/{nip}/{bulan}/{tahun}")
     public ResponseEntity<RekapTppResponse> getByJenisTppNipBulanTahun(
-            @PathVariable("jenisTpp") JenisTpp jenisTpp,
+            @PathVariable("jenisTpp") String jenisTpp,
             @PathVariable("nip") String nip,
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
@@ -71,7 +70,7 @@ public class TppController {
         Map<String, List<TppPerhitungan>> perhitunganByJenisTpp = new HashMap<>();
 
         for (var perhitungan : perhitunganList) {
-            String jenisTppKey = perhitungan.jenisTpp().name();
+            String jenisTppKey = perhitungan.jenisTpp();
             perhitunganByJenisTpp.computeIfAbsent(jenisTppKey, k -> new ArrayList<>()).add(perhitungan);
         }
 
@@ -88,7 +87,7 @@ public class TppController {
         
         // Proses tpp yang ada untuk setiap pegawai
         for (Tpp tpp : tppList) {
-            String jenisTppKey = tpp.jenisTpp().name();
+            String jenisTppKey = tpp.jenisTpp();
             List<TppPerhitungan> perhitunganForTpp = perhitunganByJenisTpp.getOrDefault(jenisTppKey, new ArrayList<>());
             
             // kalkulasi total persentase untuk jenis tpp
@@ -114,7 +113,7 @@ public class TppController {
             // Create detail TPP response
             DetailTppResponse detailTpp = new DetailTppResponse(
                     tpp.id(),
-                    tpp.jenisTpp().name(),
+                    tpp.jenisTpp(),
                     (long) Math.round(tpp.maksimumTpp()),
                     tpp.pajak(),
                     tpp.bpjs(),
@@ -178,13 +177,13 @@ public class TppController {
      */
     @GetMapping("rekapTppOpd/{jenisTpp}/{kodeOpd}/{bulan}/{tahun}")
     public ResponseEntity<List<RekapTppResponse>> getByJenisTppOpdBulanTahun(
-            @PathVariable("jenisTpp") JenisTpp jenisTpp,
+            @PathVariable("jenisTpp") String jenisTpp,
             @PathVariable("kodeOpd") String kodeOpd,
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
 
         // Ambil semua tpp data berdasarkan kode opd, bulan, dan tahun
-        Iterable<Tpp> tppList = tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun);
+        Iterable<Tpp> tppList = tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun);
 
         // Group data tpp berdasarkan nip
         Map<String, List<Tpp>> tppByNip = new HashMap<>();
@@ -210,7 +209,7 @@ public class TppController {
             Map<String, List<TppPerhitungan>> perhitunganByJenisTpp = new HashMap<>();
 
             for (var perhitungan : perhitunganList) {
-                String jenisTppKey = perhitungan.jenisTpp().name();
+                String jenisTppKey = perhitungan.jenisTpp();
                 perhitunganByJenisTpp.computeIfAbsent(jenisTppKey, k -> new ArrayList<>()).add(perhitungan);
             }
 
@@ -227,7 +226,7 @@ public class TppController {
 
             // Proses tpp yang ada untuk setiap pegawai
             for (Tpp tpp : employeeTppList) {
-                String jenisTppKey = tpp.jenisTpp().name();
+                String jenisTppKey = tpp.jenisTpp();
                 List<TppPerhitungan> perhitunganForTpp = perhitunganByJenisTpp.getOrDefault(jenisTppKey, new ArrayList<>());
 
                 // kalkulasi total persentase untuk jenis tpp
@@ -253,7 +252,7 @@ public class TppController {
                 // Buat detail Tpp response
                 DetailTppResponse detailTpp = new DetailTppResponse(
                         tpp.id(),
-                        tpp.jenisTpp().name(),
+                        tpp.jenisTpp(),
                         (long) Math.round(tpp.maksimumTpp()),
                         tpp.pajak(),
                         tpp.bpjs(),
@@ -379,7 +378,7 @@ public class TppController {
 
         // Buat respons dengan nilai terhitung (bulan dan tahun dari path variables)
         TppTotalTppResponse response = new TppTotalTppResponse(
-                saved.jenisTpp().name(),
+                saved.jenisTpp(),
                 saved.kodeOpd(),
                 saved.nip(),
                 saved.kodePemda(),
@@ -448,7 +447,7 @@ public class TppController {
 
         // Buat respons dengan nilai terhitung (bulan dan tahun saja dalam respons)
         TppTotalTppResponse response = new TppTotalTppResponse(
-                saved.jenisTpp().name(),
+                saved.jenisTpp(),
                 saved.kodeOpd(),
                 saved.nip(),
                 saved.kodePemda(),

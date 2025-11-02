@@ -3,7 +3,6 @@ package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request;
 
 import java.util.List;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +12,7 @@ public record TppPerhitunganRequest(
         Long tppPerhitunganId,
         
         @NotNull(message = "Jenis tpp harus terdefinisi")
-        JenisTpp jenisTpp,
+        String jenisTpp,
         
         @Nullable
         String kodeOpd,

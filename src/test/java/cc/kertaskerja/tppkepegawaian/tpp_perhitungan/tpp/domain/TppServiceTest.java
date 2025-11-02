@@ -45,7 +45,7 @@ class TppServiceTest {
 
     private Tpp createTestTpp() {
         return Tpp.of(
-                JenisTpp.KONDISI_KERJA,
+                "Kondisi Kerja",
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",
@@ -117,6 +117,7 @@ class TppServiceTest {
 
     @Test
     void listTppByKodeOpdBulanTahun_ShouldReturnTppList() {
+        String jenisTpp = "Kondisi Kerja";
         String kodeOpd = "OPD001";
         Integer bulan = 9;
         Integer tahun = 2024;
@@ -124,7 +125,7 @@ class TppServiceTest {
 
         when(tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)).thenReturn(expectedTpps);
 
-        Iterable<Tpp> result = tppService.listTppByOpdBulanTahun(kodeOpd, bulan, tahun);
+        Iterable<Tpp> result = tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun);
 
         assertEquals(expectedTpps, result);
         verify(tppRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
@@ -132,7 +133,7 @@ class TppServiceTest {
 
     @Test
     void detailTpp_WhenTppExists_ShouldReturnTpp() {
-        JenisTpp jenisTpp = JenisTpp.KONDISI_KERJA;
+        String jenisTpp = "Kondisi Kerja";
         String nip = "201001012010011001";
         Integer bulan = 9;
         Integer tahun = 2024;
@@ -149,7 +150,7 @@ class TppServiceTest {
 
     @Test
     void detailTpp_WhenTppNotExists_ShouldThrowException() {
-        JenisTpp jenisTpp = JenisTpp.KONDISI_KERJA;
+        String jenisTpp = "Kondisi Kerja";
         String nip = "123456789012345678";
         Integer bulan = 9;
         Integer tahun = 2024;
@@ -168,7 +169,7 @@ class TppServiceTest {
     void ubahTpp_WhenValid_ShouldReturnUpdatedTpp() {
         Tpp tpp = createTestTpp();
         Tpp updatedTpp = Tpp.of(
-                JenisTpp.KONDISI_KERJA,
+                "Kondisi Kerja",
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",
@@ -212,7 +213,7 @@ class TppServiceTest {
     void tambahTpp_WhenValid_ShouldReturnNewTpp() {
         Tpp tpp = createTestTpp();
         Tpp savedTpp = Tpp.of(
-                JenisTpp.KONDISI_KERJA,
+                "Kondisi Kerja",
                 "OPD001",
                 "201001012010011001",
                 "PEMDA001",

@@ -15,7 +15,7 @@ public record TppPerhitungan(
         Long id,
 
         @Column("jenis_tpp")
-        JenisTpp jenisTpp,
+        String jenisTpp,
 
         @Column("kode_opd")
         String kodeOpd,
@@ -39,7 +39,7 @@ public record TppPerhitungan(
         Float maksimum,
 
         @Column("nama_perhitungan")
-        NamaPerhitungan namaPerhitungan,
+        String namaPerhitungan,
 
         @Column("nilai_perhitungan")
         Float nilaiPerhitungan,
@@ -52,7 +52,7 @@ public record TppPerhitungan(
 ) {
     
     public static TppPerhitungan of(
-            JenisTpp jenisTpp,
+            String jenisTpp,
             String kodeOpd,
             String kodePemda,
             String nip,
@@ -60,7 +60,7 @@ public record TppPerhitungan(
             Integer bulan,
             Integer tahun,
             Float maksimum,
-            NamaPerhitungan namaPerhitungan,
+            String namaPerhitungan,
             Float nilaiPerhitungan
     ) {
 

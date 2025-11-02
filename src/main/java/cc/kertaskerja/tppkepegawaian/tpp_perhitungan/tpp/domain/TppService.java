@@ -50,17 +50,17 @@ public class TppService {
         return tppRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
 
-    public Iterable<Tpp> listTppByOpdBulanTahun(String kodeOpd, Integer bulan, Integer tahun) {
+    public Iterable<Tpp> listTppByOpdBulanTahun(String jenisTpp, String kodeOpd, Integer bulan, Integer tahun) {
 
         Iterable<Tpp> tppList = tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
         if (!tppList.iterator().hasNext()) {
-            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(JenisTpp.KONDISI_KERJA, kodeOpd, bulan, tahun);
+            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(jenisTpp, kodeOpd, bulan, tahun);
         }
 
         return tppList;
     }
 
-    public Tpp detailTpp(JenisTpp jenisTpp, String nip, Integer bulan, Integer tahun) {
+    public Tpp detailTpp(String jenisTpp, String nip, Integer bulan, Integer tahun) {
         return tppRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun)
         .orElseThrow(() -> new TppJenisTppNipBulanTahunNotFoundException(jenisTpp, nip, bulan, tahun));
     }

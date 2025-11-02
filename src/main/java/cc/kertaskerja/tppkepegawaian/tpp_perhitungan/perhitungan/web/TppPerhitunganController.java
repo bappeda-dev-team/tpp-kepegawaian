@@ -71,7 +71,7 @@ public class TppPerhitunganController {
                     .sum();
 
             var response = new TppPerhitunganResponse(
-                    tppPerhitungan.jenisTpp().name(),
+                    tppPerhitungan.jenisTpp(),
                     tppPerhitungan.kodeOpd(),
                     tppPerhitungan.nip(),
                     tppPerhitungan.nama(),
@@ -143,7 +143,7 @@ public class TppPerhitunganController {
                             .sum();
 
                     return new TppPerhitunganResponse(
-                            first.jenisTpp().name(),
+                            first.jenisTpp(),
                             first.kodeOpd(),
                             first.nip(),
                             first.nama(),
@@ -255,7 +255,7 @@ public class TppPerhitunganController {
                 .sum();
 
             var response = new TppPerhitunganResponse(
-                request.jenisTpp().name(),
+                request.jenisTpp(),
                 request.kodeOpd(),
                 request.nip(),
                 request.nama(),
@@ -271,7 +271,7 @@ public class TppPerhitunganController {
 
         // response jika tidak memiliki nilai perhitungan
         var response = new TppPerhitunganResponse(
-            request.jenisTpp().name(),
+            request.jenisTpp(),
             request.kodeOpd(),
             request.nip(),
             request.nama(),
@@ -337,7 +337,7 @@ public class TppPerhitunganController {
                 .sum();
 
             var response = new TppPerhitunganResponse(
-                request.jenisTpp().name(),
+                request.jenisTpp(),
                 request.kodeOpd(),
                 request.nip(),
                 request.nama(),
@@ -352,7 +352,7 @@ public class TppPerhitunganController {
         }
 
         var response = new TppPerhitunganResponse(
-            request.jenisTpp().name(),
+            request.jenisTpp(),
             request.kodeOpd(),
             request.nip(),
             request.nama(),

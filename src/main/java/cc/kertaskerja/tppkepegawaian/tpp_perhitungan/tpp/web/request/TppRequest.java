@@ -1,7 +1,6 @@
 
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.JenisTpp;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +10,7 @@ public record TppRequest(
         Long tppId,
         
         @NotNull(message = "Jenis tpp harus dipilih")
-        JenisTpp jenisTpp,
+        String jenisTpp,
         
         @Nullable
         String kodeOpd,

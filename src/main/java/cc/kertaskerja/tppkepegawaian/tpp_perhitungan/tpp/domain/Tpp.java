@@ -14,7 +14,7 @@ public record Tpp(
         Long id,
 
         @Column("jenis_tpp")
-        JenisTpp jenisTpp,
+        String jenisTpp,
 
         @Column("kode_opd")
         String kodeOpd,
@@ -47,7 +47,7 @@ public record Tpp(
         Instant lastModifiedDate
 ) {
     public static Tpp of(
-            JenisTpp jenisTpp,
+            String jenisTpp,
             String kodeOpd,
             String nip,
             String kodePemda,
