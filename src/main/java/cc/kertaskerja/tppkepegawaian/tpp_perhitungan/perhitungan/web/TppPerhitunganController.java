@@ -20,6 +20,7 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhi
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.NipListRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.PerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.TppPerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.PerhitunganResponse;
@@ -36,12 +37,12 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Get tpp perhitungan by nip, bulan, and tahun
+     * Get tpp perhitungan berdasarkan nip, bulan, dan tahun
      *
      * @param nip NIP pegawai
      * @param bulan bulan perhitungan
      * @param tahun tahun perhitungan
-     * @return list of TppPerhitunganResponse objects url:
+     * @return list TppPerhitunganResponse object url:
      * /tppPerhitungan/rekapTppNip/{nip}/{bulan}/{tahun}
      */
     @GetMapping("detail/nip/{nip}/{bulan}/{tahun}")
@@ -92,11 +93,11 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Get tpp perhitungan by kode opd, bulan, and tahun
+     * Get tpp perhitungan berdasarkan kode opd, bulan, dan tahun
      * @param kodeOpd Kode OPD
      * @param bulan bulan perhitungan
      * @param tahun tahun perhitungan
-     * @return list of TppPerhitunganResponse objects
+     * @return list TppPerhitunganResponse object
      * url: /tppPerhitungan/{kodeOpd}/{bulan}/{tahun}
      */
     @GetMapping("detail/opd/{kodeOpd}/{bulan}/{tahun}")
@@ -161,11 +162,11 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Update tpp perhitungan by NIP, bulan, and tahun
+     * Update tpp perhitungan by NIP, bulan, dan tahun
      * @param nip NIP pegawai
      * @param bulan bulan perhitungan
      * @param tahun tahun perhitungan
-     * @param request tpp perhitungan update request
+     * @param request tpp perhitungan update
      * @return updated TppPerhitunganResponse object
      * url: /tppPerhitungan/update/{nip}/{bulan}/{tahun}
      */
@@ -286,9 +287,9 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Create new tpp perhitungan
-     * @param request tpp perhitungan creation request
-     * @return created TppPerhitungan objects with location header
+     * Create tpp perhitungan
+     * @param request tpp perhitungan yang dibuat
+     * @return TppPerhitungan objects
      * url: /tppPerhitungan
      */
     @PostMapping
@@ -367,7 +368,77 @@ public class TppPerhitunganController {
     }
 
     /**
-     * Delete tpp perhitungan by NIP, bulan, and tahun
+     * Get tpp perhitungan by list of NIPs
+     * @param request list NIPs
+     * @return list TppPerhitunganResponse object untuk setiap NIP
+     * url: /tppPerhitungan/create/batch
+     */
+    @PostMapping("create/batch")
+    public ResponseEntity<?> getByNips(@Valid @RequestBody NipListRequest request) {
+        var responses = request.nip().stream()
+                .map(nip -> {
+                    Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByNip(nip);
+
+                    if (!tppPerhitungans.iterator().hasNext()) {
+                        return null;
+                    }
+
+                    // Kelompokkan data berdasarkan bulan dan tahun
+                    var groupedByBulanTahun = StreamSupport.stream(tppPerhitungans.spliterator(), false)
+                            .collect(Collectors.groupingBy(
+                                    tpp -> java.util.Map.of(
+                                            "bulan", tpp.bulan(),
+                                            "tahun", tpp.tahun()
+                                    ),
+                                    Collectors.toList()
+                            ));
+
+                    // Buat response untuk setiap bulan-tahun
+                    return groupedByBulanTahun.values().stream()
+                            .map(group -> {
+                                TppPerhitungan first = group.get(0);
+                                var perhitungans = group.stream()
+                                        .map(tpp -> new PerhitunganResponse(
+                                                tpp.id(),
+                                                tpp.namaPerhitungan(),
+                                                tpp.maksimum(),
+                                                tpp.nilaiPerhitungan()
+                                        ))
+                                        .toList();
+
+                                var totalPersen = (float) perhitungans.stream()
+                                        .mapToDouble(PerhitunganResponse::nilaiPerhitungan)
+                                        .sum();
+
+                                return new TppPerhitunganResponse(
+                                        first.jenisTpp(),
+                                        first.kodeOpd(),
+                                        first.nip(),
+                                        first.nama(),
+                                        first.kodePemda(),
+                                        first.maksimum(),
+                                        first.bulan(),
+                                        first.tahun(),
+                                        perhitungans,
+                                        totalPersen
+                                );
+                            })
+                            .toList();
+                })
+                .filter(list -> list != null && !list.isEmpty())
+                .flatMap(java.util.List::stream)
+                .toList();
+
+        if (responses.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Data TPP perhitungan tidak ditemukan untuk NIP yang diberikan");
+        }
+
+        return ResponseEntity.ok(responses);
+    }
+
+    /**
+     * Delete tpp perhitungan by NIP, bulan, dan tahun
      * @param nip NIP pegawai
      * @param bulan bulan perhitungan
      * @param tahun tahun perhitungan

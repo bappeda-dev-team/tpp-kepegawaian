@@ -32,7 +32,6 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(TppController.class)
 class TppControllerTest {
 

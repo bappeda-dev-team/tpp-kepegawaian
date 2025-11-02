@@ -4,10 +4,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.hasSize;
+import org.hamcrest.Matchers;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -26,8 +28,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitungan;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganService;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunNotFoundException;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.exception.TppPerhitunganNipBulanTahunSudahAdaException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.TppPerhitunganRequest;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.PerhitunganRequest;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.NipListRequest;
 
 @WebMvcTest(TppPerhitunganController.class)
 public class TppPerhitunganControllerTest {
@@ -809,7 +813,7 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
-    void put_WhenExistingRecordsEmpty_ShouldThrowException() throws Exception {
+    void put_WhenExistingRecordsEmpty_ShouldThrowTppPerhitunganNipBulanTahunSudahAdaException() throws Exception {
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
             .thenReturn(Collections.emptyList());
 
@@ -880,4 +884,139 @@ public class TppPerhitunganControllerTest {
             .andExpect(jsonPath("$.perhitungans[0].nilaiPerhitungan").value(80.0))
             .andExpect(jsonPath("$.totalPersen").value(80.0));
     }
+
+    // Test cases for new /create/batch endpoint
+
+    @Test
+    void createBatch_WithValidNips_ShouldReturnTppPerhitunganList() throws Exception {
+        NipListRequest nipListRequest = new NipListRequest(
+            Arrays.asList("198001012010011001", "198001012010011002")
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011001"))
+            .thenReturn(Arrays.asList(testTppPerhitungan, testTppPerhitungan2));
+
+        TppPerhitungan thirdTpp = new TppPerhitungan(
+            5L,
+            "Kondisi Kerja",
+            "OPD-002",
+            "PEMDA-001",
+            "198001012010011002",
+            "Alice Johnson",
+            1,
+            2024,
+            45.0f,
+            "Absensi",
+            75.0f,
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011002"))
+            .thenReturn(Arrays.asList(thirdTpp));
+
+        mockMvc.perform(post("/tppPerhitungan/create/batch")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(nipListRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+            .andExpect(jsonPath("$[0].perhitungans", hasSize(2)))
+            .andExpect(jsonPath("$[0].totalPersen").value(170.0))
+            .andExpect(jsonPath("$[1].nip").value("198001012010011002"))
+            .andExpect(jsonPath("$[1].perhitungans", hasSize(1)))
+            .andExpect(jsonPath("$[1].totalPersen").value(75.0));
+    }
+
+    @Test
+    void createBatch_WithNonExistentNips_ShouldReturnNotFound() throws Exception {
+        NipListRequest nipListRequest = new NipListRequest(
+            Arrays.asList("999999999999999999")
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
+            .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(post("/tppPerhitungan/create/batch")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(nipListRequest)))
+            .andExpect(status().isNotFound())
+            .andExpect(content().string("Data TPP perhitungan tidak ditemukan untuk NIP yang diberikan"));
+    }
+
+    @Test
+    void createBatch_WithEmptyNipList_ShouldReturnBadRequest() throws Exception {
+        NipListRequest emptyNipListRequest = new NipListRequest(
+            Arrays.asList()
+        );
+
+        mockMvc.perform(post("/tppPerhitungan/create/batch")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(emptyNipListRequest)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createBatch_WithMixedValidAndInvalidNips_ShouldReturnOnlyValidResults() throws Exception {
+        NipListRequest mixedNipListRequest = new NipListRequest(
+            Arrays.asList("198001012010011001", "999999999999999999")
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011001"))
+            .thenReturn(Arrays.asList(testTppPerhitungan));
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
+            .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(post("/tppPerhitungan/create/batch")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(mixedNipListRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].nip").value("198001012010011001"));
+    }
+
+    @Test
+    void createBatch_WithMultipleBulanTahunForSameNip_ShouldReturnMultipleResponses() throws Exception {
+        NipListRequest nipListRequest = new NipListRequest(
+            Arrays.asList("198001012010011001")
+        );
+
+        TppPerhitungan februaryTpp = new TppPerhitungan(
+            6L,
+            "Kondisi Kerja",
+            "OPD-001",
+            "PEMDA-001",
+            "198001012010011001",
+            "John Doe",
+            2,
+            2024,
+            50.0f,
+            "Absensi",
+            85.0f,
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011001"))
+            .thenReturn(Arrays.asList(testTppPerhitungan, testTppPerhitungan2, februaryTpp));
+
+        mockMvc.perform(post("/tppPerhitungan/create/batch")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(nipListRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].bulan", Matchers.containsInAnyOrder(1, 2)))
+            .andExpect(jsonPath("$[*].tahun", Matchers.everyItem(Matchers.is(2024))))
+            .andExpect(jsonPath("$[*].perhitungans", Matchers.containsInAnyOrder(
+                Matchers.hasSize(2),
+                Matchers.hasSize(1)
+            )))
+            .andExpect(jsonPath("$[*].totalPersen", Matchers.containsInAnyOrder(170.0, 85.0)));
+    }
+
+    // Updated test for PUT endpoint to handle TppPerhitunganNipBulanTahunSudahAdaException
 }
