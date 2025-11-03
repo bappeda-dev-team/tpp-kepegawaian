@@ -885,10 +885,10 @@ public class TppPerhitunganControllerTest {
             .andExpect(jsonPath("$.totalPersen").value(80.0));
     }
 
-    // Test cases for new /create/batch endpoint
+    // Test cases for /find/batch endpoint
 
     @Test
-    void createBatch_WithValidNips_ShouldReturnTppPerhitunganList() throws Exception {
+    void findByNips_WithValidNips_ShouldReturnTppPerhitunganList() throws Exception {
         NipListRequest nipListRequest = new NipListRequest(
             Arrays.asList("198001012010011001", "198001012010011002")
         );
@@ -915,7 +915,7 @@ public class TppPerhitunganControllerTest {
         when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011002"))
             .thenReturn(Arrays.asList(thirdTpp));
 
-        mockMvc.perform(post("/tppPerhitungan/create/batch")
+        mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(nipListRequest)))
             .andExpect(status().isOk())
@@ -930,7 +930,7 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
-    void createBatch_WithNonExistentNips_ShouldReturnNotFound() throws Exception {
+    void findByNips_WithNonExistentNips_ShouldReturnNotFound() throws Exception {
         NipListRequest nipListRequest = new NipListRequest(
             Arrays.asList("999999999999999999")
         );
@@ -938,7 +938,7 @@ public class TppPerhitunganControllerTest {
         when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
             .thenReturn(Collections.emptyList());
 
-        mockMvc.perform(post("/tppPerhitungan/create/batch")
+        mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(nipListRequest)))
             .andExpect(status().isNotFound())
@@ -946,19 +946,19 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
-    void createBatch_WithEmptyNipList_ShouldReturnBadRequest() throws Exception {
+    void findByNips_WithEmptyNipList_ShouldReturnBadRequest() throws Exception {
         NipListRequest emptyNipListRequest = new NipListRequest(
             Arrays.asList()
         );
 
-        mockMvc.perform(post("/tppPerhitungan/create/batch")
+        mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(emptyNipListRequest)))
             .andExpect(status().isBadRequest());
     }
 
     @Test
-    void createBatch_WithMixedValidAndInvalidNips_ShouldReturnOnlyValidResults() throws Exception {
+    void findByNips_WithMixedValidAndInvalidNips_ShouldReturnOnlyValidResults() throws Exception {
         NipListRequest mixedNipListRequest = new NipListRequest(
             Arrays.asList("198001012010011001", "999999999999999999")
         );
@@ -969,7 +969,7 @@ public class TppPerhitunganControllerTest {
         when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
             .thenReturn(Collections.emptyList());
 
-        mockMvc.perform(post("/tppPerhitungan/create/batch")
+        mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(mixedNipListRequest)))
             .andExpect(status().isOk())
@@ -979,7 +979,7 @@ public class TppPerhitunganControllerTest {
     }
 
     @Test
-    void createBatch_WithMultipleBulanTahunForSameNip_ShouldReturnMultipleResponses() throws Exception {
+    void findByNips_WithMultipleBulanTahunForSameNip_ShouldReturnMultipleResponses() throws Exception {
         NipListRequest nipListRequest = new NipListRequest(
             Arrays.asList("198001012010011001")
         );
@@ -1003,7 +1003,7 @@ public class TppPerhitunganControllerTest {
         when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011001"))
             .thenReturn(Arrays.asList(testTppPerhitungan, testTppPerhitungan2, februaryTpp));
 
-        mockMvc.perform(post("/tppPerhitungan/create/batch")
+        mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(nipListRequest)))
             .andExpect(status().isOk())

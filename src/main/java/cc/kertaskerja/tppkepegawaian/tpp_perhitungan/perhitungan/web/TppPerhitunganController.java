@@ -373,8 +373,8 @@ public class TppPerhitunganController {
      * @return list TppPerhitunganResponse object untuk setiap NIP
      * url: /tppPerhitungan/create/batch
      */
-    @PostMapping("create/batch")
-    public ResponseEntity<?> getByNips(@Valid @RequestBody NipListRequest request) {
+    @PostMapping("find/batch")
+    public ResponseEntity<?> findByNips(@Valid @RequestBody NipListRequest request) {
         var responses = request.nip().stream()
                 .map(nip -> {
                     Iterable<TppPerhitungan> tppPerhitungans = tppPerhitunganService.listTppPerhitunganByNip(nip);
