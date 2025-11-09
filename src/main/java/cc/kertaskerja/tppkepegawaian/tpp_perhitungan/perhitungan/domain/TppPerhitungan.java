@@ -15,7 +15,7 @@ public record TppPerhitungan(
         Long id,
 
         @Column("jenis_tpp")
-        JenisTpp jenisTpp,
+        String jenisTpp,
 
         @Column("kode_opd")
         String kodeOpd,
@@ -52,7 +52,7 @@ public record TppPerhitungan(
 ) {
     
     public static TppPerhitungan of(
-            JenisTpp jenisTpp,
+            String jenisTpp,
             String kodeOpd,
             String kodePemda,
             String nip,

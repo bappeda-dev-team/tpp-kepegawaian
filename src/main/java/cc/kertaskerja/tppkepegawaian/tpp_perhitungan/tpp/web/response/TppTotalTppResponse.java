@@ -6,9 +6,14 @@ public record TppTotalTppResponse(
     String nip,
     String kodePemda,
     Float maksimumTpp,
+    Float pajak,
+    Float bpjs,
     Integer bulan,
     Integer tahun,
     Float hasilPerhitungan,
-    Float totaltpp
+    Float totaltpp,
+    Float totalPajak,
+    Float totalBpjs,
+    Float totalTerimaTpp
 ) {
 }

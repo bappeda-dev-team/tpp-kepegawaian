@@ -161,7 +161,6 @@ public class RoleServiceTest {
         verify(roleRepository).existsById(id);
         verify(pegawaiRepository).existsByNip(updatedRole.nip());
         verify(roleRepository).save(updatedRole);
-        verify(roleCacheService).evictRolesCache(updatedRole.nip());
     }
     
     @Test

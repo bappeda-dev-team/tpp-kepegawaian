@@ -46,27 +46,21 @@ public class TppService {
     }
 
     public Iterable<Tpp> listTppByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
-    	if (!tppPerhitunganRepository.existsByNipAndBulanAndTahun(nip, bulan, tahun)) {
-            throw new TppPerhitunganNipBulanTahunNotFoundException(nip, bulan, tahun);
-        }
 
         return tppRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
 
-    public Iterable<Tpp> listTppByOpdBulanTahun(String kodeOpd, Integer bulan, Integer tahun) {
-    	if (!tppPerhitunganRepository.existsByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)) {
-            throw new TppPerhitunganKodeOpdBulanTahunNotFoundException(kodeOpd, bulan, tahun);
-        }
+    public Iterable<Tpp> listTppByOpdBulanTahun(String jenisTpp, String kodeOpd, Integer bulan, Integer tahun) {
 
         Iterable<Tpp> tppList = tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
         if (!tppList.iterator().hasNext()) {
-            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(JenisTpp.BEBAN_KERJA, kodeOpd, bulan, tahun);
+            throw new TppJenisTppKodeOpdBulanTahunNotFoundException(jenisTpp, kodeOpd, bulan, tahun);
         }
 
         return tppList;
     }
 
-    public Tpp detailTpp(JenisTpp jenisTpp, String nip, Integer bulan, Integer tahun) {
+    public Tpp detailTpp(String jenisTpp, String nip, Integer bulan, Integer tahun) {
         return tppRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun)
         .orElseThrow(() -> new TppJenisTppNipBulanTahunNotFoundException(jenisTpp, nip, bulan, tahun));
     }
@@ -81,6 +75,14 @@ public class TppService {
     }
 
     public Tpp tambahTpp(Tpp tpp) {
+
+        if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
+            throw new OpdNotFoundException(tpp.kodeOpd());
+        }
+
+        if (!pegawaiRepository.existsByNip(tpp.nip())) {
+            throw new PegawaiNotFoundException(tpp.nip());
+        }
 
         if (tppRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppJenisTppNipBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());

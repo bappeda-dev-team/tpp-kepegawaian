@@ -10,6 +10,7 @@ public record PegawaiWithJabatanAndRolesResponse(
         String namaPegawai,
         String nip,
         String kodeOpd,
+        Long idJabatan,
         String namaJabatan,
         String statusJabatan,
         String jenisJabatan,
@@ -39,6 +40,7 @@ public record PegawaiWithJabatanAndRolesResponse(
         }
 
         // Nilai default untuk jabatan
+        Long idJabatan = null;
         String namaJabatan = null;
         String statusJabatan = null;
         String jenisJabatan = null;
@@ -48,6 +50,7 @@ public record PegawaiWithJabatanAndRolesResponse(
 
         // Ekstrak data jabatan jika ada
         if (jabatan != null) {
+            idJabatan = jabatan.id();
             namaJabatan = jabatan.namaJabatan();
             statusJabatan = jabatan.statusJabatan();
             jenisJabatan = jabatan.jenisJabatan();
@@ -61,6 +64,7 @@ public record PegawaiWithJabatanAndRolesResponse(
                 namaPegawai,
                 nip,
                 kodeOpd,
+                idJabatan,
                 namaJabatan,
                 statusJabatan,
                 jenisJabatan,

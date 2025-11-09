@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,5 +20,5 @@ public interface RoleRepository extends CrudRepository<Role, Long> {
     @Modifying
     @Transactional
     @Query("DELETE FROM role WHERE id = :id")
-    void deleteById(@NonNull Long id);
+    void deleteById(@Param("id") @NonNull Long id);
 }

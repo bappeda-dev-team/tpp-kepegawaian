@@ -14,7 +14,7 @@ public record Tpp(
         Long id,
 
         @Column("jenis_tpp")
-        JenisTpp jenisTpp,
+        String jenisTpp,
 
         @Column("kode_opd")
         String kodeOpd,
@@ -27,6 +27,12 @@ public record Tpp(
 
         @Column("maksimum_tpp")
         Float maksimumTpp,
+
+        @Column("pajak")
+        Float pajak,
+
+        @Column("bpjs")
+        Float bpjs,
 
         @Column("bulan")
         Integer bulan,
@@ -41,11 +47,13 @@ public record Tpp(
         Instant lastModifiedDate
 ) {
     public static Tpp of(
-            JenisTpp jenisTpp,
+            String jenisTpp,
             String kodeOpd,
             String nip,
             String kodePemda,
             Float maksimumTpp,
+            Float pajak,
+            Float bpjs,
             Integer bulan,
             Integer tahun
     ) {
@@ -56,6 +64,8 @@ public record Tpp(
                 nip,
                 kodePemda,
                 maksimumTpp,
+                pajak,
+                bpjs,
                 bulan,
                 tahun,
                 null,

@@ -33,10 +33,8 @@ public class RoleService {
         if (!pegawaiRepository.existsByNip(role.nip())) {
             throw new PegawaiNotFoundException(role.nip());
         }
+        
         Role updated = roleRepository.save(role);
-
-        // Evict cache untuk nip ini
-        roleCacheService.evictRolesCache(role.nip());
 
         return updated;
     }

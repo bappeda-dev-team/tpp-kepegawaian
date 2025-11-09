@@ -6,7 +6,6 @@ public record DataTppResponse(
     Long id,
     String nama,
     String opd,
-    Long totalPerolehan,
     List<DetailTppResponse> detailTpp
 ) {
 }

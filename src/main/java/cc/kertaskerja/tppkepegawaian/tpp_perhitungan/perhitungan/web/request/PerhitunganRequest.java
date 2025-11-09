@@ -1,11 +1,10 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request;
 
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.JenisTpp;
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
 
 public record PerhitunganRequest(
-        @NotNull JenisTpp jenisTpp,
+        @NotNull String jenisTpp,
         @Nullable String kodeOpd,
         @NotNull String nip,
         @Nullable String nama,

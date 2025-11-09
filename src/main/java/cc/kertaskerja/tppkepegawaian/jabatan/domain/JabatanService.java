@@ -20,24 +20,24 @@ public class JabatanService {
     private final OpdRepository opdRepository;
     private final PegawaiRepository pegawaiRepository;
 
-	public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository, PegawaiRepository pegawaiRepository) {
-	    this.jabatanRepository = jabatanRepository;
+    public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository, PegawaiRepository pegawaiRepository) {
+        this.jabatanRepository = jabatanRepository;
         this.opdRepository = opdRepository;
         this.pegawaiRepository = pegawaiRepository;
     }
 
-   public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
+    public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
         return jabatanRepository.findByKodeOpd(kodeOpd);
-   }
+    }
 
-   public List<Jabatan> listJabatanByNip(String nip) {
+    public List<Jabatan> listJabatanByNip(String nip) {
         Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
         List<Jabatan> result = new ArrayList<>();
         jabatans.forEach(result::add);
         return result;
-   }
+    }
 
-   public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawai(String nip) {
+    public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawai(String nip) {
         Iterable<Jabatan> jabatans = jabatanRepository.findAllByNip(nip);
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
 
@@ -64,18 +64,18 @@ public class JabatanService {
         }
 
         return responses;
-   }
+    }
 
-   public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {
+    public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {
         Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
-        
+
         for (Jabatan jabatan : jabatans) {
             Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
                 .orElse(null); // return null jika pegawai tidak ditemukan
-            
+
             String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
-            
+
             responses.add(new JabatanWithPegawaiResponse(
                 jabatan.id(),
                 jabatan.nip(),
@@ -91,34 +91,34 @@ public class JabatanService {
                 jabatan.tanggalAkhir()
             ));
         }
-        
+
         return responses;
-   }
-
-   public Jabatan detailJabatan(Long id) {
-       return jabatanRepository.findById(id)
-               .orElseThrow(() -> new JabatanNotFoundException(id));
-   }
-
-   public Jabatan ubahJabatan(Long id, Jabatan jabatan) {
-    if (!jabatanRepository.existsById(id)) {
-        throw new JabatanNotFoundException(id);
     }
 
-       if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
-           throw new OpdNotFoundException(jabatan.kodeOpd());
-       }
+    public Jabatan detailJabatan(Long id) {
+        return jabatanRepository.findById(id)
+            .orElseThrow(() -> new JabatanNotFoundException(id));
+    }
 
-       if (!pegawaiRepository.existsByNip(jabatan.nip())) {
-           throw new PegawaiNotFoundException(jabatan.nip());
-       }
-       Jabatan currentJabatan = jabatanRepository.findById(id).orElse(null);
-       if (currentJabatan == null) {
-           throw new JabatanNotFoundException(id);
-       }
+    public Jabatan ubahJabatan(Long id, Jabatan jabatan) {
+        if (!jabatanRepository.existsById(id)) {
+            throw new JabatanNotFoundException(id);
+        }
+
+        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
+            throw new OpdNotFoundException(jabatan.kodeOpd());
+        }
+
+        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
+            throw new PegawaiNotFoundException(jabatan.nip());
+        }
+        Jabatan currentJabatan = jabatanRepository.findById(id).orElse(null);
+        if (currentJabatan == null) {
+            throw new JabatanNotFoundException(id);
+        }
 
         return jabatanRepository.save(jabatan);
-	}
+    }
 
     public Jabatan tambahJabatan(Jabatan jabatan) {
 
@@ -133,11 +133,11 @@ public class JabatanService {
         return jabatanRepository.save(jabatan);
     }
 
-   public void hapusJabatan(Long id) {
-	   if (!jabatanRepository.existsById(id)) {
-		   throw new JabatanNotFoundException(id);
-	   }
+    public void hapusJabatan(Long id) {
+        if (!jabatanRepository.existsById(id)) {
+            throw new JabatanNotFoundException(id);
+        }
 
-	   jabatanRepository.deleteById(id);
-   }
+        jabatanRepository.deleteById(id);
+    }
 }

@@ -4,7 +4,12 @@ public record DetailTppResponse(
     Long id,
     String jenisTpp,
     Long maksimum,
+    Float pajak,
+    Float bpjs,
     Float totalPersen,
-    Long totalTpp
+    Long totalTpp,
+    Long totalPajak,
+    Long totalBpjs,
+    Long totalTerimaTpp
 ) {
 }
