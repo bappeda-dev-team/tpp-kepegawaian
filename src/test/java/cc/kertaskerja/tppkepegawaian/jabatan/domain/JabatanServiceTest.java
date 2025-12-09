@@ -100,6 +100,26 @@ public class JabatanServiceTest {
     }
 
     @Test
+    void listAllJabatan_ShouldReturnAllJabatan() {
+        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
+
+        Iterable<Jabatan> result = jabatanService.listAllJabatan();
+
+        assertThat(result).containsExactly(testJabatan);
+        verify(jabatanRepository).findAll();
+    }
+
+    @Test
+    void listAllJabatan_WhenNoData_ShouldReturnEmptyList() {
+        when(jabatanRepository.findAll()).thenReturn(List.of());
+
+        Iterable<Jabatan> result = jabatanService.listAllJabatan();
+
+        assertThat(result).isEmpty();
+        verify(jabatanRepository).findAll();
+    }
+
+    @Test
     void listJabatanByKodeOpdWithPegawai_WhenJabatanExists_ShouldReturnResponseList() {
         Pegawai pegawai = new Pegawai(null, "John Doe", "198001012010011001", null, null, "AKTIF", null, null, null);
 

@@ -227,6 +227,39 @@ public class PegawaiServiceTest {
     }
 
     @Test
+    void listAllPegawai_WhenDataExists_ShouldReturnPegawaiList() {
+        Pegawai pegawai2 = new Pegawai(
+            2L,
+            "Jane Doe",
+            "200601012010012001",
+            "OPD-002",
+            "User",
+            "AKTIF",
+            "hashedpassword123",
+            Instant.now(),
+            Instant.now()
+        );
+
+        List<Pegawai> pegawaiList = List.of(testPegawai, pegawai2);
+        when(pegawaiRepository.findAll()).thenReturn(pegawaiList);
+
+        Iterable<Pegawai> result = pegawaiService.listAllPegawai();
+
+        assertThat(result).containsExactlyElementsOf(pegawaiList);
+        verify(pegawaiRepository).findAll();
+    }
+
+    @Test
+    void listAllPegawai_WhenNoData_ShouldReturnEmptyList() {
+        when(pegawaiRepository.findAll()).thenReturn(List.of());
+
+        Iterable<Pegawai> result = pegawaiService.listAllPegawai();
+
+        assertThat(result).isEmpty();
+        verify(pegawaiRepository).findAll();
+    }
+
+    @Test
     void tambahPegawai_WhenPegawaiValid_ShouldSaveAndReturnPegawai() {
         Pegawai newPegawai = new Pegawai(
             null,

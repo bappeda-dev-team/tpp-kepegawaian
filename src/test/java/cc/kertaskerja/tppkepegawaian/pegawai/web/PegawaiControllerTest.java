@@ -336,6 +336,47 @@ public class PegawaiControllerTest {
     }
 
     @Test
+    void getAllPegawai_WhenPegawaiExists_ShouldReturnPegawaiList() throws Exception {
+        List<Pegawai> pegawaiList = Arrays.asList(
+            testPegawai,
+            new Pegawai(2L, "Jane Doe", "201001012010011001", "OPD-002", "User", "Aktif", "hashedpassword456", Instant.now(), Instant.now())
+        );
+
+        when(pegawaiService.listAllPegawai()).thenReturn(pegawaiList);
+
+        mockMvc.perform(get("/pegawai/detail/findall"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[0].id", is(1)))
+            .andExpect(jsonPath("$[0].namaPegawai", is("John Doe")))
+            .andExpect(jsonPath("$[0].nip", is("198001012010011001")))
+            .andExpect(jsonPath("$[0].kodeOpd", is("OPD-001")))
+            .andExpect(jsonPath("$[0].namaRole", is("Admin")))
+            .andExpect(jsonPath("$[0].statusPegawai", is("Aktif")))
+            .andExpect(jsonPath("$[1].id", is(2)))
+            .andExpect(jsonPath("$[1].namaPegawai", is("Jane Doe")))
+            .andExpect(jsonPath("$[1].nip", is("201001012010011001")))
+            .andExpect(jsonPath("$[1].kodeOpd", is("OPD-002")))
+            .andExpect(jsonPath("$[1].namaRole", is("User")))
+            .andExpect(jsonPath("$[1].statusPegawai", is("Aktif")));
+
+        verify(pegawaiService).listAllPegawai();
+    }
+
+    @Test
+    void getAllPegawai_WhenPegawaiNotExists_ShouldReturnEmptyList() throws Exception {
+        when(pegawaiService.listAllPegawai()).thenReturn(List.of());
+
+        mockMvc.perform(get("/pegawai/detail/findall"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(0)));
+
+        verify(pegawaiService).listAllPegawai();
+    }
+
+    @Test
     void tambah_WhenValidPegawaiRequest_ShouldCreatePegawai() throws Exception {
         testPegawaiRequest = new PegawaiRequest(
             null,

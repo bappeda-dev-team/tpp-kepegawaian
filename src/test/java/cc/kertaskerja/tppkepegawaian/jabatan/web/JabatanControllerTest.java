@@ -304,6 +304,60 @@ public class JabatanControllerTest {
     }
 
     @Test
+    void getAll_WhenJabatansExist_ShouldReturnJabatanList() throws Exception {
+        Jabatan jabatan2 = new Jabatan(
+            2L,
+            "199001012015021002",
+            "Sekretaris Dinas",
+            "OPD-002",
+            "PLT Utama",
+            "Jabatan Administrasi",
+            "Eselon III",
+            "Middle",
+            "Golongan II",
+            tanggalMulai.getTime(),
+            tanggalAkhir.getTime(),
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(jabatanService.listAllJabatan()).thenReturn(List.of(testJabatan, jabatan2));
+
+        mockMvc.perform(get("/jabatan/detail/findall"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(testJabatan.id()))
+            .andExpect(jsonPath("$[0].nip").value(testJabatan.nip()))
+            .andExpect(jsonPath("$[0].namaJabatan").value(testJabatan.namaJabatan()))
+            .andExpect(jsonPath("$[0].kodeOpd").value(testJabatan.kodeOpd()))
+            .andExpect(jsonPath("$[0].statusJabatan").value(testJabatan.statusJabatan()))
+            .andExpect(jsonPath("$[0].jenisJabatan").value(testJabatan.jenisJabatan()))
+            .andExpect(jsonPath("$[1].id").value(jabatan2.id()))
+            .andExpect(jsonPath("$[1].nip").value(jabatan2.nip()))
+            .andExpect(jsonPath("$[1].namaJabatan").value(jabatan2.namaJabatan()))
+            .andExpect(jsonPath("$[1].kodeOpd").value(jabatan2.kodeOpd()))
+            .andExpect(jsonPath("$[1].statusJabatan").value(jabatan2.statusJabatan()))
+            .andExpect(jsonPath("$[1].jenisJabatan").value(jabatan2.jenisJabatan()));
+
+        verify(jabatanService).listAllJabatan();
+    }
+
+    @Test
+    void getAll_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
+        when(jabatanService.listAllJabatan()).thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/findall"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(0));
+
+        verify(jabatanService).listAllJabatan();
+    }
+
+    @Test
     void tambah_WhenValidJabatanRequest_ShouldCreateJabatan() throws Exception {
         testJabatanRequest = new JabatanRequest(
             null,
