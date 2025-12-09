@@ -88,6 +88,10 @@ public class PegawaiService {
         return pegawaiRepository.findByNamaRole(namaRole);
     }
 
+    public Iterable<Pegawai> listAllPegawai() {
+        return pegawaiRepository.findAll();
+    }
+
     public Pegawai detailPegawai(String nip) {
         return pegawaiRepository.findByNip(nip)
             .orElseThrow(() -> new PegawaiNotFoundException(nip));

@@ -18,6 +18,9 @@ public record Jabatan(
 
 	@Column("nip")
 	String nip,
+    
+    @Column("nama_pegawai")
+    String namaPegawai,
 
 	@Column("nama_jabatan")
 	String namaJabatan,
@@ -56,6 +59,7 @@ public record Jabatan(
 ) {
     public static Jabatan of(
             String nip,
+            String namaPegawai,
             String namaJabatan,
             String kodeOpd,
             String statusJabatan,
@@ -69,6 +73,7 @@ public record Jabatan(
         return new Jabatan(
                 null, 
                 nip,
+                namaPegawai,
                 namaJabatan,
                 kodeOpd,
                 statusJabatan,

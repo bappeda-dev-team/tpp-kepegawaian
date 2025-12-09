@@ -12,6 +12,7 @@ import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class JabatanService {
@@ -24,6 +25,10 @@ public class JabatanService {
         this.jabatanRepository = jabatanRepository;
         this.opdRepository = opdRepository;
         this.pegawaiRepository = pegawaiRepository;
+    }
+
+    public Iterable<Jabatan> listAllJabatan() {
+        return jabatanRepository.findAll();
     }
 
     public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
@@ -42,10 +47,7 @@ public class JabatanService {
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
 
         for (Jabatan jabatan : jabatans) {
-            Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
-                .orElse(null); // return null jika pegawai tidak ditemukan
-
-            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+            String namaPegawai = resolveNamaPegawai(jabatan);
 
             responses.add(new JabatanWithPegawaiResponse(
                 jabatan.id(),
@@ -71,10 +73,7 @@ public class JabatanService {
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
 
         for (Jabatan jabatan : jabatans) {
-            Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
-                .orElse(null); // return null jika pegawai tidak ditemukan
-
-            String namaPegawai = pegawai != null ? pegawai.namaPegawai() : null;
+            String namaPegawai = resolveNamaPegawai(jabatan);
 
             responses.add(new JabatanWithPegawaiResponse(
                 jabatan.id(),
@@ -109,15 +108,10 @@ public class JabatanService {
             throw new OpdNotFoundException(jabatan.kodeOpd());
         }
 
-        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
-            throw new PegawaiNotFoundException(jabatan.nip());
-        }
-        Jabatan currentJabatan = jabatanRepository.findById(id).orElse(null);
-        if (currentJabatan == null) {
-            throw new JabatanNotFoundException(id);
-        }
+        Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
+            .orElseThrow(() -> new PegawaiNotFoundException(jabatan.nip()));
 
-        return jabatanRepository.save(jabatan);
+        return jabatanRepository.save(attachNamaPegawai(jabatan, pegawai));
     }
 
     public Jabatan tambahJabatan(Jabatan jabatan) {
@@ -126,11 +120,10 @@ public class JabatanService {
             throw new OpdNotFoundException(jabatan.kodeOpd());
         }
 
-        if (!pegawaiRepository.existsByNip(jabatan.nip())) {
-            throw new PegawaiNotFoundException(jabatan.nip());
-        }
+        Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
+            .orElseThrow(() -> new PegawaiNotFoundException(jabatan.nip()));
 
-        return jabatanRepository.save(jabatan);
+        return jabatanRepository.save(attachNamaPegawai(jabatan, pegawai));
     }
 
     public void hapusJabatan(Long id) {
@@ -139,5 +132,33 @@ public class JabatanService {
         }
 
         jabatanRepository.deleteById(id);
+    }
+
+    private String resolveNamaPegawai(Jabatan jabatan) {
+        if (jabatan.namaPegawai() != null && !jabatan.namaPegawai().isBlank()) {
+            return jabatan.namaPegawai();
+        }
+
+        Optional<Pegawai> pegawai = pegawaiRepository.findByNip(jabatan.nip());
+        return pegawai.map(Pegawai::namaPegawai).orElse(null);
+    }
+
+    private Jabatan attachNamaPegawai(Jabatan jabatan, Pegawai pegawai) {
+        return new Jabatan(
+            jabatan.id(),
+            jabatan.nip(),
+            pegawai.namaPegawai(),
+            jabatan.namaJabatan(),
+            jabatan.kodeOpd(),
+            jabatan.statusJabatan(),
+            jabatan.jenisJabatan(),
+            jabatan.eselon(),
+            jabatan.pangkat(),
+            jabatan.golongan(),
+            jabatan.tanggalMulai(),
+            jabatan.tanggalAkhir(),
+            jabatan.createdDate(),
+            jabatan.lastModifiedDate()
+        );
     }
 }

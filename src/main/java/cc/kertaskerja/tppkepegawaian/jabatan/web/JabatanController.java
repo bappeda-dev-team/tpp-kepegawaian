@@ -64,6 +64,16 @@ public class JabatanController {
     }
 
     /**
+     * Get all jabatan
+     * @return list of all Jabatan objects
+     * url: /jabatan/detail/findall
+     */
+    @GetMapping("detail/findall")
+    public ResponseEntity<Iterable<Jabatan>> getAll() {
+        return ResponseEntity.ok(jabatanService.listAllJabatan());
+    }
+
+    /**
      * Update jabatan by ID
      * @param id jabatan ID
      * @param request jabatan update request
@@ -78,6 +88,7 @@ public class JabatanController {
         Jabatan jabatan = new Jabatan(
             id,
             request.nip(),
+            request.namaPegawai(),
             request.namaJabatan(),
             request.kodeOpd(),
             request.statusJabatan(),
@@ -106,6 +117,7 @@ public class JabatanController {
     public ResponseEntity<Jabatan> post(@Valid @RequestBody JabatanRequest request) {
         Jabatan jabatan = Jabatan.of(
             request.nip(),
+            request.namaPegawai(),
             request.namaJabatan(),
             request.kodeOpd(),
             request.statusJabatan(),

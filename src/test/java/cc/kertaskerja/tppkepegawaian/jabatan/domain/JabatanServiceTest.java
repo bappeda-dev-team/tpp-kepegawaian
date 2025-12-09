@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 public class JabatanServiceTest {
@@ -53,6 +54,7 @@ public class JabatanServiceTest {
         testJabatan = new Jabatan(
             1L,
             "198001012010011001",
+            "John Doe",
             "Analis Ahli Muda",
             "OPD-001",
             "UTAMA",
@@ -100,10 +102,47 @@ public class JabatanServiceTest {
     }
 
     @Test
+    void listAllJabatan_ShouldReturnAllJabatan() {
+        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
+
+        Iterable<Jabatan> result = jabatanService.listAllJabatan();
+
+        assertThat(result).containsExactly(testJabatan);
+        verify(jabatanRepository).findAll();
+    }
+
+    @Test
+    void listAllJabatan_WhenNoData_ShouldReturnEmptyList() {
+        when(jabatanRepository.findAll()).thenReturn(List.of());
+
+        Iterable<Jabatan> result = jabatanService.listAllJabatan();
+
+        assertThat(result).isEmpty();
+        verify(jabatanRepository).findAll();
+    }
+
+    @Test
     void listJabatanByKodeOpdWithPegawai_WhenJabatanExists_ShouldReturnResponseList() {
         Pegawai pegawai = new Pegawai(null, "John Doe", "198001012010011001", null, null, "AKTIF", null, null, null);
 
-        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(List.of(testJabatan));
+        Jabatan jabatanTanpaNama = new Jabatan(
+            testJabatan.id(),
+            testJabatan.nip(),
+            null,
+            testJabatan.namaJabatan(),
+            testJabatan.kodeOpd(),
+            testJabatan.statusJabatan(),
+            testJabatan.jenisJabatan(),
+            testJabatan.eselon(),
+            testJabatan.pangkat(),
+            testJabatan.golongan(),
+            testJabatan.tanggalMulai(),
+            testJabatan.tanggalAkhir(),
+            testJabatan.createdDate(),
+            testJabatan.lastModifiedDate()
+        );
+
+        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(List.of(jabatanTanpaNama));
         when(pegawaiRepository.findByNip("198001012010011001")).thenReturn(Optional.of(pegawai));
 
         List<JabatanWithPegawaiResponse> result = jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001");
@@ -119,7 +158,24 @@ public class JabatanServiceTest {
 
     @Test
     void listJabatanByKodeOpdWithPegawai_WhenPegawaiNotFound_ShouldReturnResponseWithNullNamaPegawai() {
-        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(List.of(testJabatan));
+        Jabatan jabatanTanpaNama = new Jabatan(
+            2L,
+            "198001012010011001",
+            null,
+            "Analis Ahli Muda",
+            "OPD-001",
+            "UTAMA",
+            "JABATAN_STRUKTURAL",
+            "ESELON_IV",
+            "Junior",
+            "Golongan I",
+            tanggalMulai.getTime(),
+            tanggalAkhir.getTime(),
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(List.of(jabatanTanpaNama));
         when(pegawaiRepository.findByNip("198001012010011001")).thenReturn(Optional.empty());
 
         List<JabatanWithPegawaiResponse> result = jabatanService.listJabatanByKodeOpdWithPegawai("OPD-001");
@@ -167,6 +223,7 @@ public class JabatanServiceTest {
         Jabatan newJabatan = new Jabatan(
             null,
             "200601012010012001",
+            "Jane Doe",
             "Sekretaris Dinas",
             "OPD-001",
             "UTAMA",
@@ -181,11 +238,22 @@ public class JabatanServiceTest {
         );
 
         when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
-        when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(true);
+        when(pegawaiRepository.findByNip(newJabatan.nip())).thenReturn(Optional.of(new Pegawai(
+            null,
+            newJabatan.namaPegawai(),
+            newJabatan.nip(),
+            "OPD-001",
+            null,
+            "AKTIF",
+            null,
+            null,
+            null
+        )));
         when(jabatanRepository.save(any(Jabatan.class))).thenReturn(
             new Jabatan(
                 2L,
                 newJabatan.nip(),
+                newJabatan.namaPegawai(),
                 newJabatan.namaJabatan(),
                 newJabatan.kodeOpd(),
                 newJabatan.statusJabatan(),
@@ -212,8 +280,8 @@ public class JabatanServiceTest {
         assertThat(result.pangkat()).isEqualTo("Senior");
         assertThat(result.golongan()).isEqualTo("Golongan III");
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
-        verify(pegawaiRepository).existsByNip(newJabatan.nip());
-        verify(jabatanRepository).save(newJabatan);
+        verify(pegawaiRepository).findByNip(newJabatan.nip());
+        verify(jabatanRepository).save(any(Jabatan.class));
     }
 
     @Test
@@ -221,6 +289,7 @@ public class JabatanServiceTest {
         Jabatan newJabatan = new Jabatan(
             null,
             "200601012010012001",
+            "Jane Doe",
             "Sekretaris Dinas",
             "OPD-999",
             "UTAMA",
@@ -248,6 +317,7 @@ public class JabatanServiceTest {
         Jabatan newJabatan = new Jabatan(
             null,
             "200601012010012001",
+            "Jane Doe",
             "Sekretaris Dinas",
             "OPD-001",
             "UTAMA",
@@ -262,13 +332,13 @@ public class JabatanServiceTest {
         );
 
         when(opdRepository.existsByKodeOpd(newJabatan.kodeOpd())).thenReturn(true);
-        when(pegawaiRepository.existsByNip(newJabatan.nip())).thenReturn(false);
+        when(pegawaiRepository.findByNip(newJabatan.nip())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> jabatanService.tambahJabatan(newJabatan))
             .isInstanceOf(PegawaiNotFoundException.class)
             .hasMessageContaining(newJabatan.nip());
         verify(opdRepository).existsByKodeOpd(newJabatan.kodeOpd());
-        verify(pegawaiRepository).existsByNip(newJabatan.nip());
+        verify(pegawaiRepository).findByNip(newJabatan.nip());
         verify(jabatanRepository, never()).save(any());
     }
 
@@ -278,6 +348,7 @@ public class JabatanServiceTest {
         Jabatan updatedJabatan = new Jabatan(
             id,
             "201001012010011001",
+            "Jane Doe",
             "Sekretaris Kabupaten",
             "OPD-001",
             "UTAMA",
@@ -292,18 +363,26 @@ public class JabatanServiceTest {
         );
 
         when(jabatanRepository.existsById(id)).thenReturn(true);
-        when(jabatanRepository.findById(id)).thenReturn(Optional.of(testJabatan));
         when(opdRepository.existsByKodeOpd(updatedJabatan.kodeOpd())).thenReturn(true);
-        when(pegawaiRepository.existsByNip(updatedJabatan.nip())).thenReturn(true);
+        when(pegawaiRepository.findByNip(updatedJabatan.nip())).thenReturn(Optional.of(
+            new Pegawai(null, updatedJabatan.namaPegawai(), updatedJabatan.nip(), "OPD-001", null, "AKTIF", null, null, null)
+        ));
         when(jabatanRepository.save(any(Jabatan.class))).thenReturn(updatedJabatan);
 
         Jabatan result = jabatanService.ubahJabatan(id, updatedJabatan);
 
+        ArgumentCaptor<Jabatan> jabatanCaptor = ArgumentCaptor.forClass(Jabatan.class);
+
         assertThat(result).isEqualTo(updatedJabatan);
         verify(jabatanRepository).existsById(id);
         verify(opdRepository).existsByKodeOpd(updatedJabatan.kodeOpd());
-        verify(pegawaiRepository).existsByNip(updatedJabatan.nip());
-        verify(jabatanRepository).save(updatedJabatan);
+        verify(pegawaiRepository).findByNip(updatedJabatan.nip());
+        verify(jabatanRepository).save(jabatanCaptor.capture());
+
+        Jabatan saved = jabatanCaptor.getValue();
+        assertThat(saved.id()).isEqualTo(id);
+        assertThat(saved.nip()).isEqualTo(updatedJabatan.nip());
+        assertThat(saved.namaPegawai()).isEqualTo("Jane Doe");
     }
 
     @Test
@@ -324,6 +403,7 @@ public class JabatanServiceTest {
         Jabatan updatedJabatan = new Jabatan(
             id,
             "201001012010011001",
+            "Jane Doe",
             "Sekretaris Kabupaten",
             "OPD-999",
             "UTAMA",
@@ -354,6 +434,7 @@ public class JabatanServiceTest {
         Jabatan updatedJabatan = new Jabatan(
             id,
             "201001012010011001",
+            "Jane Doe",
             "Sekretaris Kabupaten",
             "OPD-001",
             "UTAMA",
@@ -369,14 +450,14 @@ public class JabatanServiceTest {
 
         when(jabatanRepository.existsById(id)).thenReturn(true);
         when(opdRepository.existsByKodeOpd(updatedJabatan.kodeOpd())).thenReturn(true);
-        when(pegawaiRepository.existsByNip(updatedJabatan.nip())).thenReturn(false);
+        when(pegawaiRepository.findByNip(updatedJabatan.nip())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> jabatanService.ubahJabatan(id, updatedJabatan))
             .isInstanceOf(PegawaiNotFoundException.class)
             .hasMessageContaining(updatedJabatan.nip());
         verify(jabatanRepository).existsById(id);
         verify(opdRepository).existsByKodeOpd(updatedJabatan.kodeOpd());
-        verify(pegawaiRepository).existsByNip(updatedJabatan.nip());
+        verify(pegawaiRepository).findByNip(updatedJabatan.nip());
         verify(jabatanRepository, never()).save(any());
     }
 
@@ -408,7 +489,24 @@ public class JabatanServiceTest {
         String nip = "198001012010011001";
         Pegawai pegawai = new Pegawai(null, "John Doe", nip, null, null, "AKTIF", null, null, null);
 
-        when(jabatanRepository.findAllByNip(nip)).thenReturn(List.of(testJabatan));
+        Jabatan jabatanTanpaNama = new Jabatan(
+            testJabatan.id(),
+            testJabatan.nip(),
+            null,
+            testJabatan.namaJabatan(),
+            testJabatan.kodeOpd(),
+            testJabatan.statusJabatan(),
+            testJabatan.jenisJabatan(),
+            testJabatan.eselon(),
+            testJabatan.pangkat(),
+            testJabatan.golongan(),
+            testJabatan.tanggalMulai(),
+            testJabatan.tanggalAkhir(),
+            testJabatan.createdDate(),
+            testJabatan.lastModifiedDate()
+        );
+
+        when(jabatanRepository.findAllByNip(nip)).thenReturn(List.of(jabatanTanpaNama));
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.of(pegawai));
 
         List<JabatanWithPegawaiResponse> result = jabatanService.listJabatanByNipWithPegawai(nip);
@@ -430,6 +528,7 @@ public class JabatanServiceTest {
         Jabatan jabatan1 = new Jabatan(
             1L,
             nip,
+            null,
             "Analis Kebijakan Industrialisasi",
             "OPD-001",
             "UTAMA",
@@ -446,6 +545,7 @@ public class JabatanServiceTest {
         Jabatan jabatan2 = new Jabatan(
             2L,
             nip,
+            null,
             "Pelaksana Tugas",
             "OPD-001",
             "PLT_UTAMA",
@@ -486,7 +586,24 @@ public class JabatanServiceTest {
     void listJabatanByNipWithPegawai_WhenPegawaiNotFound_ShouldReturnResponseWithNullNamaPegawai() {
         String nip = "198001012010011001";
 
-        when(jabatanRepository.findAllByNip(nip)).thenReturn(List.of(testJabatan));
+        Jabatan jabatanTanpaNama = new Jabatan(
+            10L,
+            nip,
+            null,
+            "Analis Ahli Muda",
+            "OPD-001",
+            "UTAMA",
+            "JABATAN_STRUKTURAL",
+            "ESELON_IV",
+            "Junior",
+            "Golongan I",
+            tanggalMulai.getTime(),
+            tanggalAkhir.getTime(),
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(jabatanRepository.findAllByNip(nip)).thenReturn(List.of(jabatanTanpaNama));
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.empty());
 
         List<JabatanWithPegawaiResponse> result = jabatanService.listJabatanByNipWithPegawai(nip);
@@ -520,6 +637,7 @@ public class JabatanServiceTest {
         Jabatan jabatan1 = new Jabatan(
             1L,
             nip,
+            null,
             "Analis Kebijakan",
             "OPD-001",
             "UTAMA",
@@ -536,6 +654,7 @@ public class JabatanServiceTest {
         Jabatan jabatan2 = new Jabatan(
             2L,
             nip,
+            null,
             "Pelaksana Tugas",
             "OPD-001",
             "PLT_UTAMA",
@@ -552,6 +671,7 @@ public class JabatanServiceTest {
         Jabatan jabatan3 = new Jabatan(
             3L,
             nip,
+            null,
             "Jabatan Berakhir",
             "OPD-001",
             "BERAKHIR",

@@ -60,6 +60,16 @@ public class PegawaiController {
     }
 
     /**
+     * Get all pegawai
+     * @return list of all pegawai
+     * url: /pegawai
+     */
+    @GetMapping("detail/findall")
+    public Iterable<Pegawai> getAllPegawai() {
+        return pegawaiService.listAllPegawai();
+    }
+
+    /**
      * Update pegawai by NIP
      * @param nip pegawai NIP
      * @param request pegawai update request
