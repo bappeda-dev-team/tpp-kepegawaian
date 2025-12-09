@@ -14,6 +14,9 @@ public record JabatanRequest(
 		@NotNull(message = "NIP tidak boleh kosong")
 		@NotEmpty(message = "NIP tidak boleh kosong")
 		String nip,
+
+		@Nullable
+		String namaPegawai,
 		
 		@NotNull(message = "Nama jabatan harus terdefinisi")
 		@NotEmpty(message = "Nama jabatan tidak boleh kosong")

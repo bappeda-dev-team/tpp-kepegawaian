@@ -78,6 +78,7 @@ public class PegawaiControllerTest {
         testJabatan = new Jabatan(
             1L,
             "198001012010011001",
+            "John Doe",
             "Kepala Seksi",
             "OPD-001",
             "AKTIF",
@@ -217,6 +218,7 @@ public class PegawaiControllerTest {
         Jabatan jabatan1 = new Jabatan(
             1L,
             "198001012010011001",
+            "John Doe",
             "Analis Kebijakan Industrialisasi",
             "OPD-001",
             "AKTIF",
@@ -232,6 +234,7 @@ public class PegawaiControllerTest {
         Jabatan jabatan2 = new Jabatan(
             2L,
             "201001012010011001",
+            "Jane Doe",
             "Analis Kebijakan",
             "OPD-001",
             "AKTIF",

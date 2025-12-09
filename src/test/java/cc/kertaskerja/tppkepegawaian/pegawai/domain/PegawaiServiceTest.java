@@ -88,6 +88,7 @@ public class PegawaiServiceTest {
         testJabatan = new Jabatan(
             1L,
             "198001012010011001",
+            "John Doe",
             "Kepala Seksi",
             "OPD-001",
             "AKTIF",

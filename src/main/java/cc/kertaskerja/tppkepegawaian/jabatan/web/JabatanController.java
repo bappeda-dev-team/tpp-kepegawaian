@@ -88,6 +88,7 @@ public class JabatanController {
         Jabatan jabatan = new Jabatan(
             id,
             request.nip(),
+            request.namaPegawai(),
             request.namaJabatan(),
             request.kodeOpd(),
             request.statusJabatan(),
@@ -116,6 +117,7 @@ public class JabatanController {
     public ResponseEntity<Jabatan> post(@Valid @RequestBody JabatanRequest request) {
         Jabatan jabatan = Jabatan.of(
             request.nip(),
+            request.namaPegawai(),
             request.namaJabatan(),
             request.kodeOpd(),
             request.statusJabatan(),

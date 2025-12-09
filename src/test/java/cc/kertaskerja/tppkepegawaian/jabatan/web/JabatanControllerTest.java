@@ -59,6 +59,7 @@ public class JabatanControllerTest {
         testJabatan = new Jabatan(
             1L,
             "198001012010011001",
+            "John Doe",
             "Kepala Dinas",
             "OPD-001",
             "Utama",
@@ -75,6 +76,7 @@ public class JabatanControllerTest {
         Jabatan testJabatan2 = new Jabatan(
             2L,
             "199001012015021002",
+            "Jane Smith",
             "Sekretaris Dinas",
             "OPD-002",
             "PLT Utama",
@@ -91,6 +93,7 @@ public class JabatanControllerTest {
         testJabatanRequest = new JabatanRequest(
             null,
             "198001012010011001",
+            "John Doe",
             "Kepala Dinas",
             "OPD-001",
             "Utama",
@@ -142,6 +145,7 @@ public class JabatanControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(1L))
             .andExpect(jsonPath("$.nip").value("198001012010011001"))
+            .andExpect(jsonPath("$.namaPegawai").value("John Doe"))
             .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
@@ -308,6 +312,7 @@ public class JabatanControllerTest {
         Jabatan jabatan2 = new Jabatan(
             2L,
             "199001012015021002",
+            "Jane Smith",
             "Sekretaris Dinas",
             "OPD-002",
             "PLT Utama",
@@ -330,12 +335,14 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.length()").value(2))
             .andExpect(jsonPath("$[0].id").value(testJabatan.id()))
             .andExpect(jsonPath("$[0].nip").value(testJabatan.nip()))
+            .andExpect(jsonPath("$[0].namaPegawai").value(testJabatan.namaPegawai()))
             .andExpect(jsonPath("$[0].namaJabatan").value(testJabatan.namaJabatan()))
             .andExpect(jsonPath("$[0].kodeOpd").value(testJabatan.kodeOpd()))
             .andExpect(jsonPath("$[0].statusJabatan").value(testJabatan.statusJabatan()))
             .andExpect(jsonPath("$[0].jenisJabatan").value(testJabatan.jenisJabatan()))
             .andExpect(jsonPath("$[1].id").value(jabatan2.id()))
             .andExpect(jsonPath("$[1].nip").value(jabatan2.nip()))
+            .andExpect(jsonPath("$[1].namaPegawai").value(jabatan2.namaPegawai()))
             .andExpect(jsonPath("$[1].namaJabatan").value(jabatan2.namaJabatan()))
             .andExpect(jsonPath("$[1].kodeOpd").value(jabatan2.kodeOpd()))
             .andExpect(jsonPath("$[1].statusJabatan").value(jabatan2.statusJabatan()))
@@ -362,6 +369,7 @@ public class JabatanControllerTest {
         testJabatanRequest = new JabatanRequest(
             null,
             "201001012010011001",
+            "Alice Doe",
             "Analis Ahli Utama",
             "OPD-001",
             "Utama",
@@ -376,6 +384,7 @@ public class JabatanControllerTest {
         Jabatan createJabatan = new Jabatan(
             2L,
             "201001012010011001",
+            "Alice Doe",
             "Analis Ahli Utama",
             "OPD-001",
             "Utama",
@@ -399,6 +408,7 @@ public class JabatanControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(2L))
             .andExpect(jsonPath("$.nip").value("201001012010011001"))
+            .andExpect(jsonPath("$.namaPegawai").value("Alice Doe"))
             .andExpect(jsonPath("$.namaJabatan").value("Analis Ahli Utama"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
@@ -415,6 +425,7 @@ public class JabatanControllerTest {
         JabatanRequest pltRequest = new JabatanRequest(
             null,
             "200001012010011003",
+            "Budi",
             "Plt Kepala Dinas",
             "OPD-002",
             "PLT Utama",
@@ -429,6 +440,7 @@ public class JabatanControllerTest {
         Jabatan pltJabatan = new Jabatan(
             3L,
             "200001012010011003",
+            "Budi",
             "Plt Kepala Dinas",
             "OPD-002",
             "PLT Utama",
@@ -452,6 +464,7 @@ public class JabatanControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(3L))
             .andExpect(jsonPath("$.nip").value("200001012010011003"))
+            .andExpect(jsonPath("$.namaPegawai").value("Budi"))
             .andExpect(jsonPath("$.namaJabatan").value("Plt Kepala Dinas"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-002"))
             .andExpect(jsonPath("$.statusJabatan").value("PLT Utama"))
@@ -463,6 +476,7 @@ public class JabatanControllerTest {
         JabatanRequest utamaRequest = new JabatanRequest(
             null,
             "199001012015021002",
+            "Jane Smith",
             "Kepala Dinas Utama",
             "OPD-001",
             "Utama",
@@ -477,6 +491,7 @@ public class JabatanControllerTest {
         Jabatan utamaJabatan = new Jabatan(
             3L,
             "199001012015021002",
+            "Jane Smith",
             "Kepala Dinas Utama",
             "OPD-001",
             "Utama",
@@ -500,6 +515,7 @@ public class JabatanControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(3L))
             .andExpect(jsonPath("$.nip").value("199001012015021002"))
+            .andExpect(jsonPath("$.namaPegawai").value("Jane Smith"))
             .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas Utama"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
@@ -511,6 +527,7 @@ public class JabatanControllerTest {
         JabatanRequest pltRequest = new JabatanRequest(
             null,
             "198001012010011001",
+            "John Doe",
             "Plt Kepala Dinas",
             "OPD-002",
             "PLT Utama",
@@ -537,6 +554,7 @@ public class JabatanControllerTest {
         JabatanRequest request = new JabatanRequest(
             1L,
             "199001012015021002",
+            "Jane Smith",
             "Kepala Dinas Utama",
             "OPD-001",
             "Utama",
@@ -551,6 +569,7 @@ public class JabatanControllerTest {
         Jabatan existingJabatan = new Jabatan(
             1L,
             "199001012015021002",
+            "Jane Smith",
             "Plt Sekretaris",
             "OPD-002",
             "PLT Utama",
@@ -567,6 +586,7 @@ public class JabatanControllerTest {
         Jabatan updatedJabatan = new Jabatan(
             1L,
             "199001012015021002",
+            "Jane Smith",
             "Kepala Dinas Utama",
             "OPD-001",
             "Utama",
@@ -585,9 +605,10 @@ public class JabatanControllerTest {
 
         mockMvc.perform(put("/jabatan/update/{id}", "1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+            .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.nip", is("199001012015021002")))
+            .andExpect(jsonPath("$.namaPegawai", is("Jane Smith")))
             .andExpect(jsonPath("$.namaJabatan", is("Kepala Dinas Utama")))
             .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
             .andExpect(jsonPath("$.statusJabatan", is("Utama")))
