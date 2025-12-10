@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
@@ -18,6 +19,10 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 	Optional<Jabatan> findByNip(@NonNull String nip);
 	@NonNull
 	Iterable<Jabatan> findAllByNip(@NonNull String nip);
+
+    @NonNull
+	List<Jabatan> findAllByNipIn(@NonNull List<String> nips);
+
 	@Modifying
 	@Transactional
 	@Query("DELETE FROM jabatan WHERE id = :id")

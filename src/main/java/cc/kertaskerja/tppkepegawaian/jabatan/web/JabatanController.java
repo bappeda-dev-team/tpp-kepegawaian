@@ -64,6 +64,19 @@ public class JabatanController {
     }
 
     /**
+     * Get jabatan by BATCH NIP
+     * @param request nip_pegawais: [NIP pegawai]
+     * @return List of JabatanWithPegawaiResponse array (includes nama pegawai)
+     * url: /jabatan/detail/by-nip-batch
+     */
+    @PostMapping("detail/by-nip-batch")
+    public ResponseEntity<List<JabatanWithPegawaiResponse>> getByNipBatch(
+        @Valid @RequestBody NipBatchRequest request
+    ) {
+        return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()));
+    }
+
+    /**
      * Get all jabatan
      * @return list of all Jabatan objects
      * url: /jabatan/detail/findall

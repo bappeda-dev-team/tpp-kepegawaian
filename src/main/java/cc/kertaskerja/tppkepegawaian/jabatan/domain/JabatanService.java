@@ -68,6 +68,32 @@ public class JabatanService {
         return responses;
     }
 
+    public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
+        List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
+        List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
+
+        for (Jabatan jabatan : jabatans) {
+            String namaPegawai = resolveNamaPegawai(jabatan);
+
+            responses.add(new JabatanWithPegawaiResponse(
+                jabatan.id(),
+                jabatan.nip(),
+                namaPegawai,
+                jabatan.namaJabatan(),
+                jabatan.kodeOpd(),
+                jabatan.statusJabatan(),
+                jabatan.jenisJabatan(),
+                jabatan.eselon(),
+                jabatan.pangkat(),
+                jabatan.golongan(),
+                jabatan.tanggalMulai(),
+                jabatan.tanggalAkhir()
+            ));
+        }
+
+        return responses;
+    }
+
     public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {
         Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
         List<JabatanWithPegawaiResponse> responses = new ArrayList<>();
