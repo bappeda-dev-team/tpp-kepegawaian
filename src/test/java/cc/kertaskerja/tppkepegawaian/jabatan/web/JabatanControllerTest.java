@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -578,6 +579,55 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
             .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"));
+    }
+
+    @Test
+    void tambah_WhenNipAndKodeOpdEmpty_ShouldCreateJabatan() throws Exception {
+        JabatanRequest request = new JabatanRequest(
+            null,
+            null,
+            "Tanpa NIP",
+            "Kepala Bidang",
+            null,
+            "Utama",
+            "Jabatan Fungsional",
+            "Eselon IV",
+            "Senior",
+            "Golongan III",
+            tanggalMulai.getTime(),
+            tanggalAkhir.getTime()
+        );
+
+        Jabatan savedJabatan = new Jabatan(
+            5L,
+            null,
+            "Tanpa NIP",
+            "Kepala Bidang",
+            null,
+            "Utama",
+            "Jabatan Fungsional",
+            "Eselon IV",
+            "Senior",
+            "Golongan III",
+            tanggalMulai.getTime(),
+            tanggalAkhir.getTime(),
+            Instant.now(),
+            Instant.now()
+        );
+
+        when(jabatanService.tambahJabatan(any(Jabatan.class))).thenReturn(savedJabatan);
+
+        mockMvc.perform(post("/jabatan")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(5L))
+            .andExpect(jsonPath("$.nip").value(nullValue()))
+            .andExpect(jsonPath("$.namaPegawai").value("Tanpa NIP"))
+            .andExpect(jsonPath("$.namaJabatan").value("Kepala Bidang"))
+            .andExpect(jsonPath("$.kodeOpd").value(nullValue()))
+            .andExpect(jsonPath("$.statusJabatan").value("Utama"))
+            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Fungsional"));
     }
 
     @Test

@@ -1,0 +1,2 @@
+ALTER TABLE jabatan
+DROP CONSTRAINT IF EXISTS fk_jabatan_opd;

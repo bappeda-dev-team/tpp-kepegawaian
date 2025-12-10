@@ -37,9 +37,7 @@
               "schema": {
                 "type": "object",
                 "required": [
-                  "nip",
                   "nama_jabatan",
-                  "kode_opd",
                   "status_jabatan",
                   "jenis_jabatan",
                   "eselon",
@@ -229,9 +227,7 @@
                 "type": "object",
                 "required": [
                   "id",
-                  "nip",
                   "nama_jabatan",
-                  "kode_opd",
                   "status_jabatan",
                   "jenis_jabatan",
                   "eselon",

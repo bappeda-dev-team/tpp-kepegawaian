@@ -143,13 +143,6 @@ public class PegawaiService {
     }
 
     public Pegawai tambahPegawai(Pegawai pegawai) {
-        if (pegawaiRepository.existsByNip(pegawai.nip())) {
-            throw new PegawaiSudahAdaException(pegawai.nip());
-        }
-
-        if (!opdRepository.existsByKodeOpd(pegawai.kodeOpd())) {
-            throw new OpdNotFoundException(pegawai.kodeOpd());
-        }
 
         return pegawaiRepository.save(pegawai);
     }

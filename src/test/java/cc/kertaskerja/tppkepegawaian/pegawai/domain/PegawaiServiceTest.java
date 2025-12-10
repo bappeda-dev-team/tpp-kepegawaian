@@ -274,8 +274,6 @@ public class PegawaiServiceTest {
             null
         );
 
-        when(pegawaiRepository.existsByNip(newPegawai.nip())).thenReturn(false);
-        when(opdRepository.existsByKodeOpd(newPegawai.kodeOpd())).thenReturn(true);
         when(pegawaiRepository.save(any(Pegawai.class))).thenReturn(
             new Pegawai(
                 2L,
@@ -297,45 +295,7 @@ public class PegawaiServiceTest {
         assertThat(result.nip()).isEqualTo("200601012010012001");
         assertThat(result.namaRole()).isEqualTo("Admin");
         assertThat(result.passwordHash()).isEqualTo("hashedpassword123");
-        verify(pegawaiRepository).existsByNip(newPegawai.nip());
-        verify(opdRepository).existsByKodeOpd(newPegawai.kodeOpd());
         verify(pegawaiRepository).save(newPegawai);
-    }
-
-    @Test
-    void tambahPegawai_WhenPegawaiAlreadyExists_ShouldThrowException() {
-        when(pegawaiRepository.existsByNip(testPegawai.nip())).thenReturn(true);
-
-        assertThatThrownBy(() -> pegawaiService.tambahPegawai(testPegawai))
-            .isInstanceOf(PegawaiSudahAdaException.class)
-            .hasMessageContaining(testPegawai.nip());
-        verify(pegawaiRepository).existsByNip(testPegawai.nip());
-        verify(pegawaiRepository, never()).save(any());
-    }
-
-    @Test
-    void tambahPegawai_WhenOpdNotExists_ShouldThrowException() {
-        Pegawai newPegawai = new Pegawai(
-            null,
-            "Jane Doe",
-            "198001012010011001",
-            "OPD-9999",
-            "Admin",
-            "AKTIF",
-            "hashedpassword123",
-            null,
-            null);
-
-        when(pegawaiRepository.existsByNip(newPegawai.nip())).thenReturn(false);
-        when(opdRepository.existsByKodeOpd("OPD-9999")).thenReturn(false);
-
-        assertThatThrownBy(() -> pegawaiService.tambahPegawai(newPegawai))
-            .isInstanceOf(OpdNotFoundException.class)
-            .hasMessageContaining("OPD-9999");
-
-        verify(pegawaiRepository).existsByNip(newPegawai.nip());
-        verify(opdRepository).existsByKodeOpd("OPD-9999");
-        verify(pegawaiRepository, never()).save(any());
     }
 
     @Test

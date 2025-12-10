@@ -11,8 +11,7 @@ public record JabatanRequest(
 		@Nullable
 		Long jabatanId,
 		
-		@NotNull(message = "NIP tidak boleh kosong")
-		@NotEmpty(message = "NIP tidak boleh kosong")
+		@Nullable
 		String nip,
 
 		@Nullable
@@ -22,8 +21,7 @@ public record JabatanRequest(
 		@NotEmpty(message = "Nama jabatan tidak boleh kosong")
 		String namaJabatan,
 		
-		@NotNull(message = "Kode OPD tidak boleh kosong")
-		@NotEmpty(message = "Kode OPD tidak boleh kosong")
+		@Nullable
 		String kodeOpd,
 		
 		@NotNull(message = "Pilih status jabatan")

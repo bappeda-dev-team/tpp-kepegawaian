@@ -151,7 +151,12 @@ public class JabatanService {
             return jabatan.namaPegawai();
         }
 
-        Optional<Pegawai> pegawai = pegawaiRepository.findByNip(jabatan.nip());
+        String nip = jabatan.nip();
+        if (nip == null || nip.isBlank()) {
+            return null;
+        }
+
+        Optional<Pegawai> pegawai = pegawaiRepository.findByNip(nip);
         return pegawai.map(Pegawai::namaPegawai).orElse(null);
     }
 
