@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -305,6 +306,63 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[1].eselon").value("Eselon II"))
             .andExpect(jsonPath("$[1].pangkat").value("Sepuh"))
             .andExpect(jsonPath("$[1].golongan").value("Golongan IV"));
+    }
+
+    @Test
+    void getByNipBatch_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
+        NipBatchRequest request = new NipBatchRequest();
+        request.setNipPegawais(List.of("198001012010011001", "199001012015021002"));
+
+        when(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()))
+            .thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
+
+        mockMvc.perform(post("/jabatan/detail/by-nip-batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].id").value(1L))
+            .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+            .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
+            .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+            .andExpect(jsonPath("$[0].kodeOpd").value("OPD-001"))
+            .andExpect(jsonPath("$[0].statusJabatan").value("Utama"))
+            .andExpect(jsonPath("$[0].jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+            .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
+            .andExpect(jsonPath("$[0].pangkat").value("Junior"))
+            .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+            .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
+            .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
+            .andExpect(jsonPath("$[1].id").value(2L))
+            .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
+            .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
+            .andExpect(jsonPath("$[1].namaJabatan").value("Sekretaris Dinas"))
+            .andExpect(jsonPath("$[1].kodeOpd").value("OPD-002"))
+            .andExpect(jsonPath("$[1].statusJabatan").value("PLT Utama"))
+            .andExpect(jsonPath("$[1].jenisJabatan").value("Jabatan Administrasi"))
+            .andExpect(jsonPath("$[1].eselon").value("Eselon III"))
+            .andExpect(jsonPath("$[1].pangkat").value("Middle"))
+            .andExpect(jsonPath("$[1].golongan").value("Golongan II"))
+            .andExpect(jsonPath("$[1].tanggalMulai").value("01-01-2023"))
+            .andExpect(jsonPath("$[1].tanggalAkhir").value("31-12-2025"));
+
+        verify(jabatanService).listJabatanByNipWithPegawaiBatch(request.getNipPegawais());
+    }
+
+    @Test
+    void getByNipBatch_WhenRequestEmpty_ShouldReturnBadRequest() throws Exception {
+        NipBatchRequest request = new NipBatchRequest();
+        request.setNipPegawais(List.of());
+
+        mockMvc.perform(post("/jabatan/detail/by-nip-batch")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.nipPegawais").value("nip_pegawais tidak boleh kosong"));
+
+        verifyNoInteractions(jabatanService);
     }
 
     @Test

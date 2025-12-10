@@ -130,26 +130,12 @@ public class JabatanService {
             throw new JabatanNotFoundException(id);
         }
 
-        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
-            throw new OpdNotFoundException(jabatan.kodeOpd());
-        }
-
-        Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
-            .orElseThrow(() -> new PegawaiNotFoundException(jabatan.nip()));
-
-        return jabatanRepository.save(attachNamaPegawai(jabatan, pegawai));
+        return jabatanRepository.save(jabatan);
     }
 
     public Jabatan tambahJabatan(Jabatan jabatan) {
 
-        if (!opdRepository.existsByKodeOpd(jabatan.kodeOpd())) {
-            throw new OpdNotFoundException(jabatan.kodeOpd());
-        }
-
-        Pegawai pegawai = pegawaiRepository.findByNip(jabatan.nip())
-            .orElseThrow(() -> new PegawaiNotFoundException(jabatan.nip()));
-
-        return jabatanRepository.save(attachNamaPegawai(jabatan, pegawai));
+        return jabatanRepository.save(jabatan);
     }
 
     public void hapusJabatan(Long id) {
