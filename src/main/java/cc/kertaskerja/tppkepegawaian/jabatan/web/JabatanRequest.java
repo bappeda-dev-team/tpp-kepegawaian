@@ -40,6 +40,9 @@ public record JabatanRequest(
 		@NotNull(message = "Golongan harus terdefinisi")
 		@NotEmpty(message = "Golongan tidak boleh kosong")
 		String golongan,
+
+		@Nullable
+		Double basicTpp,
 		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
 		@JsonFormat(pattern = "dd-MM-yyyy")

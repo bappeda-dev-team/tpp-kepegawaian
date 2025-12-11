@@ -69,6 +69,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            5_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -86,6 +87,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Middle",
             "Golongan II",
+            4_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -103,6 +105,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            5_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -118,6 +121,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            5_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -133,6 +137,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Middle",
             "Golongan II",
+            4_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -155,6 +160,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.eselon").value("Eselon IV"))
             .andExpect(jsonPath("$.pangkat").value("Junior"))
             .andExpect(jsonPath("$.golongan").value("Golongan I"))
+            .andExpect(jsonPath("$.basicTpp").value(5_000_000.0))
             .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
@@ -186,6 +192,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
             .andExpect(jsonPath("$[0].pangkat").value("Junior"))
             .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+            .andExpect(jsonPath("$[0].basicTpp").value(5_000_000.0))
             .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
             .andExpect(jsonPath("$[1].id").value(2L))
@@ -197,7 +204,10 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[1].jenisJabatan").value("Jabatan Administrasi"))
             .andExpect(jsonPath("$[1].eselon").value("Eselon III"))
             .andExpect(jsonPath("$[1].pangkat").value("Middle"))
-            .andExpect(jsonPath("$[1].golongan").value("Golongan II"));
+            .andExpect(jsonPath("$[1].golongan").value("Golongan II"))
+            .andExpect(jsonPath("$[1].basicTpp").value(4_500_000.0))
+            .andExpect(jsonPath("$[1].tanggalMulai").value("01-01-2023"))
+            .andExpect(jsonPath("$[1].tanggalAkhir").value("31-12-2025"));
     }
 
     @Test
@@ -230,6 +240,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
             .andExpect(jsonPath("$[0].pangkat").value("Junior"))
             .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+            .andExpect(jsonPath("$[0].basicTpp").value(5_000_000.0))
             .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"));
     }
@@ -258,6 +269,7 @@ public class JabatanControllerTest {
             "Eselon II",
             "Sepuh",
             "Golongan IV",
+            2_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -273,6 +285,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Senior",
             "Golongan III",
+            3_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -295,6 +308,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[0].eselon").value("Eselon III"))
             .andExpect(jsonPath("$[0].pangkat").value("Senior"))
             .andExpect(jsonPath("$[0].golongan").value("Golongan III"))
+            .andExpect(jsonPath("$[0].basicTpp").value(3_000_000.0))
             .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
             .andExpect(jsonPath("$[1].id").value(2L))
@@ -306,7 +320,8 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[1].jenisJabatan").value("Jabatan Struktural"))
             .andExpect(jsonPath("$[1].eselon").value("Eselon II"))
             .andExpect(jsonPath("$[1].pangkat").value("Sepuh"))
-            .andExpect(jsonPath("$[1].golongan").value("Golongan IV"));
+            .andExpect(jsonPath("$[1].golongan").value("Golongan IV"))
+            .andExpect(jsonPath("$[1].basicTpp").value(2_000_000.0));
     }
 
     @Test
@@ -334,6 +349,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[0].eselon").value("Eselon IV"))
             .andExpect(jsonPath("$[0].pangkat").value("Junior"))
             .andExpect(jsonPath("$[0].golongan").value("Golongan I"))
+            .andExpect(jsonPath("$[0].basicTpp").value(5_000_000.0))
             .andExpect(jsonPath("$[0].tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$[0].tanggalAkhir").value("31-12-2025"))
             .andExpect(jsonPath("$[1].id").value(2L))
@@ -346,6 +362,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[1].eselon").value("Eselon III"))
             .andExpect(jsonPath("$[1].pangkat").value("Middle"))
             .andExpect(jsonPath("$[1].golongan").value("Golongan II"))
+            .andExpect(jsonPath("$[1].basicTpp").value(4_500_000.0))
             .andExpect(jsonPath("$[1].tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$[1].tanggalAkhir").value("31-12-2025"));
 
@@ -379,6 +396,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Middle",
             "Golongan II",
+            4_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -399,13 +417,15 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[0].kodeOpd").value(testJabatan.kodeOpd()))
             .andExpect(jsonPath("$[0].statusJabatan").value(testJabatan.statusJabatan()))
             .andExpect(jsonPath("$[0].jenisJabatan").value(testJabatan.jenisJabatan()))
+            .andExpect(jsonPath("$[0].basicTpp").value(testJabatan.basicTpp()))
             .andExpect(jsonPath("$[1].id").value(jabatan2.id()))
             .andExpect(jsonPath("$[1].nip").value(jabatan2.nip()))
             .andExpect(jsonPath("$[1].namaPegawai").value(jabatan2.namaPegawai()))
             .andExpect(jsonPath("$[1].namaJabatan").value(jabatan2.namaJabatan()))
             .andExpect(jsonPath("$[1].kodeOpd").value(jabatan2.kodeOpd()))
             .andExpect(jsonPath("$[1].statusJabatan").value(jabatan2.statusJabatan()))
-            .andExpect(jsonPath("$[1].jenisJabatan").value(jabatan2.jenisJabatan()));
+            .andExpect(jsonPath("$[1].jenisJabatan").value(jabatan2.jenisJabatan()))
+            .andExpect(jsonPath("$[1].basicTpp").value(jabatan2.basicTpp()));
 
         verify(jabatanService).listAllJabatan();
     }
@@ -436,6 +456,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Senior",
             "Golongan III",
+            6_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -451,6 +472,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Senior",
             "Golongan III",
+            6_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -475,6 +497,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.eselon").value("Eselon III"))
             .andExpect(jsonPath("$.pangkat").value("Senior"))
             .andExpect(jsonPath("$.golongan").value("Golongan III"))
+            .andExpect(jsonPath("$.basicTpp").value(6_000_000.0))
             .andExpect(jsonPath("$.tanggalMulai").value("01-01-2023"))
             .andExpect(jsonPath("$.tanggalAkhir").value("31-12-2025"));
     }
@@ -492,6 +515,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            3_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -507,6 +531,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            3_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -527,7 +552,8 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.namaJabatan").value("Plt Kepala Dinas"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-002"))
             .andExpect(jsonPath("$.statusJabatan").value("PLT Utama"))
-            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"));
+            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+            .andExpect(jsonPath("$.basicTpp").value(3_500_000.0));
     }
 
     @Test
@@ -543,6 +569,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            7_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -558,6 +585,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            7_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -578,7 +606,8 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.namaJabatan").value("Kepala Dinas Utama"))
             .andExpect(jsonPath("$.kodeOpd").value("OPD-001"))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
-            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"));
+            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+            .andExpect(jsonPath("$.basicTpp").value(7_500_000.0));
     }
 
     @Test
@@ -594,6 +623,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Senior",
             "Golongan III",
+            2_750_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -609,6 +639,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Senior",
             "Golongan III",
+            2_750_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -627,7 +658,8 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.namaJabatan").value("Kepala Bidang"))
             .andExpect(jsonPath("$.kodeOpd").value(nullValue()))
             .andExpect(jsonPath("$.statusJabatan").value("Utama"))
-            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Fungsional"));
+            .andExpect(jsonPath("$.jenisJabatan").value("Jabatan Fungsional"))
+            .andExpect(jsonPath("$.basicTpp").value(2_750_000.0));
     }
 
     @Test
@@ -643,6 +675,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            3_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -670,6 +703,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            8_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
         );
@@ -685,6 +719,7 @@ public class JabatanControllerTest {
             "Eselon III",
             "Middle",
             "Golongan II",
+            3_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -702,6 +737,7 @@ public class JabatanControllerTest {
             "Eselon IV",
             "Junior",
             "Golongan I",
+            8_000_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -720,7 +756,8 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$.namaJabatan", is("Kepala Dinas Utama")))
             .andExpect(jsonPath("$.kodeOpd", is("OPD-001")))
             .andExpect(jsonPath("$.statusJabatan", is("Utama")))
-            .andExpect(jsonPath("$.jenisJabatan", is("Jabatan Pemimpin Tinggi")));
+            .andExpect(jsonPath("$.jenisJabatan", is("Jabatan Pemimpin Tinggi")))
+            .andExpect(jsonPath("$.basicTpp", is(8_000_000.0)));
     }
 
     @Test

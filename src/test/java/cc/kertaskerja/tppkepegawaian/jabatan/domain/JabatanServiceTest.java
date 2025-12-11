@@ -37,6 +37,8 @@ public class JabatanServiceTest {
     @InjectMocks
     private JabatanService jabatanService;
 
+    private static final double DEFAULT_BASIC_TPP = 1_000_000d;
+
     private Jabatan testJabatan;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
@@ -60,6 +62,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Junior",
             "Golongan I",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -134,6 +137,7 @@ public class JabatanServiceTest {
             testJabatan.eselon(),
             testJabatan.pangkat(),
             testJabatan.golongan(),
+            DEFAULT_BASIC_TPP,
             testJabatan.tanggalMulai(),
             testJabatan.tanggalAkhir(),
             testJabatan.createdDate(),
@@ -150,6 +154,7 @@ public class JabatanServiceTest {
         assertThat(result.get(0).namaPegawai()).isEqualTo("John Doe");
         assertThat(result.get(0).namaJabatan()).isEqualTo("Analis Ahli Muda");
         assertThat(result.get(0).statusJabatan()).isEqualTo("UTAMA");
+        assertThat(result.get(0).basicTpp()).isEqualTo(DEFAULT_BASIC_TPP);
         verify(jabatanRepository).findByKodeOpd("OPD-001");
         verify(pegawaiRepository).findByNip("198001012010011001");
     }
@@ -167,6 +172,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Junior",
             "Golongan I",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -182,6 +188,7 @@ public class JabatanServiceTest {
         assertThat(result.get(0).nip()).isEqualTo("198001012010011001");
         assertThat(result.get(0).namaPegawai()).isNull();
         assertThat(result.get(0).namaJabatan()).isEqualTo("Analis Ahli Muda");
+        assertThat(result.get(0).basicTpp()).isEqualTo(DEFAULT_BASIC_TPP);
         verify(jabatanRepository).findByKodeOpd("OPD-001");
         verify(pegawaiRepository).findByNip("198001012010011001");
     }
@@ -229,6 +236,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Senior",
             "Golongan III",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             null,
@@ -247,6 +255,7 @@ public class JabatanServiceTest {
                 newJabatan.eselon(),
                 newJabatan.pangkat(),
                 newJabatan.golongan(),
+                DEFAULT_BASIC_TPP,
                 newJabatan.tanggalMulai(),
                 newJabatan.tanggalAkhir(),
                 Instant.now(),
@@ -282,6 +291,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Middle",
             "Golongan II",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             testJabatan.createdDate(),
@@ -356,6 +366,7 @@ public class JabatanServiceTest {
             testJabatan.eselon(),
             testJabatan.pangkat(),
             testJabatan.golongan(),
+            DEFAULT_BASIC_TPP,
             testJabatan.tanggalMulai(),
             testJabatan.tanggalAkhir(),
             testJabatan.createdDate(),
@@ -372,6 +383,7 @@ public class JabatanServiceTest {
         assertThat(result.get(0).namaPegawai()).isEqualTo("John Doe");
         assertThat(result.get(0).namaJabatan()).isEqualTo("Analis Ahli Muda");
         assertThat(result.get(0).statusJabatan()).isEqualTo("UTAMA");
+        assertThat(result.get(0).basicTpp()).isEqualTo(DEFAULT_BASIC_TPP);
         verify(jabatanRepository).findAllByNip(nip);
         verify(pegawaiRepository).findByNip(nip);
     }
@@ -392,6 +404,7 @@ public class JabatanServiceTest {
             "ESELON_III",
             "Senior",
             "Golongan III",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -409,6 +422,7 @@ public class JabatanServiceTest {
             "ESELON_II",
             "Sepuh",
             "Golongan IV",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -433,6 +447,9 @@ public class JabatanServiceTest {
         assertThat(result.get(0).namaPegawai()).isEqualTo("Dino");
         assertThat(result.get(1).nip()).isEqualTo(nip);
         assertThat(result.get(1).namaPegawai()).isEqualTo("Dino");
+        assertThat(result)
+            .extracting(JabatanWithPegawaiResponse::basicTpp)
+            .containsExactly(DEFAULT_BASIC_TPP, DEFAULT_BASIC_TPP);
 
         verify(jabatanRepository).findAllByNip(nip);
         verify(pegawaiRepository, times(2)).findByNip(nip);
@@ -454,6 +471,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Junior",
             "Golongan I",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -471,6 +489,7 @@ public class JabatanServiceTest {
             "ESELON_III",
             "Middle",
             "Golongan II",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -486,6 +505,7 @@ public class JabatanServiceTest {
         assertThat(result).hasSize(2);
         assertThat(result).extracting(JabatanWithPegawaiResponse::nip).containsExactlyInAnyOrder(nip1, nip2);
         assertThat(result).extracting(JabatanWithPegawaiResponse::namaPegawai).containsExactlyInAnyOrder("John Doe", "Jane Smith");
+        assertThat(result).allSatisfy(response -> assertThat(response.basicTpp()).isEqualTo(DEFAULT_BASIC_TPP));
 
         verify(jabatanRepository).findAllByNipIn(List.of(nip1, nip2));
         verify(pegawaiRepository).findByNip(nip1);
@@ -519,6 +539,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Junior",
             "Golongan I",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -534,6 +555,7 @@ public class JabatanServiceTest {
         assertThat(result.get(0).nip()).isEqualTo(nip);
         assertThat(result.get(0).namaPegawai()).isNull();
         assertThat(result.get(0).namaJabatan()).isEqualTo("Analis Ahli Muda");
+        assertThat(result.get(0).basicTpp()).isEqualTo(DEFAULT_BASIC_TPP);
         verify(jabatanRepository).findAllByNip(nip);
         verify(pegawaiRepository).findByNip(nip);
     }
@@ -567,6 +589,7 @@ public class JabatanServiceTest {
             "ESELON_III",
             "Senior",
             "Golongan III",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -584,6 +607,7 @@ public class JabatanServiceTest {
             "ESELON_II",
             "Sepuh",
             "Golongan IV",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -601,6 +625,7 @@ public class JabatanServiceTest {
             "ESELON_IV",
             "Junior",
             "Golongan I",
+            DEFAULT_BASIC_TPP,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime(),
             Instant.now(),
@@ -616,6 +641,9 @@ public class JabatanServiceTest {
         assertThat(result.get(0).statusJabatan()).isEqualTo("UTAMA");
         assertThat(result.get(1).statusJabatan()).isEqualTo("PLT_UTAMA");
         assertThat(result.get(2).statusJabatan()).isEqualTo("BERAKHIR");
+        assertThat(result)
+            .extracting(JabatanWithPegawaiResponse::basicTpp)
+            .containsExactly(DEFAULT_BASIC_TPP, DEFAULT_BASIC_TPP, DEFAULT_BASIC_TPP);
 
         verify(jabatanRepository).findAllByNip(nip);
         verify(pegawaiRepository, times(3)).findByNip(nip);

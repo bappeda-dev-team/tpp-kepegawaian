@@ -14,6 +14,7 @@ public record JabatanWithPegawaiResponse(
     String eselon,
     String pangkat,
     String golongan,
+    Double basicTpp,
     @JsonFormat(pattern = "dd-MM-yyyy")
     Date tanggalMulai,
     @JsonFormat(pattern = "dd-MM-yyyy")

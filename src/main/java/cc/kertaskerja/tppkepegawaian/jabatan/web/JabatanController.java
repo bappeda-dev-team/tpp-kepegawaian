@@ -109,6 +109,7 @@ public class JabatanController {
             request.eselon(),
             request.pangkat(),
             request.golongan(),
+            request.basicTpp(),
             request.tanggalMulai(),
             request.tanggalAkhir(),
             // saat update data ambil data createdDate dari jabatan yang sudah dibuat
@@ -138,6 +139,7 @@ public class JabatanController {
             request.eselon(),
             request.pangkat(),
             request.golongan(),
+            request.basicTpp(),
             request.tanggalMulai(),
             request.tanggalAkhir()
         );

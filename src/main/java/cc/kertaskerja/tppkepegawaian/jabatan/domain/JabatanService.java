@@ -60,6 +60,7 @@ public class JabatanService {
                 jabatan.eselon(),
                 jabatan.pangkat(),
                 jabatan.golongan(),
+                jabatan.basicTpp(),
                 jabatan.tanggalMulai(),
                 jabatan.tanggalAkhir()
             ));
@@ -86,6 +87,7 @@ public class JabatanService {
                 jabatan.eselon(),
                 jabatan.pangkat(),
                 jabatan.golongan(),
+                jabatan.basicTpp(),
                 jabatan.tanggalMulai(),
                 jabatan.tanggalAkhir()
             ));
@@ -112,6 +114,7 @@ public class JabatanService {
                 jabatan.eselon(),
                 jabatan.pangkat(),
                 jabatan.golongan(),
+                jabatan.basicTpp(),
                 jabatan.tanggalMulai(),
                 jabatan.tanggalAkhir()
             ));
@@ -172,6 +175,7 @@ public class JabatanService {
             jabatan.eselon(),
             jabatan.pangkat(),
             jabatan.golongan(),
+            jabatan.basicTpp(),
             jabatan.tanggalMulai(),
             jabatan.tanggalAkhir(),
             jabatan.createdDate(),

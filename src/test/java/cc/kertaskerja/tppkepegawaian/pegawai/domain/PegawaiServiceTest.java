@@ -30,6 +30,8 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class PegawaiServiceTest {
+    private static final long EXPECTED_TOTAL_TERIMA_TPP = 3_760_000L;
+
     @Mock
     private PegawaiRepository pegawaiRepository;
     
@@ -77,8 +79,8 @@ public class PegawaiServiceTest {
             "198001012010011001",
             "KODE_PEMDA_001",
             5000000.0f,
-            500000.0f,
-            200000.0f,
+            5.0f,
+            1.0f,
             10,
             2024,
             Instant.now(),
@@ -96,6 +98,7 @@ public class PegawaiServiceTest {
             "III/a",
             "Penata Muda",
             "III/a",
+            5_000_000.0,
             new java.util.Date(),
             new java.util.Date(),
             Instant.now(),
@@ -113,7 +116,7 @@ public class PegawaiServiceTest {
             2024,
             5000000.0f,
             "TUNJANGAN_KINERJA",
-            2000000.0f,
+            80.0f,
             Instant.now(),
             Instant.now()
         );
@@ -564,8 +567,8 @@ public class PegawaiServiceTest {
             nip,
             "KODE_PEMDA_001",
             5000000.0f,
-            500000.0f,
-            200000.0f,
+            5.0f,
+            1.0f,
             java.time.LocalDate.now().getMonthValue(),
             java.time.LocalDate.now().getYear(),
             Instant.now(),
@@ -598,6 +601,7 @@ public class PegawaiServiceTest {
         assertThat(result.jenisTpp()).isEqualTo(currentTpp.jenisTpp());
         assertThat(result.bulan()).isEqualTo(currentTpp.bulan());
         assertThat(result.tahun()).isEqualTo(currentTpp.tahun());
+        assertThat(result.totalTerimaTpp()).isEqualTo(EXPECTED_TOTAL_TERIMA_TPP);
         assertThat(result.createdDate()).isEqualTo(testPegawai.createdDate());
         assertThat(result.lastModifiedDate()).isEqualTo(testPegawai.lastModifiedDate());
 
@@ -633,6 +637,7 @@ public class PegawaiServiceTest {
         assertThat(result.jenisTpp()).isNull();
         assertThat(result.bulan()).isNull();
         assertThat(result.tahun()).isNull();
+        assertThat(result.totalTerimaTpp()).isNull();
         assertThat(result.createdDate()).isEqualTo(testPegawai.createdDate());
         assertThat(result.lastModifiedDate()).isEqualTo(testPegawai.lastModifiedDate());
 
@@ -655,8 +660,8 @@ public class PegawaiServiceTest {
             nip,
             "KODE_PEMDA_001",
             5000000.0f,
-            500000.0f,
-            200000.0f,
+            5.0f,
+            1.0f,
             1,
             2023,
             Instant.now(),
@@ -679,6 +684,7 @@ public class PegawaiServiceTest {
         assertThat(result.jenisTpp()).isEqualTo(oldTpp.jenisTpp());
         assertThat(result.bulan()).isEqualTo(oldTpp.bulan());
         assertThat(result.tahun()).isEqualTo(oldTpp.tahun());
+        assertThat(result.totalTerimaTpp()).isEqualTo(EXPECTED_TOTAL_TERIMA_TPP);
 
         verify(pegawaiRepository).findByNip(nip);
         verify(jabatanRepository).findByNip(nip);
@@ -715,8 +721,8 @@ public class PegawaiServiceTest {
             nip,
             "KODE_PEMDA_001",
             5000000.0f,
-            500000.0f,
-            200000.0f,
+            5.0f,
+            1.0f,
             java.time.LocalDate.now().getMonthValue(),
             java.time.LocalDate.now().getYear(),
             Instant.now(),
@@ -749,6 +755,7 @@ public class PegawaiServiceTest {
         assertThat(result.jenisTpp()).isEqualTo(currentTpp.jenisTpp());
         assertThat(result.bulan()).isEqualTo(currentTpp.bulan());
         assertThat(result.tahun()).isEqualTo(currentTpp.tahun());
+        assertThat(result.totalTerimaTpp()).isEqualTo(EXPECTED_TOTAL_TERIMA_TPP);
         assertThat(result.createdDate()).isEqualTo(testPegawai.createdDate());
         assertThat(result.lastModifiedDate()).isEqualTo(testPegawai.lastModifiedDate());
 
@@ -784,6 +791,7 @@ public class PegawaiServiceTest {
         assertThat(result.jenisTpp()).isNull();
         assertThat(result.bulan()).isNull();
         assertThat(result.tahun()).isNull();
+        assertThat(result.totalTerimaTpp()).isNull();
         assertThat(result.createdDate()).isEqualTo(testPegawai.createdDate());
         assertThat(result.lastModifiedDate()).isEqualTo(testPegawai.lastModifiedDate());
 
