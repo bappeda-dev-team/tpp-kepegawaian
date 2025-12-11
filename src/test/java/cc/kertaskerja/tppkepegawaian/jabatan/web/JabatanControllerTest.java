@@ -765,7 +765,8 @@ public class JabatanControllerTest {
         doNothing().when(jabatanService).hapusJabatan(1L);
 
         mockMvc.perform(delete("/jabatan/delete/{id}", "1"))
-            .andExpect(status().isNoContent());
+            .andExpect(status().isOk())
+            .andExpect(content().string("data sudah dihapus"));
 
         verify(jabatanService).hapusJabatan(1L);
     }

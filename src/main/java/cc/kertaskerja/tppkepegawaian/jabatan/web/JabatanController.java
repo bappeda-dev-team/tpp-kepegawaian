@@ -158,8 +158,8 @@ public class JabatanController {
      * url: /jabatan/delete/{id}
      */
     @DeleteMapping("delete/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable("id") Long id) {
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
         jabatanService.hapusJabatan(id);
+        return ResponseEntity.ok("data sudah dihapus");
     }
 }
