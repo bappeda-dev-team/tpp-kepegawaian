@@ -57,14 +57,6 @@ public class TppPerhitunganService {
 
     public TppPerhitungan ubahTppPerhitungan(TppPerhitungan tppPerhitungan) {
 
-        if (!pegawaiRepository.existsByNip(tppPerhitungan.nip())) {
-            throw new PegawaiNotFoundException(tppPerhitungan.nip());
-        }
-        
-        if (!pegawaiRepository.existsByNamaPegawai(tppPerhitungan.nama())) {
-            throw new NamaPegawaiNotFoundException(tppPerhitungan.nama(), tppPerhitungan.nip());
-        }
-
         if (!opdRepository.existsByKodeOpd(tppPerhitungan.kodeOpd())) {
             throw new OpdNotFoundException(tppPerhitungan.kodeOpd());
         }
@@ -73,18 +65,6 @@ public class TppPerhitunganService {
     }
 
     public TppPerhitungan tambahTppPerhitungan(TppPerhitungan tppPerhitungan) {
-
-        if (!opdRepository.existsByKodeOpd(tppPerhitungan.kodeOpd())) {
-            throw new OpdNotFoundException(tppPerhitungan.kodeOpd());
-        }
-
-        if (!pegawaiRepository.existsByNip(tppPerhitungan.nip())) {
-            throw new PegawaiNotFoundException(tppPerhitungan.nip());
-        }
-
-        if (!pegawaiRepository.existsByNamaPegawai(tppPerhitungan.nama())) {
-            throw new NamaPegawaiNotFoundException(tppPerhitungan.nama(), tppPerhitungan.nip());
-        }
 
         if (tppPerhitungan.nip() == null || tppPerhitungan.bulan() == null || tppPerhitungan.tahun() == null) {
             throw new IllegalArgumentException("NIP, Bulan, dan Tahun tidak boleh null.");
