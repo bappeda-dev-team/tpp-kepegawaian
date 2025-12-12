@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,8 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.request.TppRequest;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
 
 @WebMvcTest(TppController.class)
 class TppControllerTest {
@@ -46,6 +49,9 @@ class TppControllerTest {
 
     @MockitoBean
     private PegawaiService pegawaiService;
+
+    @MockitoBean
+    private JabatanRepository jabatanRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -258,12 +264,14 @@ class TppControllerTest {
         Integer bulan = 1;
         Integer tahun = 2024;
 
-        TppRequest request = new TppRequest(null, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun);
+        TppRequest request = new TppRequest(null, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 6000000.0f, 10.0f, 8.0f, bulan, tahun);
+        Jabatan jabatan = new Jabatan(1L, nip, "John Doe", "Analis", "OPD001", "Aktif", "Fungsional", "III", "Penata", "III/a", 5000000.0, null, null, Instant.now(), Instant.now());
         Tpp createdTpp = new Tpp(1L, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, "Kondisi Kerja", "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "Produktifitas Kerja", 80.0f, Instant.now(), Instant.now());
         List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
 
+        when(jabatanRepository.findByNip(nip)).thenReturn(Optional.of(jabatan));
         when(tppService.tambahTpp(any(Tpp.class))).thenReturn(createdTpp);
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, bulan, tahun)).thenReturn(perhitunganList);
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -23,6 +24,8 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.DataTppRes
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.DetailTppResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.RekapTppResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.web.response.TppTotalTppResponse;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
+import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import jakarta.validation.Valid;
@@ -33,11 +36,17 @@ public class TppController {
     private final TppService tppService;
     private final TppPerhitunganService tppPerhitunganService;
     private final PegawaiService pegawaiService;
+    private final JabatanRepository jabatanRepository;
 
-    public TppController(TppService tppService, TppPerhitunganService tppPerhitunganService, PegawaiService pegawaiService) {
+    public TppController(
+            TppService tppService,
+            TppPerhitunganService tppPerhitunganService,
+            PegawaiService pegawaiService,
+            JabatanRepository jabatanRepository) {
         this.tppService = tppService;
         this.tppPerhitunganService = tppPerhitunganService;
         this.pegawaiService = pegawaiService;
+        this.jabatanRepository = jabatanRepository;
     }
 
     /**
@@ -405,12 +414,14 @@ public class TppController {
     @PostMapping
     public ResponseEntity<TppTotalTppResponse> post(@Valid @RequestBody TppRequest request) {
 
+        Float maksimumTpp = resolveMaksimumTppFromJabatan(request.nip(), request.maksimumTpp());
+
         Tpp tpp = Tpp.of(
                 request.jenisTpp(),
                 request.kodeOpd(),
                 request.nip(),
                 request.kodePemda(),
-                request.maksimumTpp(),
+                maksimumTpp,
                 request.pajak(),
                 request.bpjs(),
                 request.bulan(),
@@ -434,7 +445,7 @@ public class TppController {
         }
 
         // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
-        Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
+        Float totaltpp = maksimumTpp * (hasilPerhitungan / 100.0f);
 
         // Kalkulasi total pajak = totaltpp * pajak%
         Float totalPajak = (float) Math.round(totaltpp * (request.pajak() / 100.0f));
@@ -470,6 +481,14 @@ public class TppController {
 
         return ResponseEntity.created(location).body(response);
     }
+
+    private Float resolveMaksimumTppFromJabatan(String nip, Float fallbackMaksimumTpp) {
+        Optional<Jabatan> jabatanOpt = jabatanRepository.findByNip(nip);
+        return jabatanOpt
+                .flatMap(j -> Optional.ofNullable(j.basicTpp()))
+                .map(Double::floatValue)
+                .orElse(fallbackMaksimumTpp);
+    }
     
     /**
      * Delete tpp by nip, bulan, tahun
@@ -486,4 +505,3 @@ public class TppController {
         tppService.hapusTppByNipBulanTahun(nip, bulan, tahun);
     }
 }
-
