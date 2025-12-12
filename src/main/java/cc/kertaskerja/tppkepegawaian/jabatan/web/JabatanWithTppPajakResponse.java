@@ -3,7 +3,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.web;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.Date;
 
-public record JabatanWithPegawaiResponse(
+public record JabatanWithTppPajakResponse(
     Long id,
     String nip,
     String namaPegawai,
@@ -14,7 +14,8 @@ public record JabatanWithPegawaiResponse(
     String eselon,
     String pangkat,
     String golongan,
-    Double basicTpp,
+    Float basicTpp,
+    Float pajak,
     @JsonFormat(pattern = "dd-MM-yyyy")
     Date tanggalMulai,
     @JsonFormat(pattern = "dd-MM-yyyy")

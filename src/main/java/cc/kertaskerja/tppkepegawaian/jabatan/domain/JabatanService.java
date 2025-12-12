@@ -7,8 +7,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
-import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanRequest;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithTppPajakResponse;
+import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithTppPajakRequest;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
@@ -72,12 +73,12 @@ public class JabatanService {
         return responses;
     }
 
-    public List<JabatanWithPegawaiResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
+    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
 
         return jabatans.stream().map(j -> {
             Tpp tppBasic = tppService.detailTpp("BASIC_TPP", j.nip(), 1, 2025);
-            return new JabatanWithPegawaiResponse(
+            return new JabatanWithTppPajakResponse(
                     j.id(),
                     j.nip(),
                     j.namaPegawai(),
@@ -139,8 +140,7 @@ public class JabatanService {
         return jabatanRepository.save(jabatan);
     }
 
-    public JabatanWithPegawaiResponse tambahJabatanWithTpp(JabatanRequest request) {
-
+    public JabatanWithTppPajakResponse tambahJabatanWithTpp(JabatanWithTppPajakRequest request) {
         // 1. Buat entity Jabatan
         Jabatan jabatan = Jabatan.of(
                 request.nip(),
@@ -192,7 +192,7 @@ public class JabatanService {
         }
 
         // 6. Kembalikan response
-        return new JabatanWithPegawaiResponse(
+        return new JabatanWithTppPajakResponse(
                 newJabatanPegawai.id(),
                 newJabatanPegawai.nip(),
                 newJabatanPegawai.namaPegawai(),

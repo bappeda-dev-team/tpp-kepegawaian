@@ -17,7 +17,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.Jabatan;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
-import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
+// import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 
@@ -32,9 +32,10 @@ public class JabatanController {
 
     /**
      * Get jabatan by ID
+     *
      * @param id jabatan ID
      * @return Jabatan object
-     * url: /jabatan/detail/{id}
+     *         url: /jabatan/detail/{id}
      */
     @GetMapping("detail/{id}")
     public ResponseEntity<Jabatan> getById(@PathVariable("id") Long id) {
@@ -43,20 +44,23 @@ public class JabatanController {
 
     /**
      * Get master jabatan by kode OPD
+     *
      * @param kodeOpd OPD code
      * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
-     * url: /jabatan/master/{kodeOpd}
+     *         url: /jabatan/master/{kodeOpd}
      */
     @GetMapping("detail/master/opd/{kodeOpd}")
-    public ResponseEntity<List<JabatanWithPegawaiResponse>> getMasterByKodeOpd(@PathVariable("kodeOpd") String kodeOpd) {
+    public ResponseEntity<List<JabatanWithPegawaiResponse>> getMasterByKodeOpd(
+            @PathVariable("kodeOpd") String kodeOpd) {
         return ResponseEntity.ok(jabatanService.listJabatanByKodeOpdWithPegawai(kodeOpd));
     }
 
     /**
      * Get jabatan by NIP
+     *
      * @param nip NIP pegawai
      * @return List of JabatanWithPegawaiResponse objects (includes nama pegawai)
-     * url: /jabatan/by-nip/{nip}
+     *         url: /jabatan/by-nip/{nip}
      */
     @GetMapping("detail/nip/{nip}")
     public ResponseEntity<List<JabatanWithPegawaiResponse>> getByNip(@PathVariable("nip") String nip) {
@@ -65,39 +69,42 @@ public class JabatanController {
 
     /**
      * Get jabatan by BATCH NIP
+     *
      * @param request nip_pegawais: [NIP pegawai]
      * @return List of JabatanWithPegawaiResponse array (includes nama pegawai)
-     * url: /jabatan/detail/by-nip-batch
+     *         url: /jabatan/detail/by-nip-batch
      */
     @PostMapping("detail/by-nip-batch")
-    public ResponseEntity<List<JabatanWithPegawaiResponse>> getByNipBatch(
-        @Valid @RequestBody NipBatchRequest request
-    ) {
+    public ResponseEntity<List<JabatanWithTppPajakResponse>> getByNipBatch(
+            @Valid @RequestBody NipBatchRequest request) {
         return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()));
     }
 
     /**
      * Create new jabatan with pajak dan tpp
+     *
      * @param request jabatan creation request
      * @return created Jabatan object with location header
-     * url: /jabatan
+     *         url: /jabatan
      */
-    @PostMapping
+    @PostMapping("/with-tpp-pajak")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<JabatanWithPegawaiResponse> newJabatanPegawaiWithPajakAndTpp(@Valid @RequestBody JabatanRequest request) {
-        JabatanWithPegawaiResponse saved = jabatanService.tambahJabatanWithTpp(request);
+    public ResponseEntity<JabatanWithTppPajakResponse> newJabatanPegawaiWithPajakAndTpp(
+            @Valid @RequestBody JabatanWithTppPajakRequest request) {
+        JabatanWithTppPajakResponse saved = jabatanService.tambahJabatanWithTpp(request);
         URI location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(saved.id())
-            .toUri();
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.id())
+                .toUri();
         return ResponseEntity.created(location).body(saved);
     }
 
     /**
      * Get all jabatan
+     *
      * @return list of all Jabatan objects
-     * url: /jabatan/detail/findall
+     *         url: /jabatan/detail/findall
      */
     @GetMapping("detail/findall")
     public ResponseEntity<Iterable<Jabatan>> getAll() {
@@ -106,10 +113,11 @@ public class JabatanController {
 
     /**
      * Update jabatan by ID
-     * @param id jabatan ID
+     *
+     * @param id      jabatan ID
      * @param request jabatan update request
      * @return updated Jabatan object
-     * url: /jabatan/update/{id}
+     *         url: /jabatan/update/{id}
      */
     @PutMapping("update/{id}")
     public ResponseEntity<Jabatan> put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
@@ -117,63 +125,63 @@ public class JabatanController {
         Jabatan existingJabatan = jabatanService.detailJabatan(id);
 
         Jabatan jabatan = new Jabatan(
-            id,
-            request.nip(),
-            request.namaPegawai(),
-            request.namaJabatan(),
-            request.kodeOpd(),
-            request.statusJabatan(),
-            request.jenisJabatan(),
-            request.eselon(),
-            request.pangkat(),
-            request.golongan(),
-            request.basicTpp(),
-            request.tanggalMulai(),
-            request.tanggalAkhir(),
-            // saat update data ambil data createdDate dari jabatan yang sudah dibuat
-            existingJabatan.createdDate(),
-            null
-        );
+                id,
+                request.nip(),
+                request.namaPegawai(),
+                request.namaJabatan(),
+                request.kodeOpd(),
+                request.statusJabatan(),
+                request.jenisJabatan(),
+                request.eselon(),
+                request.pangkat(),
+                request.golongan(),
+                request.basicTpp(),
+                request.tanggalMulai(),
+                request.tanggalAkhir(),
+                // saat update data ambil data createdDate dari jabatan yang sudah dibuat
+                existingJabatan.createdDate(),
+                null);
         Jabatan updatedJabatan = jabatanService.ubahJabatan(id, jabatan);
         return ResponseEntity.ok(updatedJabatan);
     }
 
     /**
      * Create new jabatan
+     *
      * @param request jabatan creation request
      * @return created Jabatan object with location header
-     * url: /jabatan
+     *         url: /jabatan
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Jabatan> post(@Valid @RequestBody JabatanRequest request) {
         Jabatan jabatan = Jabatan.of(
-            request.nip(),
-            request.namaPegawai(),
-            request.namaJabatan(),
-            request.kodeOpd(),
-            request.statusJabatan(),
-            request.jenisJabatan(),
-            request.eselon(),
-            request.pangkat(),
-            request.golongan(),
-            request.basicTpp(),
-            request.tanggalMulai(),
-            request.tanggalAkhir()
-        );
+                request.nip(),
+                request.namaPegawai(),
+                request.namaJabatan(),
+                request.kodeOpd(),
+                request.statusJabatan(),
+                request.jenisJabatan(),
+                request.eselon(),
+                request.pangkat(),
+                request.golongan(),
+                request.basicTpp(),
+                request.tanggalMulai(),
+                request.tanggalAkhir());
         Jabatan saved = jabatanService.tambahJabatan(jabatan);
         URI location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(saved.id())
-            .toUri();
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.id())
+                .toUri();
         return ResponseEntity.created(location).body(saved);
     }
 
     /**
      * Delete jabatan by ID
+     *
      * @param id jabatan ID
-     * url: /jabatan/delete/{id}
+     *           url: /jabatan/delete/{id}
      */
     @DeleteMapping("delete/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {

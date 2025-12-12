@@ -5,9 +5,12 @@ import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanPegawaiSudahAdaException;
 
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -40,6 +43,9 @@ public class JabatanControllerTest {
     @MockitoBean
     private JabatanService jabatanService;
 
+    @Mock
+    private TppService tppService;
+
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -47,6 +53,8 @@ public class JabatanControllerTest {
     private JabatanRequest testJabatanRequest;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse1;
     private JabatanWithPegawaiResponse testJabatanWithPegawaiResponse2;
+    private JabatanWithTppPajakResponse testJabatanWithTppPajakResponse1;
+    private JabatanWithTppPajakResponse testJabatanWithTppPajakResponse2;
     private Calendar tanggalMulai;
     private Calendar tanggalAkhir;
 
@@ -140,6 +148,40 @@ public class JabatanControllerTest {
             4_500_000.0,
             tanggalMulai.getTime(),
             tanggalAkhir.getTime()
+        );
+
+        testJabatanWithTppPajakResponse1 = new JabatanWithTppPajakResponse(
+                1L,
+                "198001012010011001",
+                "John Doe",
+                "Kepala Dinas",
+                "OPD-001",
+                "Utama",
+                "Jabatan Pemimpin Tinggi",
+                "Eselon IV",
+                "Junior",
+                "Golongan I",
+                5_000_000.0f,
+                0.05f,
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
+        );
+
+        testJabatanWithTppPajakResponse2 = new JabatanWithTppPajakResponse(
+                2L,
+                "199001012015021002",
+                "Jane Smith",
+                "Sekretaris Dinas",
+                "OPD-002",
+                "PLT Utama",
+                "Jabatan Administrasi",
+                "Eselon III",
+                "Middle",
+                "Golongan II",
+                4_500_000.0f,
+                0.05f,
+                tanggalMulai.getTime(),
+                tanggalAkhir.getTime()
         );
     }
 
@@ -328,9 +370,18 @@ public class JabatanControllerTest {
     void getByNipBatch_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
         NipBatchRequest request = new NipBatchRequest();
         request.setNipPegawais(List.of("198001012010011001", "199001012015021002"));
+        String nip1 = "198001012010011001";
+        String nip2 = "199001012015021002";
 
         when(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()))
-            .thenReturn(List.of(testJabatanWithPegawaiResponse1, testJabatanWithPegawaiResponse2));
+            .thenReturn(List.of(testJabatanWithTppPajakResponse1, testJabatanWithTppPajakResponse2));
+        when(tppService.detailTpp("BASIC_TPP", nip1, 1, 2025))
+                .thenReturn(new Tpp(null, "BASIC_TPP", "OPD-001", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
+                        null, null));
+
+        when(tppService.detailTpp("BASIC_TPP", nip2, 1, 2025))
+                .thenReturn(new Tpp(null, "BASIC_TPP", "OPD-002", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
+                        null, null));
 
         mockMvc.perform(post("/jabatan/detail/by-nip-batch")
                 .contentType(MediaType.APPLICATION_JSON)
