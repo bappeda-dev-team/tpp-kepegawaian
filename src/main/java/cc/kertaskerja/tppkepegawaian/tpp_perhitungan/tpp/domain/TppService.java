@@ -76,14 +76,6 @@ public class TppService {
 
     public Tpp tambahTpp(Tpp tpp) {
 
-        if (!opdRepository.existsByKodeOpd(tpp.kodeOpd())) {
-            throw new OpdNotFoundException(tpp.kodeOpd());
-        }
-
-        if (!pegawaiRepository.existsByNip(tpp.nip())) {
-            throw new PegawaiNotFoundException(tpp.nip());
-        }
-
         if (tppRepository.existsByJenisTppAndNipAndBulanAndTahun(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())) {
             throw new TppJenisTppNipBulanTahunSudahAdaException(tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
         }
