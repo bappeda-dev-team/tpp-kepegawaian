@@ -10,42 +10,29 @@ import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "tpp")
 public record Tpp(
-        @Id
-        Long id,
+        @Id Long id,
 
-        @Column("jenis_tpp")
-        String jenisTpp,
+        @Column("jenis_tpp") String jenisTpp,
 
-        @Column("kode_opd")
-        String kodeOpd,
+        @Column("kode_opd") String kodeOpd,
 
-        @Column("nip")
-        String nip,
+        @Column("nip") String nip,
 
-        @Column("kode_pemda")
-        String kodePemda,
+        @Column("kode_pemda") String kodePemda,
 
-        @Column("maksimum_tpp")
-        Float maksimumTpp,
+        @Column("maksimum_tpp") Float maksimumTpp,
 
-        @Column("pajak")
-        Float pajak,
+        @Column("pajak") Float pajak,
 
-        @Column("bpjs")
-        Float bpjs,
+        @Column("bpjs") Float bpjs,
 
-        @Column("bulan")
-        Integer bulan,
+        @Column("bulan") Integer bulan,
 
-        @Column("tahun")
-        Integer tahun,
+        @Column("tahun") Integer tahun,
 
-        @CreatedDate
-        Instant createdDate,
+        @CreatedDate Instant createdDate,
 
-        @LastModifiedDate
-        Instant lastModifiedDate
-) {
+        @LastModifiedDate Instant lastModifiedDate) {
     public static Tpp of(
             String jenisTpp,
             String kodeOpd,
@@ -55,8 +42,7 @@ public record Tpp(
             Float pajak,
             Float bpjs,
             Integer bulan,
-            Integer tahun
-    ) {
+            Integer tahun) {
         return new Tpp(
                 null,
                 jenisTpp,
@@ -69,7 +55,22 @@ public record Tpp(
                 bulan,
                 tahun,
                 null,
-                null
-        );
+                null);
+    }
+
+    public Tpp updateFrom(Tpp other) {
+        return new Tpp(
+                this.id(),
+                this.jenisTpp(),
+                other.kodeOpd(),
+                this.nip(),
+                other.kodePemda(),
+                other.maksimumTpp(),
+                other.pajak(),
+                other.bpjs(),
+                this.bulan(),
+                this.tahun(),
+                this.createdDate(),
+                Instant.now());
     }
 }

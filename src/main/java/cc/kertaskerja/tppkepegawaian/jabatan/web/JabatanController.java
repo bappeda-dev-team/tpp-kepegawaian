@@ -77,6 +77,24 @@ public class JabatanController {
     }
 
     /**
+     * Create new jabatan with pajak dan tpp
+     * @param request jabatan creation request
+     * @return created Jabatan object with location header
+     * url: /jabatan
+     */
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<JabatanWithPegawaiResponse> newJabatanPegawaiWithPajakAndTpp(@Valid @RequestBody JabatanRequest request) {
+        JabatanWithPegawaiResponse saved = jabatanService.tambahJabatanWithTpp(request);
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(saved.id())
+            .toUri();
+        return ResponseEntity.created(location).body(saved);
+    }
+
+    /**
      * Get all jabatan
      * @return list of all Jabatan objects
      * url: /jabatan/detail/findall

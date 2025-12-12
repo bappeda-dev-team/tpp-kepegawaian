@@ -43,6 +43,9 @@ public record JabatanRequest(
 
 		@Nullable
 		Double basicTpp,
+
+		@Nullable
+		Double pajak,
 		
 		@NotNull(message = "Tanggal mulai harus terdefinisi")
 		@JsonFormat(pattern = "dd-MM-yyyy")

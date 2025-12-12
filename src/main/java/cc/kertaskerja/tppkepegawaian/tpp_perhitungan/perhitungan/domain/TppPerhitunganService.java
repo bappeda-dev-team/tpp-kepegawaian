@@ -24,6 +24,7 @@ public class TppPerhitunganService {
         this.opdRepository = opdRepository;
     }
 
+    // duplikat ?
     public Iterable<TppPerhitungan> listTppPerhitunganByNipAndBulanAndTahun(String nip, Integer bulan, Integer tahun) {
         return tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
@@ -40,6 +41,7 @@ public class TppPerhitunganService {
         return tppPerhitunganRepository.findByNama(nama);
     }
 
+    // duplikat ?
     public Iterable<TppPerhitungan> listTppPerhitunganByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
         return tppPerhitunganRepository.findByNipAndBulanAndTahun(nip, bulan, tahun);
     }
