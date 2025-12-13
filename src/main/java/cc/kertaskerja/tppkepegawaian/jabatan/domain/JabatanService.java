@@ -3,6 +3,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
@@ -138,6 +139,80 @@ public class JabatanService {
     public Jabatan tambahJabatan(Jabatan jabatan) {
 
         return jabatanRepository.save(jabatan);
+    }
+    
+    public JabatanWithTppPajakResponse ubahJabatanWithTpp(Long id, JabatanWithTppPajakRequest request) {
+        // 1. Cek apakah jabatan sudah ada
+        Jabatan existingJabatan = jabatanRepository.findById(id)
+                .orElseThrow(() -> new JabatanNotFoundException(id));
+        
+        // 2. Update entity Jabatan - Perhatikan: createdDate dan lastModifiedDate adalah Instant
+        Jabatan jabatan = new Jabatan(
+                id,
+                request.nip(),
+                request.namaPegawai(),
+                request.namaJabatan(),
+                request.kodeOpd(),
+                request.statusJabatan(),
+                request.jenisJabatan(),
+                request.eselon(),
+                request.pangkat(),
+                request.golongan(),
+                request.basicTpp(),
+                request.tanggalMulai(),
+                request.tanggalAkhir(),
+                existingJabatan.createdDate(),
+                Instant.now());
+        
+        Jabatan updatedJabatan = jabatanRepository.save(jabatan);
+        
+        // 3. Validasi penyimpanan
+        if (updatedJabatan == null || updatedJabatan.id() == null) {
+            throw new IllegalStateException("Gagal mengupdate jabatan pegawai");
+        }
+        
+        // 4. Konversi nilai ke float dengan null safety
+        float pajak = request.pajak() != null ? request.pajak().floatValue() : 0.0f;
+        float basicTpp = request.basicTpp() != null ? request.basicTpp().floatValue() : 0.0f;
+        
+        // 5. Default bulan & tahun (bisa disesuaikan dengan kebutuhan)
+        int defaultBulan = 1;
+        int defaultTahun = 2025;
+        
+        // 6. Buat atau update entity TPP
+        Tpp tpp = Tpp.of(
+                "BASIC_TPP",
+                request.kodeOpd(),
+                request.nip(),
+                "--",
+                basicTpp,
+                pajak,
+                0.01f,
+                defaultBulan,
+                defaultTahun);
+        
+        Tpp savedTpp = tppService.upsertTpp(tpp);
+        
+        if (savedTpp == null || savedTpp.id() == null) {
+            throw new IllegalStateException("Gagal menyimpan TPP pegawai");
+        }
+        
+        // 7. Kembalikan response
+        return new JabatanWithTppPajakResponse(
+                updatedJabatan.id(),
+                updatedJabatan.nip(),
+                updatedJabatan.namaPegawai(),
+                updatedJabatan.namaJabatan(),
+                updatedJabatan.kodeOpd(),
+                updatedJabatan.statusJabatan(),
+                updatedJabatan.jenisJabatan(),
+                updatedJabatan.eselon(),
+                updatedJabatan.pangkat(),
+                updatedJabatan.golongan(),
+                savedTpp.maksimumTpp(),
+                savedTpp.pajak(),
+                updatedJabatan.tanggalMulai(),
+                updatedJabatan.tanggalAkhir());
     }
 
     public JabatanWithTppPajakResponse tambahJabatanWithTpp(JabatanWithTppPajakRequest request) {

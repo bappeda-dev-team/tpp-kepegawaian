@@ -81,6 +81,22 @@ public class JabatanController {
             @Valid @RequestBody NipBatchRequest request) {
         return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()));
     }
+    
+    /**
+     * Update jabatan with TPP and Pajak by ID
+     *
+     * @param id      jabatan ID
+     * @param request jabatan update request with TPP and Pajak
+     * @return updated JabatanWithTppPajakResponse object
+     *         url: /jabatan/update/with-tpp-pajak/{id}
+     */
+    @PutMapping("update/with-tpp-pajak/{id}")
+    public ResponseEntity<JabatanWithTppPajakResponse> updateJabatanWithTppPajak(
+            @PathVariable("id") Long id, 
+            @Valid @RequestBody JabatanWithTppPajakRequest request) {
+        JabatanWithTppPajakResponse updatedJabatan = jabatanService.ubahJabatanWithTpp(id, request);
+        return ResponseEntity.ok(updatedJabatan);
+    }
 
     /**
      * Create new jabatan with pajak dan tpp
