@@ -18,7 +18,7 @@ public class OpenApiConfig {
         Info info = new Info()
                 .title("TPP Kepegawaian API")
                 .version("v1")
-                .description("Dokumentasi OpenAPI untuk layanan pengelolaan data kepegawaian dan perhitungan TPP.")
+                .description("Dokumentasi OpenAPI untuk layanan pengelolaan data kepegawaian dan perhitungan TPP.");
 
         return new OpenAPI()
                 .info(info)
