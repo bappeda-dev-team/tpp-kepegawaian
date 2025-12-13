@@ -124,13 +124,9 @@ public class JabatanController {
      * @return list of all Jabatan objects
      *         url: /jabatan/detail/findall
      */
-    // @GetMapping("detail/findall")
-    // public ResponseEntity<Iterable<Jabatan>> getAll() {
-    //     return ResponseEntity.ok(jabatanService.listAllJabatan());
-    // }
     @GetMapping("detail/findall")
     public ResponseEntity<List<JabatanWithTppPajakResponse>> getAll() {
-        return ResponseEntity.ok(jabatanService.listAllJabatanWithTppPajak());
+        return ResponseEntity.ok(jabatanService.listAllJabatanWithTpp());
     }
 
     /**

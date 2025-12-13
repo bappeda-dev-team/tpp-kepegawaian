@@ -17,9 +17,14 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 
 @Service
 public class JabatanService {
+
+    private static final String BASIC_TPP = "BASIC_TPP";
+    private static final int DEFAULT_BULAN = 1;
+    private static final int DEFAULT_TAHUN = 2025;
 
     private final JabatanRepository jabatanRepository;
     private final OpdRepository opdRepository;
@@ -36,6 +41,17 @@ public class JabatanService {
 
     public Iterable<Jabatan> listAllJabatan() {
         return jabatanRepository.findAll();
+    }
+
+    public List<JabatanWithTppPajakResponse> listAllJabatanWithTpp() {
+        Iterable<Jabatan> jabatans = jabatanRepository.findAll();
+        List<JabatanWithTppPajakResponse> responses = new ArrayList<>();
+
+        for (Jabatan jabatan : jabatans) {
+            responses.add(mapToJabatanWithTpp(jabatan));
+        }
+
+        return responses;
     }
 
     public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
@@ -79,7 +95,7 @@ public class JabatanService {
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
 
         return jabatans.stream().map(j -> {
-            Tpp tppBasic = tppService.detailTpp("BASIC_TPP", j.nip(), 1, 2025);
+            Tpp tppBasic = tppService.detailTpp(BASIC_TPP, j.nip(), DEFAULT_BULAN, DEFAULT_TAHUN);
             return new JabatanWithTppPajakResponse(
                     j.id(),
                     j.nip(),
@@ -123,47 +139,6 @@ public class JabatanService {
         }
 
         return responses;
-    }
-
-    public List<JabatanWithTppPajakResponse> listAllJabatanWithTppPajak() {
-        List<Jabatan> jabatans = jabatanRepository.findAll();
-
-        return jabatans.stream().map(j -> {
-            Tpp tppBasic = tppService.detailTpp("BASIC_TPP", j.nip(), 1, 2025);
-
-            Float basicTpp;
-            if (tppBasic != null && tppBasic.maksimumTpp() != null) {
-                basicTpp = tppBasic.maksimumTpp();
-            } else if (j.basicTpp() != null) {
-                basicTpp = j.basicTpp();
-            } else {
-                basicTpp = Float.valueOf(0.0f);
-            }
-
-            Float pajak;
-            if (tppBasic != null && tppBasic.pajak() != null) {
-                pajak = tppBasic.pajak();
-            } else {
-                pajak = Float.valueOf(0.0f);
-            }
-
-            return new JabatanWithTppPajakResponse(
-                j.id(),
-                j.nip(),
-                j.namaPegawai(),
-                j.namaJabatan(),
-                j.kodeOpd(),
-                j.statusJabatan(),
-                j.jenisJabatan(),
-                j.eselon(),
-                j.pangkat(),
-                j.golongan(),
-                basicTpp,
-                pajak,
-                j.tanggalMulai(),
-                j.tanggalAkhir()
-            );
-        }).toList();
     }
 
     public Jabatan detailJabatan(Long id) {
@@ -371,5 +346,36 @@ public class JabatanService {
                 jabatan.tanggalAkhir(),
                 jabatan.createdDate(),
                 jabatan.lastModifiedDate());
+    }
+
+    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan) {
+        Float maksimumTpp = jabatan.basicTpp();
+        Float pajak = null;
+
+        if (jabatan.nip() != null && !jabatan.nip().isBlank()) {
+            try {
+                Tpp tppBasic = tppService.detailTpp(BASIC_TPP, jabatan.nip(), DEFAULT_BULAN, DEFAULT_TAHUN);
+                maksimumTpp = tppBasic.maksimumTpp();
+                pajak = tppBasic.pajak();
+            } catch (TppJenisTppNipBulanTahunNotFoundException ignored) {
+                // Biarkan nilai basic TPP dari entity Jabatan ketika data TPP belum ada
+            }
+        }
+
+        return new JabatanWithTppPajakResponse(
+                jabatan.id(),
+                jabatan.nip(),
+                jabatan.namaPegawai(),
+                jabatan.namaJabatan(),
+                jabatan.kodeOpd(),
+                jabatan.statusJabatan(),
+                jabatan.jenisJabatan(),
+                jabatan.eselon(),
+                jabatan.pangkat(),
+                jabatan.golongan(),
+                maksimumTpp,
+                pajak,
+                jabatan.tanggalMulai(),
+                jabatan.tanggalAkhir());
     }
 }

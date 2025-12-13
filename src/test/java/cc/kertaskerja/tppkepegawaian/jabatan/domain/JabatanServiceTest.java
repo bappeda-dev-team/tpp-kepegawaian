@@ -30,6 +30,7 @@ import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.TppService;
+import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
 public class JabatanServiceTest {
@@ -130,6 +131,51 @@ public class JabatanServiceTest {
 
         assertThat(result).isEmpty();
         verify(jabatanRepository).findAll();
+    }
+
+    @Test
+    void listAllJabatanWithTpp_WhenTppAvailable_ShouldReturnTppValues() {
+        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
+        Tpp tpp = new Tpp(
+                1L,
+                "BASIC_TPP",
+                testJabatan.kodeOpd(),
+                testJabatan.nip(),
+                "--",
+                200_000f,
+                0.05f,
+                0.01f,
+                1,
+                2025,
+                Instant.now(),
+                Instant.now());
+        when(tppService.detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025)).thenReturn(tpp);
+
+        List<JabatanWithTppPajakResponse> result = jabatanService.listAllJabatanWithTpp();
+
+        assertThat(result).hasSize(1);
+        JabatanWithTppPajakResponse response = result.get(0);
+        assertThat(response.basicTpp()).isEqualTo(200_000f);
+        assertThat(response.pajak()).isEqualTo(0.05f);
+        assertThat(response.nip()).isEqualTo(testJabatan.nip());
+        verify(jabatanRepository).findAll();
+        verify(tppService).detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025);
+    }
+
+    @Test
+    void listAllJabatanWithTpp_WhenTppMissing_ShouldFallbackToJabatanValues() {
+        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
+        when(tppService.detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025))
+                .thenThrow(new TppJenisTppNipBulanTahunNotFoundException("BASIC_TPP", testJabatan.nip(), 1, 2025));
+
+        List<JabatanWithTppPajakResponse> result = jabatanService.listAllJabatanWithTpp();
+
+        assertThat(result).hasSize(1);
+        JabatanWithTppPajakResponse response = result.get(0);
+        assertThat(response.basicTpp()).isEqualTo(testJabatan.basicTpp());
+        assertThat(response.pajak()).isNull();
+        verify(jabatanRepository).findAll();
+        verify(tppService).detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025);
     }
 
     @Test
