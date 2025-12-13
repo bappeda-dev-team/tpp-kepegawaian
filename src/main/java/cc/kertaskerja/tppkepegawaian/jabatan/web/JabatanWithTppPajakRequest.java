@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 
 public record JabatanWithTppPajakRequest(
 		@Nullable
@@ -45,6 +47,8 @@ public record JabatanWithTppPajakRequest(
 		Float basicTpp,
 
 		@Nullable
+        @DecimalMin(value = "0.0", inclusive = true, message = "Pajak minimal 0")
+        @DecimalMax(value = "1.0", inclusive = true, message = "Pajak maksimal 1.0")
 		Float pajak,
 		
 		@JsonFormat(pattern = "dd-MM-yyyy")
