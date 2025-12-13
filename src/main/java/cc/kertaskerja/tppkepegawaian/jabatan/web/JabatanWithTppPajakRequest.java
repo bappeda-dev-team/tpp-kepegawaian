@@ -46,8 +46,7 @@ public record JabatanWithTppPajakRequest(
 
 		@Nullable
 		Float pajak,
-
-		@NotNull(message = "Tanggal mulai harus terdefinisi")
+		
 		@JsonFormat(pattern = "dd-MM-yyyy")
 		Date tanggalMulai,
 
