@@ -48,7 +48,7 @@ public class JabatanServiceTest {
     @InjectMocks
     private JabatanService jabatanService;
 
-    private static final double DEFAULT_BASIC_TPP = 1_000_000d;
+    private static final float DEFAULT_BASIC_TPP = 1_000_000f;
 
     private Jabatan testJabatan;
     private Calendar tanggalMulai;

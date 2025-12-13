@@ -34,7 +34,7 @@ public class PegawaiServiceTest {
 
     @Mock
     private PegawaiRepository pegawaiRepository;
-    
+
     @Mock
     private JabatanRepository jabatanRepository;
 
@@ -98,7 +98,7 @@ public class PegawaiServiceTest {
             "III/a",
             "Penata Muda",
             "III/a",
-            5_000_000.0,
+            5000000.0f,
             new java.util.Date(),
             new java.util.Date(),
             Instant.now(),

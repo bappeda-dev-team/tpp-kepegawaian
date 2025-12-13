@@ -22,6 +22,9 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 
     @NonNull
 	List<Jabatan> findAllByNipIn(@NonNull List<String> nips);
+    
+    @NonNull
+    List<Jabatan> findAll();
 
 	@Modifying
 	@Transactional

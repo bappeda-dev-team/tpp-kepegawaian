@@ -81,7 +81,7 @@ public class JabatanController {
             @Valid @RequestBody NipBatchRequest request) {
         return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()));
     }
-    
+
     /**
      * Update jabatan with TPP and Pajak by ID
      *
@@ -92,7 +92,7 @@ public class JabatanController {
      */
     @PutMapping("update/with-tpp-pajak/{id}")
     public ResponseEntity<JabatanWithTppPajakResponse> updateJabatanWithTppPajak(
-            @PathVariable("id") Long id, 
+            @PathVariable("id") Long id,
             @Valid @RequestBody JabatanWithTppPajakRequest request) {
         JabatanWithTppPajakResponse updatedJabatan = jabatanService.ubahJabatanWithTpp(id, request);
         return ResponseEntity.ok(updatedJabatan);
@@ -124,9 +124,13 @@ public class JabatanController {
      * @return list of all Jabatan objects
      *         url: /jabatan/detail/findall
      */
+    // @GetMapping("detail/findall")
+    // public ResponseEntity<Iterable<Jabatan>> getAll() {
+    //     return ResponseEntity.ok(jabatanService.listAllJabatan());
+    // }
     @GetMapping("detail/findall")
-    public ResponseEntity<Iterable<Jabatan>> getAll() {
-        return ResponseEntity.ok(jabatanService.listAllJabatan());
+    public ResponseEntity<List<JabatanWithTppPajakResponse>> getAll() {
+        return ResponseEntity.ok(jabatanService.listAllJabatanWithTppPajak());
     }
 
     /**

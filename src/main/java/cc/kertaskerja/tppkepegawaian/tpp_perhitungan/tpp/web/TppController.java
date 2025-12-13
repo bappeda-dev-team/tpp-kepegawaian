@@ -66,7 +66,7 @@ public class TppController {
             @PathVariable("nip") String nip,
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
-        
+
         // Ambil semua tpp data berdasarkan kode opd, bulan, dan tahun
         Iterable<Tpp> tppList = tppService.listTppByNipBulanTahun(nip, bulan, tahun);
 
@@ -76,7 +76,7 @@ public class TppController {
                         bulan,
                         tahun).spliterator(), false)
                 .collect(Collectors.toList());
-        
+
         // Group data tpp berdasarkan nip
         Map<String, List<TppPerhitungan>> perhitunganByJenisTpp = new HashMap<>();
 
@@ -92,15 +92,15 @@ public class TppController {
         } catch (PegawaiNotFoundException e) {
             employeeName = "";
         }
-        
+
         // Buat list untuk simpan semua data pegawai
         List<DataTppResponse> dataResponses = new ArrayList<>();
-        
+
         // Proses tpp yang ada untuk setiap pegawai
         for (Tpp tpp : tppList) {
             String jenisTppKey = tpp.jenisTpp();
             List<TppPerhitungan> perhitunganForTpp = perhitunganByJenisTpp.getOrDefault(jenisTppKey, new ArrayList<>());
-            
+
             // kalkulasi total persentase untuk jenis tpp
             Float totalPersen = 0.0f;
             for (var perhitungan : perhitunganForTpp) {
@@ -108,7 +108,7 @@ public class TppController {
                     totalPersen += perhitungan.nilaiPerhitungan();
                 }
             }
-            
+
             // Kalkulasi total tpp untuk jenis tpp
             Long totalTpp = (long) Math.round(tpp.maksimumTpp() * (totalPersen / 100.0f));
 
@@ -133,7 +133,7 @@ public class TppController {
                     totalPajak,
                     totalBpjs,
                     totalTerimaTpp);
-            
+
             // Cek jika pegawai sudah ada
             DataTppResponse existingData = null;
             for (DataTppResponse data : dataResponses) {
@@ -142,7 +142,7 @@ public class TppController {
                     break;
                 }
             }
-            
+
             if (existingData != null) {
                 // Tambah data yang ada
                 List<DetailTppResponse> updatedDetails = new ArrayList<>(existingData.detailTpp());
@@ -166,17 +166,17 @@ public class TppController {
                         details));
             }
         }
-        
+
         // Hasil Response
         RekapTppResponse response = new RekapTppResponse(
                 bulan,
                 tahun,
                 nip,
                 dataResponses);
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Get tpp by jenis tpp, kode OPD, bulan, dan tahun
      * @param jenisTpp jenis TPP
@@ -334,13 +334,13 @@ public class TppController {
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun,
             @Valid @RequestBody TppRequest request) {
-        
+
         // Temukan data NIP, bulan, dan tahun dari TPP
         var existingTppList = tppService.listTppByNipBulanTahun(nip, bulan, tahun);
-        
+
         // Ambil data pertama TPP (nip, bulan, tahun)
         Tpp existingTpp = existingTppList.iterator().next();
-        
+
         // Create updated TPP object with the existing ID and timestamps
         Tpp updatedTpp = new Tpp(
                 existingTpp.id(),
@@ -356,9 +356,9 @@ public class TppController {
                 existingTpp.createdDate(),
                 Instant.now()
         );
-        
+
         Tpp saved = tppService.ubahTpp(updatedTpp);
-        
+
         // Ambil data perhitungan berdasarkan pada NIP, bulan, dan tahun dari path variables
         var perhitunganList = StreamSupport.stream(
                 tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(
@@ -366,7 +366,7 @@ public class TppController {
                         bulan,
                         tahun).spliterator(), false)
                 .collect(Collectors.toList());
-        
+
         // Kalkulasi hasilPerhitungan (total persen) dari perhitungan
         Float hasilPerhitungan = 0.0f;
         for (var perhitungan : perhitunganList) {
@@ -374,7 +374,7 @@ public class TppController {
                 hasilPerhitungan += perhitungan.nilaiPerhitungan();
             }
         }
-        
+
         // Kalkulasi totaltpp = maksimumTpp * (hasilPerhitungan / 100)
         Float totaltpp = request.maksimumTpp() * (hasilPerhitungan / 100.0f);
 
@@ -403,10 +403,10 @@ public class TppController {
                 totalPajak,
                 totalBpjs,
                 totalTerimaTpp);
-        
+
         return ResponseEntity.ok(response);
     }
-    
+
     /**
      * Create new tpp
      * @param request tpp creation request
@@ -488,10 +488,9 @@ public class TppController {
         Optional<Jabatan> jabatanOpt = jabatanRepository.findByNip(nip);
         return jabatanOpt
                 .flatMap(j -> Optional.ofNullable(j.basicTpp()))
-                .map(Double::floatValue)
                 .orElse(fallbackMaksimumTpp);
     }
-    
+
     /**
      * Delete tpp by nip, bulan, tahun
      * @param nip, bulan, tahun tpp
@@ -503,7 +502,7 @@ public class TppController {
             @PathVariable("nip") String nip,
             @PathVariable("bulan") Integer bulan,
             @PathVariable("tahun") Integer tahun) {
-        
+
         tppService.hapusTppByNipBulanTahun(nip, bulan, tahun);
     }
 }

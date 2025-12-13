@@ -265,7 +265,7 @@ class TppControllerTest {
         Integer tahun = 2024;
 
         TppRequest request = new TppRequest(null, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 6000000.0f, 10.0f, 8.0f, bulan, tahun);
-        Jabatan jabatan = new Jabatan(1L, nip, "John Doe", "Analis", "OPD001", "Aktif", "Fungsional", "III", "Penata", "III/a", 5000000.0, null, null, Instant.now(), Instant.now());
+        Jabatan jabatan = new Jabatan(1L, nip, "John Doe", "Analis", "OPD001", "Aktif", "Fungsional", "III", "Penata", "III/a", 5000000.0f, null, null, Instant.now(), Instant.now());
         Tpp createdTpp = new Tpp(1L, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, "Kondisi Kerja", "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "Produktifitas Kerja", 80.0f, Instant.now(), Instant.now());

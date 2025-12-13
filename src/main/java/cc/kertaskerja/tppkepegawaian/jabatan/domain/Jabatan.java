@@ -18,7 +18,7 @@ public record Jabatan(
 
 	@Column("nip")
 	String nip,
-    
+
     @Column("nama_pegawai")
     String namaPegawai,
 
@@ -44,7 +44,7 @@ public record Jabatan(
     String golongan,
 
     @Column("basic_tpp")
-    Double basicTpp,
+    Float basicTpp,
 
 	@Column("tanggal_mulai")
 	@JsonFormat(pattern = "dd-MM-yyyy")
@@ -70,12 +70,12 @@ public record Jabatan(
             String eselon,
             String pangkat,
             String golongan,
-            Double basicTpp,
+            Float basicTpp,
             Date   tanggalMulai,
             Date   tanggalAkhir
     ) {
         return new Jabatan(
-                null, 
+                null,
                 nip,
                 namaPegawai,
                 namaJabatan,
@@ -88,7 +88,7 @@ public record Jabatan(
                 basicTpp,
                 tanggalMulai,
                 tanggalAkhir,
-                null, 
+                null,
                 null
         );
     }
