@@ -1,6 +1,8 @@
 
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
+import java.time.Instant;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,8 +98,38 @@ public class TppService {
                         tpp.bulan(),
                         tpp.tahun())
                 .map(existing -> {
-                    existing.updateFrom(tpp); // kamu perlu buat method ini
-                    return tppRepository.save(existing);
+                    Tpp updated = existing.updateFrom(tpp);
+                    return tppRepository.save(updated);
+                })
+                .orElseGet(() -> tppRepository.save(tpp));
+    }
+
+    // saat user ganti nip jabatan, data nip tpp juga ganti
+    @Transactional
+    public Tpp upsertTppReplacingOldNip(Tpp tpp, String nip) {
+        String nipBaru = (nip != null && !nip.isBlank()) ? nip : tpp.nip();
+
+        return tppRepository
+                .findByJenisTppAndNipAndBulanAndTahun(
+                        tpp.jenisTpp(),
+                        nipBaru,
+                        tpp.bulan(),
+                        tpp.tahun())
+                .map(existing -> {
+                    Tpp updated = new Tpp(
+                            existing.id(),
+                            existing.jenisTpp(),
+                            tpp.kodeOpd(),
+                            tpp.nip(),
+                            tpp.kodePemda(),
+                            tpp.maksimumTpp(),
+                            tpp.pajak(),
+                            tpp.bpjs(),
+                            existing.bulan(),
+                            existing.tahun(),
+                            existing.createdDate(),
+                            Instant.now());
+                    return tppRepository.save(updated);
                 })
                 .orElseGet(() -> tppRepository.save(tpp));
     }

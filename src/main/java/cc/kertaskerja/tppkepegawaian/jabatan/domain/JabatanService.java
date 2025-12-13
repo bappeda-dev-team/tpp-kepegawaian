@@ -1,9 +1,10 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.time.Instant;
 
 import org.springframework.stereotype.Service;
 
@@ -130,21 +131,20 @@ public class JabatanService {
         return jabatans.stream().map(j -> {
             Tpp tppBasic = tppService.detailTpp("BASIC_TPP", j.nip(), 1, 2025);
 
-            // Gunakan Float.valueOf() dengan parameter float yang eksplisit
             Float basicTpp;
             if (tppBasic != null && tppBasic.maksimumTpp() != null) {
                 basicTpp = tppBasic.maksimumTpp();
             } else if (j.basicTpp() != null) {
                 basicTpp = j.basicTpp();
             } else {
-                basicTpp = Float.valueOf(0.0f); // Eksplisit menggunakan Float.valueOf()
+                basicTpp = Float.valueOf(0.0f);
             }
 
             Float pajak;
             if (tppBasic != null && tppBasic.pajak() != null) {
                 pajak = tppBasic.pajak();
             } else {
-                pajak = Float.valueOf(0.0f); // Eksplisit menggunakan Float.valueOf()
+                pajak = Float.valueOf(0.0f);
             }
 
             return new JabatanWithTppPajakResponse(
@@ -234,7 +234,12 @@ public class JabatanService {
                 defaultBulan,
                 defaultTahun);
 
-        Tpp savedTpp = tppService.upsertTpp(tpp);
+        Tpp savedTpp;
+        if (!Objects.equals(existingJabatan.nip(), request.nip())) {
+            savedTpp = tppService.upsertTppReplacingOldNip(tpp, existingJabatan.nip());
+        } else {
+            savedTpp = tppService.upsertTpp(tpp);
+        }
 
         if (savedTpp == null || savedTpp.id() == null) {
             throw new IllegalStateException("Gagal menyimpan TPP pegawai");
