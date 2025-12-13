@@ -18,9 +18,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import cc.kertaskerja.tppkepegawaian.opd.domain.Opd;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdService;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("opd")
+@Tag(name = "OPD", description = "Manajemen data Organisasi Perangkat Daerah")
 public class OpdController {
 	private final OpdService opdService;
 	

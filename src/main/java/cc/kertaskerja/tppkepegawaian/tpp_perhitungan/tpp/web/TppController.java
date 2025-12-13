@@ -29,9 +29,11 @@ import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiService;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("tpp")
+@Tag(name = "TPP", description = "Pengelolaan perhitungan dan data TPP")
 public class TppController {
     private final TppService tppService;
     private final TppPerhitunganService tppPerhitunganService;

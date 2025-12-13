@@ -15,11 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.net.URI;
 
 @RestController
 @RequestMapping("role")
+@Tag(name = "Role", description = "Manajemen role dan hak akses pegawai")
 public class RoleController {
     private final RoleService roleService;
 

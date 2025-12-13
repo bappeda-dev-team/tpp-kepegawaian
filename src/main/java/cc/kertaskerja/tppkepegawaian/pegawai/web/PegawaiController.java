@@ -14,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("pegawai")
+@Tag(name = "Pegawai", description = "Manajemen data pegawai")
 public class PegawaiController {
     private final PegawaiService pegawaiService;
 

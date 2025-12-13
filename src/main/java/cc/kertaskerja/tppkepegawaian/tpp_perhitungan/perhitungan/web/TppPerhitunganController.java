@@ -26,9 +26,11 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.request.Tpp
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.PerhitunganResponse;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.web.response.TppPerhitunganResponse;
 import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("tppPerhitungan")
+@Tag(name = "TPP Perhitungan", description = "Pengelolaan komponen perhitungan TPP")
 public class TppPerhitunganController {
     private final TppPerhitunganService tppPerhitunganService;
     

@@ -20,9 +20,11 @@ import cc.kertaskerja.tppkepegawaian.jabatan.domain.JabatanService;
 // import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("jabatan")
+@Tag(name = "Jabatan", description = "Manajemen data jabatan pegawai")
 public class JabatanController {
     private final JabatanService jabatanService;
 
