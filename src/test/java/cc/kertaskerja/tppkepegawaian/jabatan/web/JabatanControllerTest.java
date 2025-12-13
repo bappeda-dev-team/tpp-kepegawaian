@@ -436,7 +436,24 @@ public class JabatanControllerTest {
 
     @Test
     void getAll_WhenJabatansExist_ShouldReturnJabatanList() throws Exception {
-        Jabatan jabatan2 = new Jabatan(
+        JabatanWithTppPajakResponse response1 = new JabatanWithTppPajakResponse(
+            testJabatan.id(),
+            testJabatan.nip(),
+            testJabatan.namaPegawai(),
+            testJabatan.namaJabatan(),
+            testJabatan.kodeOpd(),
+            testJabatan.statusJabatan(),
+            testJabatan.jenisJabatan(),
+            testJabatan.eselon(),
+            testJabatan.pangkat(),
+            testJabatan.golongan(),
+            5000000.0f,
+            5.0f,
+            testJabatan.tanggalMulai(),
+            testJabatan.tanggalAkhir()
+        );
+
+        JabatanWithTppPajakResponse response2 = new JabatanWithTppPajakResponse(
             2L,
             "199001012015021002",
             "Jane Smith",
@@ -448,42 +465,49 @@ public class JabatanControllerTest {
             "Middle",
             "Golongan II",
             4500000.0f,
+            15.0f,
             tanggalMulai.getTime(),
-            tanggalAkhir.getTime(),
-            Instant.now(),
-            Instant.now()
+            tanggalAkhir.getTime()
         );
 
-        when(jabatanService.listAllJabatan()).thenReturn(List.of(testJabatan, jabatan2));
+        when(jabatanService.listAllJabatanWithTppPajak()).thenReturn(List.of(response1, response2));
 
         mockMvc.perform(get("/jabatan/detail/findall"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(2))
-            .andExpect(jsonPath("$[0].id").value(testJabatan.id()))
-            .andExpect(jsonPath("$[0].nip").value(testJabatan.nip()))
-            .andExpect(jsonPath("$[0].namaPegawai").value(testJabatan.namaPegawai()))
-            .andExpect(jsonPath("$[0].namaJabatan").value(testJabatan.namaJabatan()))
-            .andExpect(jsonPath("$[0].kodeOpd").value(testJabatan.kodeOpd()))
-            .andExpect(jsonPath("$[0].statusJabatan").value(testJabatan.statusJabatan()))
-            .andExpect(jsonPath("$[0].jenisJabatan").value(testJabatan.jenisJabatan()))
-            .andExpect(jsonPath("$[0].basicTpp").value(testJabatan.basicTpp()))
-            .andExpect(jsonPath("$[1].id").value(jabatan2.id()))
-            .andExpect(jsonPath("$[1].nip").value(jabatan2.nip()))
-            .andExpect(jsonPath("$[1].namaPegawai").value(jabatan2.namaPegawai()))
-            .andExpect(jsonPath("$[1].namaJabatan").value(jabatan2.namaJabatan()))
-            .andExpect(jsonPath("$[1].kodeOpd").value(jabatan2.kodeOpd()))
-            .andExpect(jsonPath("$[1].statusJabatan").value(jabatan2.statusJabatan()))
-            .andExpect(jsonPath("$[1].jenisJabatan").value(jabatan2.jenisJabatan()))
-            .andExpect(jsonPath("$[1].basicTpp").value(jabatan2.basicTpp()));
+            .andExpect(jsonPath("$[0].id").value(response1.id()))
+            .andExpect(jsonPath("$[0].nip").value(response1.nip()))
+            .andExpect(jsonPath("$[0].namaPegawai").value(response1.namaPegawai()))
+            .andExpect(jsonPath("$[0].namaJabatan").value(response1.namaJabatan()))
+            .andExpect(jsonPath("$[0].kodeOpd").value(response1.kodeOpd()))
+            .andExpect(jsonPath("$[0].statusJabatan").value(response1.statusJabatan()))
+            .andExpect(jsonPath("$[0].jenisJabatan").value(response1.jenisJabatan()))
+            .andExpect(jsonPath("$[0].eselon").value(response1.eselon()))
+            .andExpect(jsonPath("$[0].pangkat").value(response1.pangkat()))
+            .andExpect(jsonPath("$[0].golongan").value(response1.golongan()))
+            .andExpect(jsonPath("$[0].basicTpp").value(response1.basicTpp()))
+            .andExpect(jsonPath("$[0].pajak").value(response1.pajak()))
+            .andExpect(jsonPath("$[1].id").value(response2.id()))
+            .andExpect(jsonPath("$[1].nip").value(response2.nip()))
+            .andExpect(jsonPath("$[1].namaPegawai").value(response2.namaPegawai()))
+            .andExpect(jsonPath("$[1].namaJabatan").value(response2.namaJabatan()))
+            .andExpect(jsonPath("$[1].kodeOpd").value(response2.kodeOpd()))
+            .andExpect(jsonPath("$[1].statusJabatan").value(response2.statusJabatan()))
+            .andExpect(jsonPath("$[1].jenisJabatan").value(response2.jenisJabatan()))
+            .andExpect(jsonPath("$[1].eselon").value(response2.eselon()))
+            .andExpect(jsonPath("$[1].pangkat").value(response2.pangkat()))
+            .andExpect(jsonPath("$[1].golongan").value(response2.golongan()))
+            .andExpect(jsonPath("$[1].basicTpp").value(response2.basicTpp()))
+            .andExpect(jsonPath("$[1].pajak").value(response2.pajak()));
 
-        verify(jabatanService).listAllJabatan();
+        verify(jabatanService).listAllJabatanWithTppPajak();
     }
 
     @Test
     void getAll_WhenNoJabatansExist_ShouldReturnEmptyList() throws Exception {
-        when(jabatanService.listAllJabatan()).thenReturn(List.of());
+        when(jabatanService.listAllJabatanWithTppPajak()).thenReturn(List.of());
 
         mockMvc.perform(get("/jabatan/detail/findall"))
             .andExpect(status().isOk())
@@ -491,7 +515,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$").isArray())
             .andExpect(jsonPath("$.length()").value(0));
 
-        verify(jabatanService).listAllJabatan();
+        verify(jabatanService).listAllJabatanWithTppPajak();
     }
 
     @Test
