@@ -3,8 +3,11 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -93,9 +96,18 @@ public class JabatanService {
 
     public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
+        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN);
+
+        // Gabungkan
+        Map<String, Tpp> tppByNip = tppBasics.stream()
+                .collect(Collectors.toMap(
+                        Tpp::nip,
+                        Function.identity(),
+                        (a, b) -> a));
 
         return jabatans.stream().map(j -> {
-            Tpp tppBasic = tppService.detailTpp(BASIC_TPP, j.nip(), DEFAULT_BULAN, DEFAULT_TAHUN);
+            Tpp tppBasic = tppByNip.get(j.nip());
+
             return new JabatanWithTppPajakResponse(
                     j.id(),
                     j.nip(),
@@ -164,7 +176,8 @@ public class JabatanService {
         Jabatan existingJabatan = jabatanRepository.findById(id)
                 .orElseThrow(() -> new JabatanNotFoundException(id));
 
-        // 2. Update entity Jabatan - Perhatikan: createdDate dan lastModifiedDate adalah Instant
+        // 2. Update entity Jabatan - Perhatikan: createdDate dan lastModifiedDate
+        // adalah Instant
         Jabatan jabatan = new Jabatan(
                 id,
                 request.nip(),

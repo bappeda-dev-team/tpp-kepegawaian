@@ -2,6 +2,7 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +65,20 @@ public class TppService {
     public Tpp detailTpp(String jenisTpp, String nip, Integer bulan, Integer tahun) {
         return tppRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun)
                 .orElseThrow(() -> new TppJenisTppNipBulanTahunNotFoundException(jenisTpp, nip, bulan, tahun));
+    }
+
+    public List<Tpp> detailTppBatch(String jenisTpp, List<String> nipPegawais, Integer bulan, Integer tahun) {
+        if (nipPegawais == null || nipPegawais.isEmpty()) {
+            throw new IllegalArgumentException("nipPegawais tidak boleh kosong");
+        }
+
+        List<Tpp> result = tppRepository.findAllByJenisTppAndNipInAndBulanAndTahun(jenisTpp, nipPegawais, bulan, tahun);
+
+        if (result.isEmpty()) {
+            throw new TppJenisTppNipBulanTahunNotFoundException(
+                    jenisTpp, "-", bulan, tahun);
+        }
+        return result;
     }
 
     public Tpp ubahTpp(Tpp tpp) {
