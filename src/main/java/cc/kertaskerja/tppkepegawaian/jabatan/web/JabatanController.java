@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -125,8 +126,11 @@ public class JabatanController {
      *         url: /jabatan/detail/findall
      */
     @GetMapping("detail/findall")
-    public ResponseEntity<List<JabatanWithTppPajakResponse>> getAll() {
-        return ResponseEntity.ok(jabatanService.listAllJabatanWithTpp());
+    public ResponseEntity<List<JabatanWithTppPajakResponse>> getAll(
+            @RequestParam(name = "bulan", required = false) Integer bulan,
+        @RequestParam(name = "tahun", required = false) Integer tahun,
+        @RequestParam(name="kode_opd", required = false) String kodeOpd) {
+        return ResponseEntity.ok(jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(bulan, tahun, kodeOpd));
     }
 
     /**

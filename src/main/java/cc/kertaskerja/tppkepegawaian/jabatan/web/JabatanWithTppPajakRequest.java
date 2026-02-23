@@ -10,51 +10,51 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 
 public record JabatanWithTppPajakRequest(
-		@Nullable
-		Long jabatanId,
+        @Nullable Long jabatanId,
 
-		@Nullable
-		String nip,
+        @Nullable String nip,
 
-		@Nullable
-		String namaPegawai,
+        @Nullable String namaPegawai,
 
-		@NotNull(message = "Nama jabatan harus terdefinisi")
-		@NotEmpty(message = "Nama jabatan tidak boleh kosong")
-		String namaJabatan,
+        @NotNull(message = "Nama jabatan harus terdefinisi") @NotEmpty(message = "Nama jabatan tidak boleh kosong") String namaJabatan,
 
-		@Nullable
-		String kodeOpd,
+        @Nullable String kodeOpd,
 
-		@NotNull(message = "Pilih status jabatan")
-		String statusJabatan,
+        @NotNull(message = "Pilih status jabatan") String statusJabatan,
 
-		@NotNull(message = "Pilih jenis jabatan")
-		String jenisJabatan,
+        @NotNull(message = "Pilih jenis jabatan") String jenisJabatan,
 
-		@NotNull(message = "Pilih eselon")
-		String eselon,
+        @NotNull(message = "Pilih eselon") String eselon,
 
-		@NotNull(message = "Pangkat harus terdefinisi")
-		@NotEmpty(message = "Pangkat tidak boleh kosong")
-		String pangkat,
+        @NotNull(message = "Pangkat harus terdefinisi") @NotEmpty(message = "Pangkat tidak boleh kosong") String pangkat,
 
-		@NotNull(message = "Golongan harus terdefinisi")
-		@NotEmpty(message = "Golongan tidak boleh kosong")
-		String golongan,
+        @NotNull(message = "Golongan harus terdefinisi") @NotEmpty(message = "Golongan tidak boleh kosong") String golongan,
 
-		@Nullable
-		Float basicTpp,
+        @Nullable Float basicTpp,
 
-		@Nullable
-        @DecimalMin(value = "0.0", inclusive = true, message = "Pajak minimal 0")
-        @DecimalMax(value = "1.0", inclusive = true, message = "Pajak maksimal 1.0")
-		Float pajak,
-		
-		@JsonFormat(pattern = "dd-MM-yyyy")
-		Date tanggalMulai,
+        @Nullable
+        @DecimalMin(value = "0.0", message = "Pajak minimal 0")
+        @DecimalMax(value = "1.0", message = "Pajak maksimal 1.0")
+        Float pajak,
 
-		@JsonFormat(pattern = "dd-MM-yyyy")
-		Date tanggalAkhir
-) {
+        // === UNTUK TPP ===
+
+        @NotNull Integer bulanMulai,
+
+        @NotNull Integer tahunMulai,
+
+        @Nullable Integer bulanBerakhir,
+
+        @Nullable Integer tahunBerakhir,
+
+
+        // === ADMINISTRATIF SAJA ===
+        @Nullable @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalMulai,
+
+        @Nullable @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalAkhir,
+
+        @Nullable Integer bulan,
+
+        @Nullable Integer tahun
+        ) {
 }
