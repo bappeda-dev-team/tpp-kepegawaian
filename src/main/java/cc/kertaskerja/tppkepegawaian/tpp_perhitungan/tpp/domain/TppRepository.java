@@ -48,7 +48,7 @@ public interface TppRepository extends CrudRepository<Tpp, Long> {
     List<Tpp> findAllByJenisTppAndNipInAndBulanAndTahun(@NonNull String jenisTpp, @NonNull List<String> nips, @NonNull Integer bulan,
             @NonNull Integer tahun);
 
-    List<Tpp> findAllByJenisTppAndNipAndKodeOpd(@NonNull String jenisTpp, @NonNull List<String> nips, @NonNull String kodeOpd);
+    List<Tpp> findAllByJenisTppAndNipInAndKodeOpd(@NonNull String jenisTpp, @NonNull List<String> nips, @NonNull String kodeOpd);
 
     @Modifying
     @Transactional

@@ -77,7 +77,7 @@ public class TppService {
         }
 
         // ambil seluruh tpp tanpa filter periode
-        List<Tpp> all = tppRepository.findAllByJenisTppAndNipAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
+        List<Tpp> all = tppRepository.findAllByJenisTppAndNipInAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
 
         // untuk filter periode tpp
         Comparator<Tpp> periodeTppComparator =
