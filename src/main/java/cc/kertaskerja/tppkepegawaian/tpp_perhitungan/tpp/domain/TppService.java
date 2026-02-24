@@ -72,13 +72,11 @@ public class TppService {
             throw new IllegalArgumentException("nipPegawais tidak boleh kosong");
         }
 
-        List<Tpp> result = tppRepository.findAllByJenisTppAndNipInAndBulanAndTahun(jenisTpp, nipPegawais, bulan, tahun);
-
-        if (result.isEmpty()) {
-            throw new TppJenisTppNipBulanTahunNotFoundException(
-                    jenisTpp, "-", bulan, tahun);
-        }
-        return result;
+        //        if (result.isEmpty()) {
+//            throw new TppJenisTppNipBulanTahunNotFoundException(
+//                    jenisTpp, "-", bulan, tahun);
+//        }
+        return tppRepository.findAllByJenisTppAndNipInAndBulanAndTahun(jenisTpp, nipPegawais, bulan, tahun);
     }
 
     public Tpp ubahTpp(Tpp tpp) {
