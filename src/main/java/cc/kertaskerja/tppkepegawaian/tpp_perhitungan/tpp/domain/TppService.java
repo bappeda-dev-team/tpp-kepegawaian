@@ -2,7 +2,11 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +28,7 @@ public class TppService {
     private final PegawaiRepository pegawaiRepository;
 
     public TppService(TppRepository tppRepository, TppPerhitunganRepository tppPerhitunganRepository,
-            PegawaiRepository pegawaiRepository, OpdRepository opdRepository) {
+                      PegawaiRepository pegawaiRepository, OpdRepository opdRepository) {
         this.tppRepository = tppRepository;
         this.tppPerhitunganRepository = tppPerhitunganRepository;
         this.pegawaiRepository = pegawaiRepository;
@@ -72,21 +76,46 @@ public class TppService {
             throw new IllegalArgumentException("nipPegawais tidak boleh kosong");
         }
 
-        List<Tpp> result = tppRepository.findAllByJenisTppAndNipInAndBulanAndTahun(jenisTpp, nipPegawais, bulan, tahun);
+        // ambil seluruh tpp tanpa filter periode
+        List<Tpp> all = tppRepository.findAllByJenisTppAndNipAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
 
-        if (result.isEmpty()) {
-            return nipPegawais.stream()
-                    .map(nip -> Tpp.zero(
-                            jenisTpp,
-                            kodeOpd,
-                            nip,
-                            "--",
-                            bulan,
-                            tahun
-                    ))
-                    .toList();
-        }
-        return result;
+        // untuk filter periode tpp
+        Comparator<Tpp> periodeTppComparator =
+                Comparator.comparing(Tpp::bulan)
+                        .thenComparing(Tpp::tahun);
+
+        // filter <= periode target agar menncari tpp yang mendekati
+        // periode tersebut
+        List<Tpp> filteredTpp =
+                all.stream()
+                        .filter(t -> t.tahun() < tahun ||
+                                (t.tahun().equals(tahun) && t.bulan() <= bulan))
+                        .toList();
+
+        // group by nip ambil latest
+        Map<String, Tpp> latestPerNip = filteredTpp.stream()
+                .collect(Collectors.toMap(
+                        Tpp::nip,
+                        Function.identity(),
+                        (t1, t2) ->
+                                periodeTppComparator.compare(t1, t2) > 0 ? t1 : t2
+                ));
+
+        return nipPegawais.stream()
+                .map(nip ->
+                        latestPerNip.getOrDefault(
+                                nip,
+                                Tpp.zero(
+                                        jenisTpp,
+                                        kodeOpd,
+                                        nip,
+                                        "--",
+                                        bulan,
+                                        tahun
+                                )
+                        )
+                )
+                .toList();
     }
 
     public Tpp ubahTpp(Tpp tpp) {
