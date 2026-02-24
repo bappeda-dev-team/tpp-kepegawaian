@@ -73,4 +73,28 @@ public record Tpp(
                 this.createdDate(),
                 Instant.now());
     }
+
+    public static Tpp zero(
+            String jenisTpp,
+            String kodeOpd,
+            String nip,
+            String kodePemda,
+            Integer bulan,
+            Integer tahun
+    ) {
+        return new Tpp(
+                null,
+                jenisTpp,
+                kodeOpd,
+                nip,
+                kodePemda,
+                0f,
+                0f,
+                0f,
+                bulan,
+                tahun,
+                null,
+                null
+        );
+    }
 }

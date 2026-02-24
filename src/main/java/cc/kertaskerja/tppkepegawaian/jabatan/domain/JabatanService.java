@@ -61,7 +61,7 @@ public class JabatanService {
                 .map(Jabatan::nip)
                 .toList();
 
-        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun);
+        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun, kodeOpd);
 
         Map<String, Tpp> tppByNip = tppBasics.stream()
                 .collect(Collectors.toMap(Tpp::nip, Function.identity(),
@@ -127,7 +127,7 @@ public class JabatanService {
 
     public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
-        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN);
+        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN, "");
 
         // Gabungkan
         Map<String, Tpp> tppByNip = tppBasics.stream()
