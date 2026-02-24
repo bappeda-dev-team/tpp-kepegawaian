@@ -127,7 +127,7 @@ public class JabatanService {
 
     public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
-        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN, "");
+        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN, "--");
 
         // Gabungkan
         Map<String, Tpp> tppByNip = tppBasics.stream()

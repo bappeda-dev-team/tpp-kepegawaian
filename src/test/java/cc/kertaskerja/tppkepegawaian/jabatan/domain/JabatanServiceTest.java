@@ -541,11 +541,11 @@ public class JabatanServiceTest {
 
         when(jabatanRepository.findAllByNipIn(List.of(nip1, nip2))).thenReturn(List.of(jabatan1, jabatan2));
 
-        when(tppService.detailTppBatch("BASIC_TPP", List.of(nip1, nip2), 1, 2025))
+        when(tppService.detailTppBatch("BASIC_TPP", List.of(nip1, nip2), 1, 2025, "--"))
                 .thenReturn(List.of(
-                        new Tpp(null, "BASIC_TPP", "OPD-001", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
+                        new Tpp(null, "BASIC_TPP", "--", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null),
-                        new Tpp(null, "BASIC_TPP", "OPD-002", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
+                        new Tpp(null, "BASIC_TPP", "--", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null)));
 
         List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2));
