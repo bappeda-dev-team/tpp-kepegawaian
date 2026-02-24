@@ -15,7 +15,6 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppKodeOpdBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunSudahAdaException;
@@ -23,14 +22,13 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJen
 @Service
 public class TppService {
     private final TppRepository tppRepository;
-    private final TppPerhitunganRepository tppPerhitunganRepository;
+    // private final TppPerhitunganRepository tppPerhitunganRepository;
     private final OpdRepository opdRepository;
     private final PegawaiRepository pegawaiRepository;
 
-    public TppService(TppRepository tppRepository, TppPerhitunganRepository tppPerhitunganRepository,
-                      PegawaiRepository pegawaiRepository, OpdRepository opdRepository) {
+    public TppService(TppRepository tppRepository, PegawaiRepository pegawaiRepository,
+        OpdRepository opdRepository) {
         this.tppRepository = tppRepository;
-        this.tppPerhitunganRepository = tppPerhitunganRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.opdRepository = opdRepository;
     }
@@ -71,7 +69,8 @@ public class TppService {
                 .orElseThrow(() -> new TppJenisTppNipBulanTahunNotFoundException(jenisTpp, nip, bulan, tahun));
     }
 
-    public List<Tpp> detailTppBatch(String jenisTpp, List<String> nipPegawais, Integer bulan, Integer tahun, String kodeOpd) {
+    public List<Tpp> detailTppBatch(String jenisTpp, List<String> nipPegawais, Integer bulan, Integer tahun,
+            String kodeOpd) {
         if (nipPegawais == null || nipPegawais.isEmpty()) {
             throw new IllegalArgumentException("nipPegawais tidak boleh kosong");
         }
@@ -80,41 +79,33 @@ public class TppService {
         List<Tpp> all = tppRepository.findAllByJenisTppAndNipInAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
 
         // untuk filter periode tpp
-        Comparator<Tpp> periodeTppComparator =
-                Comparator.comparing(Tpp::bulan)
-                        .thenComparing(Tpp::tahun);
+        Comparator<Tpp> periodeTppComparator = Comparator.comparing(Tpp::bulan)
+                .thenComparing(Tpp::tahun);
 
         // filter <= periode target agar menncari tpp yang mendekati
         // periode tersebut
-        List<Tpp> filteredTpp =
-                all.stream()
-                        .filter(t -> t.tahun() < tahun ||
-                                (t.tahun().equals(tahun) && t.bulan() <= bulan))
-                        .toList();
+        List<Tpp> filteredTpp = all.stream()
+                .filter(t -> t.tahun() < tahun ||
+                        (t.tahun().equals(tahun) && t.bulan() <= bulan))
+                .toList();
 
         // group by nip ambil latest
         Map<String, Tpp> latestPerNip = filteredTpp.stream()
                 .collect(Collectors.toMap(
                         Tpp::nip,
                         Function.identity(),
-                        (t1, t2) ->
-                                periodeTppComparator.compare(t1, t2) > 0 ? t1 : t2
-                ));
+                        (t1, t2) -> periodeTppComparator.compare(t1, t2) > 0 ? t1 : t2));
 
         return nipPegawais.stream()
-                .map(nip ->
-                        latestPerNip.getOrDefault(
+                .map(nip -> latestPerNip.getOrDefault(
+                        nip,
+                        Tpp.zero(
+                                jenisTpp,
+                                kodeOpd,
                                 nip,
-                                Tpp.zero(
-                                        jenisTpp,
-                                        kodeOpd,
-                                        nip,
-                                        "--",
-                                        bulan,
-                                        tahun
-                                )
-                        )
-                )
+                                "--",
+                                bulan,
+                                tahun)))
                 .toList();
     }
 
@@ -139,6 +130,11 @@ public class TppService {
 
     public void hapusTppByNipBulanTahun(String nip, Integer bulan, Integer tahun) {
         tppRepository.deleteByNipAndBulanAndTahun(nip, bulan, tahun);
+    }
+
+    @Transactional
+    public Tpp saveTimpaTpp(Tpp tpp) {
+        return tppRepository.save(tpp);
     }
 
     @Transactional

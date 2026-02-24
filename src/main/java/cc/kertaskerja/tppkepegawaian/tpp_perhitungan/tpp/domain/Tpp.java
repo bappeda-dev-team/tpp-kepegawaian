@@ -33,6 +33,12 @@ public record Tpp(
         @CreatedDate Instant createdDate,
 
         @LastModifiedDate Instant lastModifiedDate) {
+
+    private static final String BASIC_TPP = "BASIC_TPP";
+    private static final Float BASE_MAX_TPP = 0.0f;
+    private static final Float BASE_PAJAK = 0.0f;
+    private static final Float BASE_BPJS = 0.01f;
+
     public static Tpp of(
             String jenisTpp,
             String kodeOpd,
@@ -74,27 +80,48 @@ public record Tpp(
                 Instant.now());
     }
 
+    public static Tpp basicTpp(
+            String kodeOpd,
+            String nip,
+            String kodePemda,
+            Float maxTpp,
+            Float pajak,
+            Integer bulan,
+            Integer tahun) {
+        return new Tpp(
+                null,
+                BASIC_TPP,
+                kodeOpd,
+                nip,
+                kodePemda,
+                maxTpp,
+                pajak,
+                BASE_BPJS,
+                bulan,
+                tahun,
+                null,
+                null);
+    }
+
     public static Tpp zero(
             String jenisTpp,
             String kodeOpd,
             String nip,
             String kodePemda,
             Integer bulan,
-            Integer tahun
-    ) {
+            Integer tahun) {
         return new Tpp(
                 null,
                 jenisTpp,
                 kodeOpd,
                 nip,
                 kodePemda,
-                0f,
-                0f,
-                0f,
+                BASE_MAX_TPP,
+                BASE_PAJAK,
+                BASE_BPJS,
                 bulan,
                 tahun,
                 null,
-                null
-        );
+                null);
     }
 }

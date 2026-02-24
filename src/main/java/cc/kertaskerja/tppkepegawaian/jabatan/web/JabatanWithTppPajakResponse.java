@@ -1,7 +1,6 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.util.Date;
+import io.micrometer.common.lang.Nullable;
 
 public record JabatanWithTppPajakResponse(
         Long id,
@@ -16,8 +15,10 @@ public record JabatanWithTppPajakResponse(
         String golongan,
         Float basicTpp,
         Float pajak,
-        @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalMulai,
-        @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalAkhir,
+        Integer bulanMulai,
+        Integer tahunMulai,
+        @Nullable Integer bulanBerakhir,
+        @Nullable Integer tahunBerakhir,
         Integer bulan,
         Integer tahun) {
 }

@@ -1,7 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDate;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -10,56 +10,37 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-
 @Table(name = "jabatan")
 public record Jabatan(
-	@Id
-	Long id,
+        @Id Long id,
 
-	@Column("nip")
-	String nip,
+        @Column("nip") String nip,
 
-    @Column("nama_pegawai")
-    String namaPegawai,
+        @Column("nama_pegawai") String namaPegawai,
 
-	@Column("nama_jabatan")
-	String namaJabatan,
+        @Column("nama_jabatan") String namaJabatan,
 
-	@Column("kode_opd")
-	String kodeOpd,
+        @Column("kode_opd") String kodeOpd,
 
-	@Column("status_jabatan")
-	String statusJabatan,
+        @Column("status_jabatan") String statusJabatan,
 
-	@Column("jenis_jabatan")
-	String jenisJabatan,
+        @Column("jenis_jabatan") String jenisJabatan,
 
-	@Column("eselon")
-	String eselon,
+        @Column("eselon") String eselon,
 
-    @Column("pangkat")
-    String pangkat,
+        @Column("pangkat") String pangkat,
 
-    @Column("golongan")
-    String golongan,
+        @Column("golongan") String golongan,
 
-    @Column("basic_tpp")
-    Float basicTpp,
+        @Column("basic_tpp") Float basicTpp,
 
-	@Column("tanggal_mulai")
-	@JsonFormat(pattern = "dd-MM-yyyy")
-	Date tanggalMulai,
+        @Column("tanggal_mulai") @JsonFormat(pattern = "dd-MM-yyyy") LocalDate tanggalMulai,
 
-	@Column("tanggal_akhir")
-	@JsonFormat(pattern = "dd-MM-yyyy")
-	Date tanggalAkhir,
+        @Column("tanggal_akhir") @JsonFormat(pattern = "dd-MM-yyyy") LocalDate tanggalAkhir,
 
-	@CreatedDate
-	Instant createdDate,
+        @CreatedDate Instant createdDate,
 
-	@LastModifiedDate
-	Instant lastModifiedDate
-) {
+        @LastModifiedDate Instant lastModifiedDate) {
     public static Jabatan of(
             String nip,
             String namaPegawai,
@@ -71,9 +52,8 @@ public record Jabatan(
             String pangkat,
             String golongan,
             Float basicTpp,
-            Date   tanggalMulai,
-            Date   tanggalAkhir
-    ) {
+            LocalDate tanggalMulai,
+            LocalDate tanggalAkhir) {
         return new Jabatan(
                 null,
                 nip,
@@ -89,7 +69,25 @@ public record Jabatan(
                 tanggalMulai,
                 tanggalAkhir,
                 null,
-                null
-        );
+                null);
+    }
+
+    public Jabatan withId(Long newId) {
+        return new Jabatan(
+                newId,
+                nip,
+                namaPegawai,
+                namaJabatan,
+                kodeOpd,
+                statusJabatan,
+                jenisJabatan,
+                eselon,
+                pangkat,
+                golongan,
+                basicTpp,
+                tanggalMulai,
+                tanggalAkhir,
+                createdDate,
+                lastModifiedDate);
     }
 }

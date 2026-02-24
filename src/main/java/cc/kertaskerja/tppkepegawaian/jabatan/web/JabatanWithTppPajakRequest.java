@@ -1,8 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.jabatan.web;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.micrometer.common.lang.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -47,12 +44,7 @@ public record JabatanWithTppPajakRequest(
 
         @Nullable Integer tahunBerakhir,
 
-
         // === ADMINISTRATIF SAJA ===
-        @Nullable @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalMulai,
-
-        @Nullable @JsonFormat(pattern = "dd-MM-yyyy") Date tanggalAkhir,
-
         @Nullable Integer bulan,
 
         @Nullable Integer tahun

@@ -142,7 +142,8 @@ public class JabatanController {
      *         url: /jabatan/update/{id}
      */
     @PutMapping("update/{id}")
-    public ResponseEntity<Jabatan> put(@PathVariable("id") Long id, @Valid @RequestBody JabatanRequest request) {
+    public ResponseEntity<Jabatan> put(@PathVariable("id") Long id,
+        @Valid @RequestBody JabatanRequest request) {
         // Ambil data jabatan yang sudah dibuat
         Jabatan existingJabatan = jabatanService.detailJabatan(id);
 
