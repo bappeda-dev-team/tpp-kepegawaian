@@ -64,10 +64,10 @@ class TppControllerTest {
         String jenisTpp = "Kondisi Kerja";
 
         Tpp tpp = new Tpp(1L, jenisTpp, "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
-        List<Tpp> tppList = Arrays.asList(tpp);
+        List<Tpp> tppList = List.of(tpp);
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, "Kondisi Kerja", "OPD001", "Pemda-001", "152020342189755645", "John Doe", bulan, tahun, 100.0f, "Absensi", 80.0f, Instant.now(), Instant.now());
-        List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
+        List<TppPerhitungan> perhitunganList = List.of(perhitungan);
 
         // Create mock pegawai
         Pegawai pegawai = new Pegawai(1L, "John Doe", nip, "OPD001", "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
@@ -111,8 +111,8 @@ class TppControllerTest {
         Pegawai pegawai2 = new Pegawai(2L, "Jane Smith", nip2, kodeOpd, "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
 
         when(tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun)).thenReturn(tppList);
-        when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip1, bulan, tahun)).thenReturn(Arrays.asList(perhitungan1));
-        when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip2, bulan, tahun)).thenReturn(Arrays.asList(perhitungan2));
+        when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip1, bulan, tahun)).thenReturn(List.of(perhitungan1));
+        when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip2, bulan, tahun)).thenReturn(List.of(perhitungan2));
         when(pegawaiService.detailPegawai(nip1)).thenReturn(pegawai1);
         when(pegawaiService.detailPegawai(nip2)).thenReturn(pegawai2);
 
@@ -150,10 +150,10 @@ class TppControllerTest {
         String nip = "1234567890";
 
         Tpp tpp = new Tpp(1L, jenisTpp, kodeOpd, nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
-        List<Tpp> tppList = Arrays.asList(tpp);
+        List<Tpp> tppList = List.of(tpp);
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, jenisTpp, kodeOpd, "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "Absensi", 80.0f, Instant.now(), Instant.now());
-        List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
+        List<TppPerhitungan> perhitunganList = List.of(perhitungan);
 
         // Create mock pegawai
         Pegawai pegawai = new Pegawai(1L, "John Doe", nip, kodeOpd, "Admin", "Aktif", "hashedPassword", Instant.now(), Instant.now());
@@ -215,10 +215,10 @@ class TppControllerTest {
         Integer tahun = 2024;
 
         Tpp existingTpp = new Tpp(1L, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
-        List<Tpp> existingTppList = Arrays.asList(existingTpp);
+        List<Tpp> existingTppList = List.of(existingTpp);
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, "Kondisi Kerja", "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "Produktifitas Kerja", 80.0f, Instant.now(), Instant.now());
-        List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
+        List<TppPerhitungan> perhitunganList = List.of(perhitungan);
 
         Tpp updatedTpp = new Tpp(1L, "Kondisi Kerja", "OPD002", nip, "PEMDA001", 6000000.0f, 10.0f, 8.0f, bulan, tahun, existingTpp.createdDate(), Instant.now());
 
@@ -269,7 +269,7 @@ class TppControllerTest {
         Tpp createdTpp = new Tpp(1L, "Kondisi Kerja", "OPD001", nip, "PEMDA001", 5000000.0f, 10.0f, 8.0f, bulan, tahun, Instant.now(), Instant.now());
 
         TppPerhitungan perhitungan = new TppPerhitungan(1L, "Kondisi Kerja", "OPD001", "PEMDA001", nip, "John Doe", bulan, tahun, 100.0f, "Produktifitas Kerja", 80.0f, Instant.now(), Instant.now());
-        List<TppPerhitungan> perhitunganList = Arrays.asList(perhitungan);
+        List<TppPerhitungan> perhitunganList = List.of(perhitungan);
 
         when(jabatanRepository.findByNip(nip)).thenReturn(Optional.of(jabatan));
         when(tppService.tambahTpp(any(Tpp.class))).thenReturn(createdTpp);

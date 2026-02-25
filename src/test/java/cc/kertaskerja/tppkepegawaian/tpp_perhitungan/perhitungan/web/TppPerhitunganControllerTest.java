@@ -14,6 +14,7 @@ import org.hamcrest.Matchers;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -269,7 +270,7 @@ public class TppPerhitunganControllerTest {
     @Test
     void post_WhenNipBulanTahunAlreadyExists_ShouldReturnConflict() throws Exception {
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
-            .thenReturn(Arrays.asList(testTppPerhitungan));
+            .thenReturn(Collections.singletonList(testTppPerhitungan));
 
         mockMvc.perform(post("/tppPerhitungan")
             .contentType(MediaType.APPLICATION_JSON)
@@ -303,7 +304,7 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             100.0f,
-            Arrays.asList(excessiveRequest)
+                List.of(excessiveRequest)
         );
 
         mockMvc.perform(post("/tppPerhitungan")
@@ -357,7 +358,7 @@ public class TppPerhitunganControllerTest {
             2,
             2025,
             100.0f,
-            Arrays.asList(testPerhitunganRequest)
+                Collections.singletonList(testPerhitunganRequest)
         );
 
         mockMvc.perform(put("/tppPerhitungan/update/{nip}/{bulan}/{tahun}", "198001012010011001", 1, 2024)
@@ -392,11 +393,11 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             100.0f,
-            Arrays.asList(excessiveRequest)
+                List.of(excessiveRequest)
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
-            .thenReturn(Arrays.asList(testTppPerhitungan));
+            .thenReturn(Collections.singletonList(testTppPerhitungan));
 
         mockMvc.perform(put("/tppPerhitungan/update/{nip}/{bulan}/{tahun}", "198001012010011001", 1, 2024)
             .contentType(MediaType.APPLICATION_JSON)
@@ -461,7 +462,7 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             100.0f,
-            Arrays.asList(newPerhitunganRequest)
+                List.of(newPerhitunganRequest)
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
@@ -517,7 +518,7 @@ public class TppPerhitunganControllerTest {
 
         when(tppPerhitunganService.detailTppPerhitungan("198001012010011003", 1, 2024)).thenReturn(tppBelumDiatur);
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011003", 1, 2024))
-            .thenReturn(Arrays.asList(tppBelumDiatur));
+            .thenReturn(List.of(tppBelumDiatur));
 
         mockMvc.perform(get("/tppPerhitungan/detail/nip/{nip}/{bulan}/{tahun}", "198001012010011003", 1, 2024))
             .andExpect(status().isOk())
@@ -592,7 +593,7 @@ public class TppPerhitunganControllerTest {
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
-            .thenReturn(Arrays.asList(testTppPerhitungan));
+            .thenReturn(Collections.singletonList(testTppPerhitungan));
 
         mockMvc.perform(put("/tppPerhitungan/update/{nip}/{bulan}/{tahun}", "198001012010011001", 1, 2024)
             .contentType(MediaType.APPLICATION_JSON)
@@ -677,7 +678,7 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             0.0f,
-            Arrays.asList(negativePerhitungan)
+                List.of(negativePerhitungan)
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
@@ -723,7 +724,7 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             100.0f,
-            Arrays.asList(nonExistentPerhitungan)
+                List.of(nonExistentPerhitungan)
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
@@ -864,7 +865,7 @@ public class TppPerhitunganControllerTest {
             1,
             2024,
             100.0f,
-            Arrays.asList(exactLimitPerhitungan)
+                List.of(exactLimitPerhitungan)
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNipBulanTahun("198001012010011001", 1, 2024))
@@ -913,7 +914,7 @@ public class TppPerhitunganControllerTest {
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011002"))
-            .thenReturn(Arrays.asList(thirdTpp));
+            .thenReturn(List.of(thirdTpp));
 
         mockMvc.perform(post("/tppPerhitungan/find/batch")
             .contentType(MediaType.APPLICATION_JSON)
@@ -932,7 +933,7 @@ public class TppPerhitunganControllerTest {
     @Test
     void findByNips_WithNonExistentNips_ShouldReturnNotFound() throws Exception {
         NipListRequest nipListRequest = new NipListRequest(
-            Arrays.asList("999999999999999999")
+                List.of("999999999999999999")
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
@@ -948,7 +949,7 @@ public class TppPerhitunganControllerTest {
     @Test
     void findByNips_WithEmptyNipList_ShouldReturnBadRequest() throws Exception {
         NipListRequest emptyNipListRequest = new NipListRequest(
-            Arrays.asList()
+                List.of()
         );
 
         mockMvc.perform(post("/tppPerhitungan/find/batch")
@@ -964,7 +965,7 @@ public class TppPerhitunganControllerTest {
         );
 
         when(tppPerhitunganService.listTppPerhitunganByNip("198001012010011001"))
-            .thenReturn(Arrays.asList(testTppPerhitungan));
+            .thenReturn(Collections.singletonList(testTppPerhitungan));
 
         when(tppPerhitunganService.listTppPerhitunganByNip("999999999999999999"))
             .thenReturn(Collections.emptyList());
@@ -981,7 +982,7 @@ public class TppPerhitunganControllerTest {
     @Test
     void findByNips_WithMultipleBulanTahunForSameNip_ShouldReturnMultipleResponses() throws Exception {
         NipListRequest nipListRequest = new NipListRequest(
-            Arrays.asList("198001012010011001")
+                List.of("198001012010011001")
         );
 
         TppPerhitungan februaryTpp = new TppPerhitungan(
