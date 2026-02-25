@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -55,9 +56,9 @@ public class JabatanServiceTest {
 
     @BeforeEach
     void setUp() {
-        tanggalMulai = LocalDate.of(2025, 1,1);
+        tanggalMulai = LocalDate.of(2025, 1, 1);
 
-        tanggalAkhir = LocalDate.of(2025, 1,2);
+        tanggalAkhir = LocalDate.of(2025, 1, 2);
 
         testJabatan = new Jabatan(
                 1L,
@@ -539,14 +540,14 @@ public class JabatanServiceTest {
 
         when(jabatanRepository.findAllByNipIn(List.of(nip1, nip2))).thenReturn(List.of(jabatan1, jabatan2));
 
-        when(tppService.detailTppBatch("BASIC_TPP", List.of(nip1, nip2), 1, 2025, "--"))
-                .thenReturn(List.of(
-                        new Tpp(null, "BASIC_TPP", "--", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
+        when(tppService.detailTppBatchByNip("BASIC_TPP", List.of(nip1, nip2), 1, 2025, "--"))
+                .thenReturn(Map.of(
+                        nip1, new Tpp(null, "BASIC_TPP", "--", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null),
-                        new Tpp(null, "BASIC_TPP", "--", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
+                        nip2, new Tpp(null, "BASIC_TPP", "--", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null)));
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2));
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2), 1, 2025, "--");
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(JabatanWithTppPajakResponse::nip).containsExactlyInAnyOrder(nip1, nip2);
@@ -564,7 +565,7 @@ public class JabatanServiceTest {
         List<String> nips = List.of("000", "111");
         when(jabatanRepository.findAllByNipIn(nips)).thenReturn(List.of());
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(nips);
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(nips, 1, 2025, "--");
 
         assertThat(result).isEmpty();
         verify(jabatanRepository).findAllByNipIn(nips);

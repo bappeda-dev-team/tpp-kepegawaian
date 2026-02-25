@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
@@ -140,23 +138,35 @@ public class JabatanService {
         return responses;
     }
 
-    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais) {
+    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais, Integer bulan, Integer tahun, String kodeOpd) {
+
+        int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
+        int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
+
+        if (resolvedBulan < 1 || resolvedBulan > 12) {
+            throw new IllegalArgumentException("Bulan tidak valid");
+        }
+
+        if (resolvedTahun < 2000) {
+            throw new IllegalArgumentException("Tahun tidak valid");
+        }
+
         List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
-        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, DEFAULT_BULAN, DEFAULT_TAHUN, "--");
 
-        // Gabungkan
-        Map<String, Tpp> tppByNip = tppBasics.stream()
-                .collect(Collectors.toMap(
-                        Tpp::nip,
-                        Function.identity(),
-                        (a, b) -> a));
+        // ambil jabatan terbaru per nip
+        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
+                jabatans,
+                bulan,
+                tahun,
+                Jabatan::nip);
 
-        return jabatans.stream().map(j -> {
+        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun, kodeOpd);
+
+        return latestJabatanPerNip.values().stream().map( j -> {
             Tpp tppBasic = tppByNip.get(j.nip());
 
             return mapToJabatanWithTpp(j, tppBasic);
         }).toList();
-
     }
 
     public List<JabatanWithPegawaiResponse> listJabatanByKodeOpdWithPegawai(String kodeOpd) {

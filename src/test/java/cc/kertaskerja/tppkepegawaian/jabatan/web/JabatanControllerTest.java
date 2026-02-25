@@ -370,7 +370,11 @@ public class JabatanControllerTest {
         NipBatchRequest request = new NipBatchRequest();
         request.setNipPegawais(List.of("198001012010011001", "199001012015021002"));
 
-        when(jabatanService.listJabatanByNipWithPegawaiBatch(request.getNipPegawais()))
+        var nipPegawais = request.getNipPegawais();
+        var bulan = request.getBulan();
+        var tahun = request.getTahun();
+        var kodeOpd = request.getKodeOpd();
+        when(jabatanService.listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd))
             .thenReturn(List.of(testJabatanWithTppPajakResponse1, testJabatanWithTppPajakResponse2));
 
         mockMvc.perform(post("/jabatan/detail/by-nip-batch")
@@ -407,7 +411,7 @@ public class JabatanControllerTest {
             .andExpect(jsonPath("$[1].bulanMulai").value(1))
             .andExpect(jsonPath("$[1].tahunMulai").value(2025));
 
-        verify(jabatanService).listJabatanByNipWithPegawaiBatch(request.getNipPegawais());
+        verify(jabatanService).listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd);
     }
 
     @Test
