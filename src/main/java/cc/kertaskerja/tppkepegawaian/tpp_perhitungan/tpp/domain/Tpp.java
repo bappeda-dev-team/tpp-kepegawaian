@@ -8,6 +8,8 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.HasPeriode;
+
 @Table(name = "tpp")
 public record Tpp(
         @Id Long id,
@@ -32,7 +34,7 @@ public record Tpp(
 
         @CreatedDate Instant createdDate,
 
-        @LastModifiedDate Instant lastModifiedDate) {
+        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode {
 
     private static final String BASIC_TPP = "BASIC_TPP";
     private static final Float BASE_MAX_TPP = 0.0f;

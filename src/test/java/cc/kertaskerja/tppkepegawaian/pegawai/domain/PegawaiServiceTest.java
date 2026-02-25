@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.pegawai.domain;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 
 import cc.kertaskerja.tppkepegawaian.role.domain.*;
@@ -54,71 +55,55 @@ public class PegawaiServiceTest {
     private PegawaiService pegawaiService;
 
     private Pegawai testPegawai;
-    private Tpp testTpp;
     private Jabatan testJabatan;
     private TppPerhitungan testTppPerhitungan;
 
     @BeforeEach
     void setUp() {
         testPegawai = new Pegawai(
-            1L,
-            "John Doe",
-            "198001012010011001",
-            "OPD-001",
-            "Admin",
-            "AKTIF",
-            "hashedpassword",
-            Instant.now(),
-            Instant.now()
-        );
-
-        testTpp = new Tpp(
-            1L,
-            "TPP_REGULER",
-            "OPD-001",
-            "198001012010011001",
-            "KODE_PEMDA_001",
-            5000000.0f,
-            5.0f,
-            1.0f,
-            10,
-            2024,
-            Instant.now(),
-            Instant.now()
+                1L,
+                "John Doe",
+                "198001012010011001",
+                "OPD-001",
+                "Admin",
+                "AKTIF",
+                "hashedpassword",
+                Instant.now(),
+                Instant.now()
         );
 
         testJabatan = new Jabatan(
-            1L,
-            "198001012010011001",
-            "John Doe",
-            "Kepala Seksi",
-            "OPD-001",
-            "AKTIF",
-            "STRUKTURAL",
-            "III/a",
-            "Penata Muda",
-            "III/a",
-            5000000.0f,
-            new java.util.Date(),
-            new java.util.Date(),
-            Instant.now(),
-            Instant.now()
+                1L,
+                "198001012010011001",
+                "John Doe",
+                "Kepala Seksi",
+                "OPD-001",
+                "AKTIF",
+                "STRUKTURAL",
+                "III/a",
+                "Penata Muda",
+                "III/a",
+                5000000.0f,
+                LocalDate.of(2025, 1, 1),
+                LocalDate.of(2025, 1, 1),
+                Instant.now(),
+                Instant.now()
         );
 
         testTppPerhitungan = new TppPerhitungan(
-            1L,
-            "TPP_REGULER",
-            "OPD-001",
-            "KODE_PEMDA_001",
-            "198001012010011001",
-            "John Doe",
-            10,
-            2024,
-            5000000.0f,
-            "TUNJANGAN_KINERJA",
-            80.0f,
-            Instant.now(),
-            Instant.now()
+                1L,
+                "TPP_REGULER",
+                "OPD-001",
+                "KODE_PEMDA_001",
+                "198001012010011001",
+                "John Doe",
+                10,
+                2024,
+                5000000.0f,
+                "TUNJANGAN_KINERJA",
+                80.0f,
+                Instant.now(),
+                Instant.now()
         );
     }
 
@@ -139,8 +124,8 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> pegawaiService.detailPegawai(nip))
-            .isInstanceOf(PegawaiNotFoundException.class)
-            .hasMessageContaining(nip);
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(nip);
         verify(pegawaiRepository).findByNip(nip);
     }
 
@@ -148,23 +133,23 @@ public class PegawaiServiceTest {
     void listPegawaiAktif_WhenOpdExists_ShouldReturnPegawaiWithRoleList() {
         String kodeOpd = "OPD-001";
         Set<Role> rolePegawai = Set.of(new Role(1L, "admin", "200601012010012001", "level 1",
-            "AKTIF", Instant.now(), Instant.now() ));
+                "AKTIF", Instant.now(), Instant.now()));
         Pegawai pegawai = new Pegawai(
-            2L,
-            "Jane Doe",
-            "200601012010012001",
-            "OPD-001",
-            "User",
-            "AKTIF",
-            "hashedpassword123",
-            Instant.now(),
-            Instant.now()
+                2L,
+                "Jane Doe",
+                "200601012010012001",
+                "OPD-001",
+                "User",
+                "AKTIF",
+                "hashedpassword123",
+                Instant.now(),
+                Instant.now()
         );
 
         List<Pegawai> pegawaiList = List.of(pegawai);
 
         List<PegawaiWithRoles> expected = List.of(
-            PegawaiWithRoles.of(pegawai, rolePegawai)
+                PegawaiWithRoles.of(pegawai, rolePegawai)
         );
 
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(true);
@@ -186,8 +171,8 @@ public class PegawaiServiceTest {
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.listAllPegawaiByKodeOpd(kodeOpd))
-            .isInstanceOf(OpdNotFoundException.class)
-            .hasMessageContaining(kodeOpd);
+                .isInstanceOf(OpdNotFoundException.class)
+                .hasMessageContaining(kodeOpd);
 
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(pegawaiRepository, never()).findByKodeOpd(any());
@@ -197,18 +182,18 @@ public class PegawaiServiceTest {
     void listAllPegawaiByRole_WhenRoleExists_ShouldReturnPegawaiList() {
         String namaRole = "Admin";
         List<Pegawai> pegawaiList = Arrays.asList(
-            testPegawai,
-            new Pegawai(
-                2L,
-                "Jane Doe",
-                "200601012010012001",
-                "OPD-001",
-                "Admin",
-                "AKTIF",
-                "hashedpassword123",
-                Instant.now(),
-                Instant.now()
-            )
+                testPegawai,
+                new Pegawai(
+                        2L,
+                        "Jane Doe",
+                        "200601012010012001",
+                        "OPD-001",
+                        "Admin",
+                        "AKTIF",
+                        "hashedpassword123",
+                        Instant.now(),
+                        Instant.now()
+                )
         );
 
         when(pegawaiRepository.findByNamaRole(namaRole)).thenReturn(pegawaiList);
@@ -233,15 +218,15 @@ public class PegawaiServiceTest {
     @Test
     void listAllPegawai_WhenDataExists_ShouldReturnPegawaiList() {
         Pegawai pegawai2 = new Pegawai(
-            2L,
-            "Jane Doe",
-            "200601012010012001",
-            "OPD-002",
-            "User",
-            "AKTIF",
-            "hashedpassword123",
-            Instant.now(),
-            Instant.now()
+                2L,
+                "Jane Doe",
+                "200601012010012001",
+                "OPD-002",
+                "User",
+                "AKTIF",
+                "hashedpassword123",
+                Instant.now(),
+                Instant.now()
         );
 
         List<Pegawai> pegawaiList = List.of(testPegawai, pegawai2);
@@ -266,29 +251,29 @@ public class PegawaiServiceTest {
     @Test
     void tambahPegawai_WhenPegawaiValid_ShouldSaveAndReturnPegawai() {
         Pegawai newPegawai = new Pegawai(
-            null,
-            "Jane Doe",
-            "200601012010012001",
-            "OPD-001",
-            "Admin",
-            "AKTIF",
-            "hashedpassword123",
-            null,
-            null
+                null,
+                "Jane Doe",
+                "200601012010012001",
+                "OPD-001",
+                "Admin",
+                "AKTIF",
+                "hashedpassword123",
+                null,
+                null
         );
 
         when(pegawaiRepository.save(any(Pegawai.class))).thenReturn(
-            new Pegawai(
-                2L,
-                newPegawai.namaPegawai(),
-                newPegawai.nip(),
-                newPegawai.kodeOpd(),
-                newPegawai.namaRole(),
-                newPegawai.statusPegawai(),
-                newPegawai.passwordHash(),
-                Instant.now(),
-                Instant.now()
-            )
+                new Pegawai(
+                        2L,
+                        newPegawai.namaPegawai(),
+                        newPegawai.nip(),
+                        newPegawai.kodeOpd(),
+                        newPegawai.namaRole(),
+                        newPegawai.statusPegawai(),
+                        newPegawai.passwordHash(),
+                        Instant.now(),
+                        Instant.now()
+                )
         );
 
         Pegawai result = pegawaiService.tambahPegawai(newPegawai);
@@ -305,15 +290,15 @@ public class PegawaiServiceTest {
     void ubahPegawai_WhenPegawaiExistsAndValid_ShouldUpdateAndReturnPegawai() {
         String nip = "198001012010011001";
         Pegawai updatedPegawai = new Pegawai(
-            1L,
-            "Anthony",
-            nip,
-            "OPD-001",
-            "User",
-            "CUTI",
-            "newhash123",
-            testPegawai.createdDate(),
-            Instant.now()
+                1L,
+                "Anthony",
+                nip,
+                "OPD-001",
+                "User",
+                "CUTI",
+                "newhash123",
+                testPegawai.createdDate(),
+                Instant.now()
         );
 
         when(pegawaiRepository.existsByNip(nip)).thenReturn(true);
@@ -336,8 +321,8 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.existsByNip(nip)).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.ubahPegawai(nip, testPegawai))
-            .isInstanceOf(PegawaiNotFoundException.class)
-            .hasMessageContaining(nip);
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(nip);
         verify(pegawaiRepository).existsByNip(nip);
         verify(pegawaiRepository, never()).save(any());
     }
@@ -346,22 +331,22 @@ public class PegawaiServiceTest {
     void ubahPegawai_WhenOpdNotExists_ShouldThrowException() {
         String nip = "198001012010011001";
         Pegawai updatedPegawai = new Pegawai(
-            1L,
-            "Anthony",
-            nip,
-            "OPD-9999",
-            "User",
-            "CUTI",
-            "newhash123",
-            testPegawai.createdDate(),
-            Instant.now());
+                1L,
+                "Anthony",
+                nip,
+                "OPD-9999",
+                "User",
+                "CUTI",
+                "newhash123",
+                testPegawai.createdDate(),
+                Instant.now());
 
         when(pegawaiRepository.existsByNip(nip)).thenReturn(true);
         when(opdRepository.existsByKodeOpd("OPD-9999")).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.ubahPegawai(nip, updatedPegawai))
-            .isInstanceOf(OpdNotFoundException.class)
-            .hasMessageContaining("OPD-9999");
+                .isInstanceOf(OpdNotFoundException.class)
+                .hasMessageContaining("OPD-9999");
 
         verify(pegawaiRepository).existsByNip(nip);
         verify(opdRepository).existsByKodeOpd("OPD-9999");
@@ -372,23 +357,23 @@ public class PegawaiServiceTest {
     void ubahPegawai_WhenRoleNotExists_ShouldThrowException() {
         String nip = "198001012010011001";
         Pegawai updatedPegawai = new Pegawai(
-            1L,
-            "Anthony",
-            nip,
-            "OPD-001",
-            "Salah",
-            "CUTI",
-            "newhash123",
-            testPegawai.createdDate(),
-            Instant.now());
+                1L,
+                "Anthony",
+                nip,
+                "OPD-001",
+                "Salah",
+                "CUTI",
+                "newhash123",
+                testPegawai.createdDate(),
+                Instant.now());
 
         when(pegawaiRepository.existsByNip("198001012010011001")).thenReturn(true);
         when(opdRepository.existsByKodeOpd("OPD-001")).thenReturn(true);
         when(roleRepository.existsByNamaRole("Salah")).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.ubahPegawai(nip, updatedPegawai))
-            .isInstanceOf(NamaRoleNotFoundException.class)
-            .hasMessageContaining("Salah");
+                .isInstanceOf(NamaRoleNotFoundException.class)
+                .hasMessageContaining("Salah");
 
         verify(pegawaiRepository).existsByNip(nip);
         verify(opdRepository).existsByKodeOpd("OPD-001");
@@ -414,8 +399,8 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.existsByNip(nip)).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.hapusPegawai(nip))
-            .isInstanceOf(PegawaiNotFoundException.class)
-            .hasMessageContaining(nip);
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(nip);
         verify(pegawaiRepository).existsByNip(nip);
         verify(pegawaiRepository, never()).deleteByNip(any());
     }
@@ -424,31 +409,20 @@ public class PegawaiServiceTest {
     void listAllPegawaiWithJabatanByKodeOpd_WhenOpdExists_ShouldReturnPegawaiWithJabatanAndRolesList() {
         String kodeOpd = "OPD-001";
         Set<Role> rolePegawai = Set.of(new Role(1L, "admin", "200601012010012001", "level 1",
-            "AKTIF", Instant.now(), Instant.now() ));
+                "AKTIF", Instant.now(), Instant.now()));
         Pegawai pegawai = new Pegawai(
-            2L,
-            "Jane Doe",
-            "200601012010012001",
-            "OPD-001",
-            "User",
-            "AKTIF",
-            "hashedpassword123",
-            Instant.now(),
-            Instant.now()
+                2L,
+                "Jane Doe",
+                "200601012010012001",
+                "OPD-001",
+                "User",
+                "AKTIF",
+                "hashedpassword123",
+                Instant.now(),
+                Instant.now()
         );
 
         List<Pegawai> pegawaiList = List.of(pegawai);
-
-        List<PegawaiWithJabatanAndRolesResponse> expected = List.of(
-            PegawaiWithJabatanAndRolesResponse.of(
-                pegawai.id(),
-                pegawai.namaPegawai(),
-                pegawai.nip(),
-                pegawai.kodeOpd(),
-                rolePegawai,
-                testJabatan
-            )
-        );
 
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(true);
         when(pegawaiRepository.findByKodeOpd(kodeOpd)).thenReturn(pegawaiList);
@@ -458,14 +432,14 @@ public class PegawaiServiceTest {
         List<PegawaiWithJabatanAndRolesResponse> result = pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).id()).isEqualTo(pegawai.id());
-        assertThat(result.get(0).namaPegawai()).isEqualTo(pegawai.namaPegawai());
-        assertThat(result.get(0).nip()).isEqualTo(pegawai.nip());
-        assertThat(result.get(0).kodeOpd()).isEqualTo(pegawai.kodeOpd());
-        assertThat(result.get(0).namaRole()).isEqualTo("admin");
-        assertThat(result.get(0).isActive()).isEqualTo("AKTIF");
-        assertThat(result.get(0).idJabatan()).isEqualTo(testJabatan.id());
-        assertThat(result.get(0).namaJabatan()).isEqualTo(testJabatan.namaJabatan());
+        assertThat(result.getFirst().id()).isEqualTo(pegawai.id());
+        assertThat(result.getFirst().namaPegawai()).isEqualTo(pegawai.namaPegawai());
+        assertThat(result.getFirst().nip()).isEqualTo(pegawai.nip());
+        assertThat(result.getFirst().kodeOpd()).isEqualTo(pegawai.kodeOpd());
+        assertThat(result.getFirst().namaRole()).isEqualTo("admin");
+        assertThat(result.getFirst().isActive()).isEqualTo("AKTIF");
+        assertThat(result.getFirst().idJabatan()).isEqualTo(testJabatan.id());
+        assertThat(result.getFirst().namaJabatan()).isEqualTo(testJabatan.namaJabatan());
 
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(pegawaiRepository).findByKodeOpd(kodeOpd);
@@ -477,15 +451,15 @@ public class PegawaiServiceTest {
     void listAllPegawaiWithJabatanByKodeOpd_WhenOpdExistsWithoutJabatanAndRoles_ShouldReturnPegawaiWithNullJabatanAndRoles() {
         String kodeOpd = "OPD-001";
         Pegawai pegawai = new Pegawai(
-            2L,
-            "Jane Doe",
-            "200601012010012001",
-            "OPD-001",
-            "User",
-            "AKTIF",
-            "hashedpassword123",
-            Instant.now(),
-            Instant.now()
+                2L,
+                "Jane Doe",
+                "200601012010012001",
+                "OPD-001",
+                "User",
+                "AKTIF",
+                "hashedpassword123",
+                Instant.now(),
+                Instant.now()
         );
 
         List<Pegawai> pegawaiList = List.of(pegawai);
@@ -498,14 +472,14 @@ public class PegawaiServiceTest {
         List<PegawaiWithJabatanAndRolesResponse> result = pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd);
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).id()).isEqualTo(pegawai.id());
-        assertThat(result.get(0).namaPegawai()).isEqualTo(pegawai.namaPegawai());
-        assertThat(result.get(0).nip()).isEqualTo(pegawai.nip());
-        assertThat(result.get(0).kodeOpd()).isEqualTo(pegawai.kodeOpd());
-        assertThat(result.get(0).namaRole()).isNull();
-        assertThat(result.get(0).isActive()).isNull();
-        assertThat(result.get(0).idJabatan()).isNull();
-        assertThat(result.get(0).namaJabatan()).isNull();
+        assertThat(result.getFirst().id()).isEqualTo(pegawai.id());
+        assertThat(result.getFirst().namaPegawai()).isEqualTo(pegawai.namaPegawai());
+        assertThat(result.getFirst().nip()).isEqualTo(pegawai.nip());
+        assertThat(result.getFirst().kodeOpd()).isEqualTo(pegawai.kodeOpd());
+        assertThat(result.getFirst().namaRole()).isNull();
+        assertThat(result.getFirst().isActive()).isNull();
+        assertThat(result.getFirst().idJabatan()).isNull();
+        assertThat(result.getFirst().namaJabatan()).isNull();
 
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(pegawaiRepository).findByKodeOpd(kodeOpd);
@@ -519,8 +493,8 @@ public class PegawaiServiceTest {
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(false);
 
         assertThatThrownBy(() -> pegawaiService.listAllPegawaiWithJabatanByKodeOpd(kodeOpd))
-            .isInstanceOf(OpdNotFoundException.class)
-            .hasMessageContaining(kodeOpd);
+                .isInstanceOf(OpdNotFoundException.class)
+                .hasMessageContaining(kodeOpd);
 
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(pegawaiRepository, never()).findByKodeOpd(any());
@@ -532,8 +506,8 @@ public class PegawaiServiceTest {
     void getRolesByNip_WhenRolesExist_ShouldReturnRolesSet() {
         String nip = "198001012010011001";
         Set<Role> expectedRoles = Set.of(
-            new Role(1L, "admin", nip, "level 1", "AKTIF", Instant.now(), Instant.now()),
-            new Role(2L, "user", nip, "level 2", "AKTIF", Instant.now(), Instant.now())
+                new Role(1L, "admin", nip, "level 1", "AKTIF", Instant.now(), Instant.now()),
+                new Role(2L, "user", nip, "level 2", "AKTIF", Instant.now(), Instant.now())
         );
 
         when(roleRepository.findByNip(nip)).thenReturn(new ArrayList<>(expectedRoles));
@@ -561,18 +535,18 @@ public class PegawaiServiceTest {
         String nip = "198001012010011001";
 
         Tpp currentTpp = new Tpp(
-            1L,
-            "TPP_REGULER",
-            "OPD-001",
-            nip,
-            "KODE_PEMDA_001",
-            5000000.0f,
-            5.0f,
-            1.0f,
-            java.time.LocalDate.now().getMonthValue(),
-            java.time.LocalDate.now().getYear(),
-            Instant.now(),
-            Instant.now()
+                1L,
+                "TPP_REGULER",
+                "OPD-001",
+                nip,
+                "KODE_PEMDA_001",
+                5000000.0f,
+                5.0f,
+                1.0f,
+                java.time.LocalDate.now().getMonthValue(),
+                java.time.LocalDate.now().getYear(),
+                Instant.now(),
+                Instant.now()
         );
 
         List<TppPerhitungan> perhitunganList = List.of(testTppPerhitungan);
@@ -580,9 +554,9 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.of(testPegawai));
         when(jabatanRepository.findByNip(nip)).thenReturn(Optional.of(testJabatan));
         when(tppRepository.findByNipAndBulanAndTahun(nip, currentTpp.bulan(), currentTpp.tahun()))
-            .thenReturn(List.of(currentTpp));
+                .thenReturn(List.of(currentTpp));
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, currentTpp.bulan(), currentTpp.tahun()))
-            .thenReturn(perhitunganList);
+                .thenReturn(perhitunganList);
 
         PegawaiWithJabatanResponse result = pegawaiService.detailPegawaiWithJabatan(nip);
 
@@ -654,18 +628,18 @@ public class PegawaiServiceTest {
 
         // Create old TPP (not current month/year)
         Tpp oldTpp = new Tpp(
-            1L,
-            "TPP_REGULER",
-            "OPD-001",
-            nip,
-            "KODE_PEMDA_001",
-            5000000.0f,
-            5.0f,
-            1.0f,
-            1,
-            2023,
-            Instant.now(),
-            Instant.now()
+                1L,
+                "TPP_REGULER",
+                "OPD-001",
+                nip,
+                "KODE_PEMDA_001",
+                5000000.0f,
+                5.0f,
+                1.0f,
+                1,
+                2023,
+                Instant.now(),
+                Instant.now()
         );
 
         List<TppPerhitungan> perhitunganList = List.of(testTppPerhitungan);
@@ -675,7 +649,7 @@ public class PegawaiServiceTest {
         when(tppRepository.findByNipAndBulanAndTahun(eq(nip), anyInt(), anyInt())).thenReturn(List.of());
         when(tppRepository.findByNip(nip)).thenReturn(List.of(oldTpp));
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, oldTpp.bulan(), oldTpp.tahun()))
-            .thenReturn(perhitunganList);
+                .thenReturn(perhitunganList);
 
         PegawaiWithJabatanResponse result = pegawaiService.detailPegawaiWithJabatan(nip);
 
@@ -699,8 +673,8 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> pegawaiService.detailPegawaiWithJabatan(nip))
-            .isInstanceOf(PegawaiNotFoundException.class)
-            .hasMessageContaining(nip);
+                .isInstanceOf(PegawaiNotFoundException.class)
+                .hasMessageContaining(nip);
 
         verify(pegawaiRepository).findByNip(nip);
         verify(jabatanRepository, never()).findByNip(any());
@@ -715,18 +689,18 @@ public class PegawaiServiceTest {
 
         // Create TPP that matches current month/year
         Tpp currentTpp = new Tpp(
-            1L,
-            "TPP_REGULER",
-            "OPD-001",
-            nip,
-            "KODE_PEMDA_001",
-            5000000.0f,
-            5.0f,
-            1.0f,
-            java.time.LocalDate.now().getMonthValue(),
-            java.time.LocalDate.now().getYear(),
-            Instant.now(),
-            Instant.now()
+                1L,
+                "TPP_REGULER",
+                "OPD-001",
+                nip,
+                "KODE_PEMDA_001",
+                5000000.0f,
+                5.0f,
+                1.0f,
+                java.time.LocalDate.now().getMonthValue(),
+                java.time.LocalDate.now().getYear(),
+                Instant.now(),
+                Instant.now()
         );
 
         List<TppPerhitungan> perhitunganList = List.of(testTppPerhitungan);
@@ -734,9 +708,9 @@ public class PegawaiServiceTest {
         when(pegawaiRepository.findByNip(nip)).thenReturn(Optional.of(testPegawai));
         when(jabatanRepository.findByNip(nip)).thenReturn(Optional.empty());
         when(tppRepository.findByNipAndBulanAndTahun(nip, currentTpp.bulan(), currentTpp.tahun()))
-            .thenReturn(List.of(currentTpp));
+                .thenReturn(List.of(currentTpp));
         when(tppPerhitunganService.listTppPerhitunganByNipAndBulanAndTahun(nip, currentTpp.bulan(), currentTpp.tahun()))
-            .thenReturn(perhitunganList);
+                .thenReturn(perhitunganList);
 
         PegawaiWithJabatanResponse result = pegawaiService.detailPegawaiWithJabatan(nip);
 

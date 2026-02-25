@@ -10,7 +10,6 @@ import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
-import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.perhitungan.domain.TppPerhitunganRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppKodeOpdBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunSudahAdaException;
@@ -29,9 +28,6 @@ class TppServiceTest {
     private TppRepository tppRepository;
 
     @Mock
-    private TppPerhitunganRepository tppPerhitunganRepository;
-
-    @Mock
     private PegawaiRepository pegawaiRepository;
 
     @Mock
@@ -41,7 +37,7 @@ class TppServiceTest {
 
     @BeforeEach
     void setUp() {
-        tppService = new TppService(tppRepository, tppPerhitunganRepository, pegawaiRepository, opdRepository);
+        tppService = new TppService(tppRepository, pegawaiRepository, opdRepository);
     }
 
     private Tpp createTestTpp() {
@@ -79,9 +75,7 @@ class TppServiceTest {
 
         when(opdRepository.existsByKodeOpd(kodeOpd)).thenReturn(false);
 
-        assertThrows(OpdNotFoundException.class, () -> {
-            tppService.listTppByKodeOpd(kodeOpd);
-        });
+        assertThrows(OpdNotFoundException.class, () -> tppService.listTppByKodeOpd(kodeOpd));
 
         verify(opdRepository).existsByKodeOpd(kodeOpd);
         verify(tppRepository, never()).findByKodeOpd(any());
@@ -108,9 +102,7 @@ class TppServiceTest {
 
         when(pegawaiRepository.existsByNip(nip)).thenReturn(false);
 
-        assertThrows(PegawaiNotFoundException.class, () -> {
-            tppService.listTppByNip(nip);
-        });
+        assertThrows(PegawaiNotFoundException.class, () -> tppService.listTppByNip(nip));
 
         verify(pegawaiRepository).existsByNip(nip);
         verify(tppRepository, never()).findByNip(any());
@@ -156,9 +148,7 @@ class TppServiceTest {
 
         when(tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)).thenReturn(List.of());
 
-        assertThrows(TppJenisTppKodeOpdBulanTahunNotFoundException.class, () -> {
-            tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun);
-        });
+        assertThrows(TppJenisTppKodeOpdBulanTahunNotFoundException.class, () -> tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun));
 
         verify(tppRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
     }
@@ -190,9 +180,7 @@ class TppServiceTest {
         when(tppRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun))
                 .thenReturn(Optional.empty());
 
-        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class, () -> {
-            tppService.detailTpp(jenisTpp, nip, bulan, tahun);
-        });
+        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class, () -> tppService.detailTpp(jenisTpp, nip, bulan, tahun));
 
         verify(tppRepository).findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun);
     }
@@ -231,9 +219,7 @@ class TppServiceTest {
         when(tppRepository.existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())).thenReturn(false);
 
-        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class, () -> {
-            tppService.ubahTpp(tpp);
-        });
+        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class, () -> tppService.ubahTpp(tpp));
 
         verify(tppRepository).existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
@@ -276,9 +262,7 @@ class TppServiceTest {
         when(tppRepository.existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())).thenReturn(true);
 
-        assertThrows(TppJenisTppNipBulanTahunSudahAdaException.class, () -> {
-            tppService.tambahTpp(tpp);
-        });
+        assertThrows(TppJenisTppNipBulanTahunSudahAdaException.class, () -> tppService.tambahTpp(tpp));
 
         verify(tppRepository).existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun());
@@ -307,9 +291,7 @@ class TppServiceTest {
         doThrow(new RuntimeException("Data not found")).when(tppRepository)
                 .deleteByNipAndBulanAndTahun(nip, bulan, tahun);
 
-        assertThrows(RuntimeException.class, () -> {
-            tppService.hapusTppByNipBulanTahun(nip, bulan, tahun);
-        });
+        assertThrows(RuntimeException.class, () -> tppService.hapusTppByNipBulanTahun(nip, bulan, tahun));
 
         verify(tppRepository).deleteByNipAndBulanAndTahun(nip, bulan, tahun);
     }

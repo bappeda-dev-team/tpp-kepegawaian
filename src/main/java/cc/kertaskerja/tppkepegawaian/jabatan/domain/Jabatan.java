@@ -10,6 +10,8 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.HasPeriode;
+
 @Table(name = "jabatan")
 public record Jabatan(
         @Id Long id,
@@ -40,7 +42,37 @@ public record Jabatan(
 
         @CreatedDate Instant createdDate,
 
-        @LastModifiedDate Instant lastModifiedDate) {
+        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode {
+
+    // buat comparator periode
+    // ambil dari tanggalMulai
+    @Override
+    public Integer bulan() {
+        return convertToBulanInteger(this.tanggalMulai());
+    }
+
+    @Override
+    public Integer tahun() {
+        return convertToTahunInteger(this.tanggalMulai());
+    }
+
+    private Integer convertToBulanInteger(LocalDate tanggal) {
+        if (tanggal == null) {
+            return null;
+        }
+
+        return tanggal.getMonthValue();
+    }
+
+    private Integer convertToTahunInteger(LocalDate tanggal) {
+        if (tanggal == null) {
+            return null;
+        }
+
+        return tanggal.getYear();
+    }
+
+    // initiator
     public static Jabatan of(
             String nip,
             String namaPegawai,

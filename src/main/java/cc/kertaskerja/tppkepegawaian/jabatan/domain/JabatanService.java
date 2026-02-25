@@ -12,11 +12,11 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.PeriodeUtils;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithTppPajakResponse;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithTppPajakRequest;
-import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.Pegawai;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiRepository;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.Tpp;
@@ -34,8 +34,7 @@ public class JabatanService {
     private final PegawaiRepository pegawaiRepository;
     private final TppService tppService;
 
-    public JabatanService(JabatanRepository jabatanRepository, OpdRepository opdRepository,
-            PegawaiRepository pegawaiRepository, TppService tppService) {
+    public JabatanService(JabatanRepository jabatanRepository, PegawaiRepository pegawaiRepository, TppService tppService) {
         this.jabatanRepository = jabatanRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.tppService = tppService;
@@ -57,21 +56,35 @@ public class JabatanService {
         if (resolvedTahun < 2000) {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
+
+        // GET DATA JABATAN BY KODE OPD (ALL)
         Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
 
-        List<String> nipPegawais = StreamSupport.stream(jabatans.spliterator(), false)
-                .map(Jabatan::nip)
+        // START THE THING
+        // Mulai filter dan ambil pegawai serta gabungkan dengan tpp
+        List<Jabatan> jabatanList = StreamSupport.stream(jabatans.spliterator(), false)
                 .toList();
 
-        List<Tpp> tppBasics = tppService.detailTppBatch(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun, kodeOpd);
+        // ambil jabatan terbaru per nip
+        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
+                jabatanList,
+                bulan,
+                tahun,
+                Jabatan::nip);
 
-        Map<String, Tpp> tppByNip = tppBasics.stream()
-                .collect(Collectors.toMap(Tpp::nip, Function.identity(),
-                        (a, b) -> a));
+        // ambil nip unik
+        List<String> nipPegawais = new ArrayList<>(latestJabatanPerNip.keySet());
+
+        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(
+                BASIC_TPP,
+                nipPegawais,
+                resolvedBulan,
+                resolvedTahun,
+                kodeOpd);
 
         List<JabatanWithTppPajakResponse> responses = new ArrayList<>();
 
-        for (Jabatan jabatan : jabatans) {
+        for (Jabatan jabatan : latestJabatanPerNip.values()) {
             Tpp tpp = tppByNip.get(jabatan.nip());
             responses.add(mapToJabatanWithTpp(jabatan, tpp));
         }
@@ -325,8 +338,8 @@ public class JabatanService {
         // tetapi kita skip dulu
         // asumsikan selalu tanggal 1 di DEFAULT_TANGGAL
         // Y M D
-        LocalDate tanggalMulai = createTanggal(request.tahunMulai(), request.bulanMulai(), DEFAULT_TANGGAL);
-        LocalDate tanggalAkhir = createTanggal(request.tahunBerakhir(), request.bulanBerakhir(), DEFAULT_TANGGAL);
+        LocalDate tanggalMulai = createTanggal(request.tahunMulai(), request.bulanMulai());
+        LocalDate tanggalAkhir = createTanggal(request.tahunBerakhir(), request.bulanBerakhir());
         return new Jabatan(
                 request.jabatanId(),
                 request.nip(),
@@ -373,12 +386,12 @@ public class JabatanService {
     // akomodir tanggalMulai dan tanggalAkhir di Jabatan
     // buat LocalDate dari tahun, bulan, tanggal dari request
     // untuk memudahkan sekaligus guard frontend
-    private LocalDate createTanggal(Integer tahun, Integer bulan, Integer tanggal) {
+    private LocalDate createTanggal(Integer tahun, Integer bulan) {
         if (bulan == null || tahun == null) {
             return null;
         }
 
-        return LocalDate.of(tahun, bulan, tanggal);
+        return LocalDate.of(tahun, bulan, JabatanService.DEFAULT_TANGGAL);
     }
 
     private Integer convertToBulanInteger(LocalDate tanggal) {

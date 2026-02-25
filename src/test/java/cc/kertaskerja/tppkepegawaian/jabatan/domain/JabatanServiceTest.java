@@ -10,7 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import java.util.Calendar;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -50,16 +50,14 @@ public class JabatanServiceTest {
     private static final float DEFAULT_BASIC_TPP = 1_000_000f;
 
     private Jabatan testJabatan;
-    private Calendar tanggalMulai;
-    private Calendar tanggalAkhir;
+    private LocalDate tanggalMulai;
+    private LocalDate tanggalAkhir;
 
     @BeforeEach
     void setUp() {
-        tanggalMulai = Calendar.getInstance();
-        tanggalMulai.set(2023, Calendar.JANUARY, 1);
+        tanggalMulai = LocalDate.of(2025, 1,1);
 
-        tanggalAkhir = Calendar.getInstance();
-        tanggalAkhir.set(2025, Calendar.DECEMBER, 31);
+        tanggalAkhir = LocalDate.of(2025, 1,2);
 
         testJabatan = new Jabatan(
                 1L,
@@ -73,8 +71,8 @@ public class JabatanServiceTest {
                 "Junior",
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
     }
@@ -226,8 +224,8 @@ public class JabatanServiceTest {
                 "Junior",
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -289,8 +287,8 @@ public class JabatanServiceTest {
                 "Senior",
                 "Golongan III",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 null,
                 null);
 
@@ -341,8 +339,8 @@ public class JabatanServiceTest {
                 "Middle",
                 "Golongan II",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 testJabatan.createdDate(),
                 Instant.now());
 
@@ -452,8 +450,8 @@ public class JabatanServiceTest {
                 "Senior",
                 "Golongan III",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -469,8 +467,8 @@ public class JabatanServiceTest {
                 "Sepuh",
                 "Golongan IV",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -517,8 +515,8 @@ public class JabatanServiceTest {
                 "Junior",
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -534,8 +532,8 @@ public class JabatanServiceTest {
                 "Middle",
                 "Golongan II",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -589,8 +587,8 @@ public class JabatanServiceTest {
                 "Junior",
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -638,8 +636,8 @@ public class JabatanServiceTest {
                 "Senior",
                 "Golongan III",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -655,8 +653,8 @@ public class JabatanServiceTest {
                 "Sepuh",
                 "Golongan IV",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 
@@ -672,8 +670,8 @@ public class JabatanServiceTest {
                 "Junior",
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
-                tanggalMulai.getTime(),
-                tanggalAkhir.getTime(),
+                tanggalMulai,
+                tanggalAkhir,
                 Instant.now(),
                 Instant.now());
 

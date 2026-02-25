@@ -1,8 +1,6 @@
 
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
-import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -11,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.PeriodeUtils;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdNotFoundException;
 import cc.kertaskerja.tppkepegawaian.opd.domain.OpdRepository;
 import cc.kertaskerja.tppkepegawaian.pegawai.domain.PegawaiNotFoundException;
@@ -27,7 +26,7 @@ public class TppService {
     private final PegawaiRepository pegawaiRepository;
 
     public TppService(TppRepository tppRepository, PegawaiRepository pegawaiRepository,
-        OpdRepository opdRepository) {
+            OpdRepository opdRepository) {
         this.tppRepository = tppRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.opdRepository = opdRepository;
@@ -69,6 +68,36 @@ public class TppService {
                 .orElseThrow(() -> new TppJenisTppNipBulanTahunNotFoundException(jenisTpp, nip, bulan, tahun));
     }
 
+    public Map<String, Tpp> detailTppBatchByNip(String jenisTpp, List<String> nipPegawais, Integer bulan, Integer tahun,
+            String kodeOpd) {
+        if (nipPegawais == null || nipPegawais.isEmpty()) {
+            throw new IllegalArgumentException("nipPegawais tidak boleh kosong");
+        }
+
+        // ambil seluruh tpp tanpa filter periode
+        List<Tpp> allTpp = tppRepository.findAllByJenisTppAndNipInAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
+
+        // group by nip ambil latest
+        Map<String, Tpp> latestPerNip = PeriodeUtils.latestPerKeyUntil(
+                allTpp,
+                bulan,
+                tahun,
+                Tpp::nip);
+
+        return nipPegawais.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        nip -> latestPerNip.getOrDefault(
+                                nip,
+                                Tpp.zero(
+                                        jenisTpp,
+                                        kodeOpd,
+                                        nip,
+                                        "--",
+                                        bulan,
+                                        tahun))));
+    }
+
     public List<Tpp> detailTppBatch(String jenisTpp, List<String> nipPegawais, Integer bulan, Integer tahun,
             String kodeOpd) {
         if (nipPegawais == null || nipPegawais.isEmpty()) {
@@ -76,25 +105,14 @@ public class TppService {
         }
 
         // ambil seluruh tpp tanpa filter periode
-        List<Tpp> all = tppRepository.findAllByJenisTppAndNipInAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
+        List<Tpp> allTpp = tppRepository.findAllByJenisTppAndNipInAndKodeOpd(jenisTpp, nipPegawais, kodeOpd);
 
-        // untuk filter periode tpp
-        Comparator<Tpp> periodeTppComparator = Comparator.comparing(Tpp::bulan)
-                .thenComparing(Tpp::tahun);
-
-        // filter <= periode target agar menncari tpp yang mendekati
-        // periode tersebut
-        List<Tpp> filteredTpp = all.stream()
-                .filter(t -> t.tahun() < tahun ||
-                        (t.tahun().equals(tahun) && t.bulan() <= bulan))
-                .toList();
-
-        // group by nip ambil latest
-        Map<String, Tpp> latestPerNip = filteredTpp.stream()
-                .collect(Collectors.toMap(
-                        Tpp::nip,
-                        Function.identity(),
-                        (t1, t2) -> periodeTppComparator.compare(t1, t2) > 0 ? t1 : t2));
+        // // group by nip ambil latest
+        Map<String, Tpp> latestPerNip = PeriodeUtils.latestPerKeyUntil(
+                allTpp,
+                bulan,
+                tahun,
+                Tpp::nip);
 
         return nipPegawais.stream()
                 .map(nip -> latestPerNip.getOrDefault(
@@ -152,33 +170,4 @@ public class TppService {
                 .orElseGet(() -> tppRepository.save(tpp));
     }
 
-    // saat user ganti nip jabatan, data nip tpp juga ganti
-    @Transactional
-    public Tpp upsertTppReplacingOldNip(Tpp tpp, String nip) {
-        String nipBaru = (nip != null && !nip.isBlank()) ? nip : tpp.nip();
-
-        return tppRepository
-                .findByJenisTppAndNipAndBulanAndTahun(
-                        tpp.jenisTpp(),
-                        nipBaru,
-                        tpp.bulan(),
-                        tpp.tahun())
-                .map(existing -> {
-                    Tpp updated = new Tpp(
-                            existing.id(),
-                            existing.jenisTpp(),
-                            tpp.kodeOpd(),
-                            tpp.nip(),
-                            tpp.kodePemda(),
-                            tpp.maksimumTpp(),
-                            tpp.pajak(),
-                            tpp.bpjs(),
-                            existing.bulan(),
-                            existing.tahun(),
-                            existing.createdDate(),
-                            Instant.now());
-                    return tppRepository.save(updated);
-                })
-                .orElseGet(() -> tppRepository.save(tpp));
-    }
 }
