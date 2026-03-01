@@ -382,6 +382,7 @@ public class JabatanService {
                 jabatan.golongan(),
                 tpp.maksimumTpp(),
                 tpp.pajak(),
+                tpp.bpjs(),
                 // bulan mulai, tahun mulai
                 convertToBulanInteger(jabatan.tanggalMulai()),
                 convertToTahunInteger(jabatan.tanggalMulai()),

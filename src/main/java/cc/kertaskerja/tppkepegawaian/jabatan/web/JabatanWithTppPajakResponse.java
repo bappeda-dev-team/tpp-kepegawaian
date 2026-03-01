@@ -15,6 +15,7 @@ public record JabatanWithTppPajakResponse(
         String golongan,
         Float basicTpp,
         Float pajak,
+        Float bpjs,
         Integer bulanMulai,
         Integer tahunMulai,
         @Nullable Integer bulanBerakhir,
