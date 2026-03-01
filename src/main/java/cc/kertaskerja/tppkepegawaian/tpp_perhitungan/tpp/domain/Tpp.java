@@ -39,7 +39,12 @@ public record Tpp(
     private static final String BASIC_TPP = "BASIC_TPP";
     private static final Float BASE_MAX_TPP = 0.0f;
     private static final Float BASE_PAJAK = 0.0f;
-    private static final Float BASE_BPJS = 0.01f;
+    private static final Float BASE_BPJS_1 = 0.01f;
+    private static final Float BASE_BPJS_4 = 0.04f;
+
+    public Float bpjs_4() {
+        return BASE_BPJS_4;
+    }
 
     public static Tpp of(
             String jenisTpp,
@@ -98,7 +103,7 @@ public record Tpp(
                 kodePemda,
                 maxTpp,
                 pajak,
-                BASE_BPJS,
+                BASE_BPJS_1,
                 bulan,
                 tahun,
                 null,
@@ -120,7 +125,7 @@ public record Tpp(
                 kodePemda,
                 BASE_MAX_TPP,
                 BASE_PAJAK,
-                BASE_BPJS,
+                BASE_BPJS_1,
                 bulan,
                 tahun,
                 null,
