@@ -47,6 +47,10 @@ public record JabatanWithTppPajakRequest(
         // === ADMINISTRATIF SAJA ===
         @Nullable Integer bulan,
 
-        @Nullable Integer tahun
+        @Nullable Integer tahun,
+        // tambahan bpjs dan no rekening
+        @Nullable String noRekening,
+
+        @Nullable String npwp
         ) {
 }

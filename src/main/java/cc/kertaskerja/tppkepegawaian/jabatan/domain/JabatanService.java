@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+import cc.kertaskerja.tppkepegawaian.npwp.domain.Npwp;
+import cc.kertaskerja.tppkepegawaian.npwp.domain.NpwpService;
+import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningPegawai;
+import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningService;
 import org.springframework.stereotype.Service;
 
 import cc.kertaskerja.tppkepegawaian.domain.periode.PeriodeUtils;
@@ -31,19 +35,28 @@ public class JabatanService {
     private final JabatanRepository jabatanRepository;
     private final PegawaiRepository pegawaiRepository;
     private final TppService tppService;
+    private final RekeningService rekeningService;
+    private final NpwpService npwpService;
 
-    public JabatanService(JabatanRepository jabatanRepository, PegawaiRepository pegawaiRepository, TppService tppService) {
+    public JabatanService(JabatanRepository jabatanRepository,
+                          PegawaiRepository pegawaiRepository,
+                          TppService tppService,
+                          RekeningService rekeningService,
+                          NpwpService npwpService) {
         this.jabatanRepository = jabatanRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.tppService = tppService;
+        this.rekeningService = rekeningService;
+        this.npwpService = npwpService;
     }
 
     public Iterable<Jabatan> listAllJabatan() {
         return jabatanRepository.findAll();
     }
 
-    public List<JabatanWithTppPajakResponse> listAllJabatanWithTppByBulanTahunKodeOpd(Integer bulan, Integer tahun,
-            String kodeOpd) {
+    public List<JabatanWithTppPajakResponse> listAllJabatanWithTppByBulanTahunKodeOpd(Integer bulan,
+                                                                                      Integer tahun,
+                                                                                      String kodeOpd) {
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
 
@@ -84,7 +97,23 @@ public class JabatanService {
 
         for (Jabatan jabatan : latestJabatanPerNip.values()) {
             Tpp tpp = tppByNip.get(jabatan.nip());
-            responses.add(mapToJabatanWithTpp(jabatan, tpp));
+
+            RekeningPegawai rekeningPegawai = rekeningService.findByNip(jabatan.nip())
+                    .orElseGet(() -> RekeningPegawai.of(
+                            jabatan.nip(),
+                            "-",
+                            "-",
+                            jabatan.namaPegawai(),
+                            "BELUM_ADA"
+                    ));
+            Npwp npwpPegawai = npwpService.findByNip(jabatan.nip())
+                    .orElseGet(() -> Npwp.of(
+                            jabatan.nip(),
+                            "-",
+                            "BELUM_DITAMBAHKAN",
+                            "BELUM_ADA"
+                    ));
+            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai));
         }
 
         return responses;
@@ -162,10 +191,25 @@ public class JabatanService {
 
         Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun, kodeOpd);
 
-        return latestJabatanPerNip.values().stream().map( j -> {
+        return latestJabatanPerNip.values().stream().map(j -> {
             Tpp tppBasic = tppByNip.get(j.nip());
+            RekeningPegawai rekeningPegawai = rekeningService.findByNip(j.nip())
+                    .orElseGet(() -> RekeningPegawai.of(
+                            j.nip(),
+                            "-",
+                            "-",
+                            j.namaPegawai(),
+                            "BELUM_ADA"
+                    ));
+            Npwp npwpPegawai = npwpService.findByNip(j.nip())
+                    .orElseGet(() -> Npwp.of(
+                            j.nip(),
+                            "-",
+                            "BELUM_DITAMBAHKAN",
+                            "BELUM_ADA"
+                    ));
 
-            return mapToJabatanWithTpp(j, tppBasic);
+            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai);
         }).toList();
     }
 
@@ -267,8 +311,32 @@ public class JabatanService {
             throw new IllegalStateException("Gagal menyimpan TPP pegawai");
         }
 
+        RekeningPegawai rekeningPegawaiReq = RekeningPegawai.of(
+                request.nip(),
+                request.noRekening(),
+                "",
+                request.namaPegawai(),
+                "AKTIF"
+        );
+        RekeningPegawai rekeningPegawai = rekeningService.save(rekeningPegawaiReq);
+
+        if (rekeningPegawai == null || rekeningPegawai.id() == null) {
+            throw new IllegalStateException("Gagal menyimpan Rekening Pegawai");
+        }
+
+        Npwp npwpReq = Npwp.of(
+                request.nip(),
+                request.npwp(),
+                "",
+                "AKTIF"
+        );
+        Npwp npwpPegawai = npwpService.save(npwpReq);
+        if (npwpPegawai == null || npwpPegawai.id() == null) {
+            throw new IllegalStateException("Gagal menyimpan NPWP Pegawai");
+        }
+
         // 7. Kembalikan response
-        return mapToJabatanWithTpp(updatedJabatan, savedTpp);
+        return mapToJabatanWithTpp(updatedJabatan, savedTpp, rekeningPegawai, npwpPegawai);
     }
 
     public JabatanWithTppPajakResponse tambahJabatanWithTpp(JabatanWithTppPajakRequest request) {
@@ -312,10 +380,35 @@ public class JabatanService {
             throw new IllegalStateException("Gagal menyimpan TPP pegawai");
         }
 
+        RekeningPegawai rekeningPegawaiReq = RekeningPegawai.of(
+                request.nip(),
+                request.noRekening(),
+                "",
+                request.namaPegawai(),
+                "AKTIF"
+        );
+        RekeningPegawai rekeningPegawai = rekeningService.save(rekeningPegawaiReq);
+
+        if (rekeningPegawai == null || rekeningPegawai.id() == null) {
+            throw new IllegalStateException("Gagal menyimpan Rekening Pegawai");
+        }
+
+        Npwp npwpReq = Npwp.of(
+                request.nip(),
+                request.npwp(),
+                "",
+                "AKTIF"
+        );
+        Npwp npwpPegawai = npwpService.save(npwpReq);
+
+        if (npwpPegawai == null || npwpPegawai.id() == null) {
+            throw new IllegalStateException("Gagal menyimpan NPWP Pegawai");
+        }
+
         // newJabatanPegawai
         // savedTpp
         // 6. Kembalikan response
-        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp);
+        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp, rekeningPegawai, npwpPegawai);
     }
 
     public void hapusJabatan(Long id) {
@@ -368,7 +461,7 @@ public class JabatanService {
                 Instant.now());
     }
 
-    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp) {
+    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai, Npwp npwp) {
         return new JabatanWithTppPajakResponse(
                 jabatan.id(),
                 jabatan.nip(),
@@ -391,7 +484,9 @@ public class JabatanService {
                 convertToBulanInteger(jabatan.tanggalAkhir()),
                 convertToTahunInteger(jabatan.tanggalAkhir()),
                 tpp.bulan(),
-                tpp.tahun());
+                tpp.tahun(),
+                rekeningPegawai.nomorRekening(),
+                npwp.npwp());
     }
 
     // Y M D

@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import cc.kertaskerja.tppkepegawaian.npwp.domain.NpwpService;
+import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,6 +49,12 @@ public class JabatanServiceTest {
 
     @InjectMocks
     private JabatanService jabatanService;
+
+    @Mock
+    private RekeningService rekeningService;
+
+    @Mock
+    private NpwpService npwpService;
 
     private static final float DEFAULT_BASIC_TPP = 1_000_000f;
 

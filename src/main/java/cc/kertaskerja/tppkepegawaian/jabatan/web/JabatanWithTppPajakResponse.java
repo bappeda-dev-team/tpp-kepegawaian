@@ -22,5 +22,7 @@ public record JabatanWithTppPajakResponse(
         @Nullable Integer bulanBerakhir,
         @Nullable Integer tahunBerakhir,
         Integer bulan,
-        Integer tahun) {
+        Integer tahun,
+        String nomorRekening,
+        String npwp) {
 }
