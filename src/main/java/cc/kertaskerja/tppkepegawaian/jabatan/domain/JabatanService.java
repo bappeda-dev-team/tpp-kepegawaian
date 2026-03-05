@@ -313,7 +313,7 @@ public class JabatanService {
 
         RekeningPegawai rekeningPegawaiReq = RekeningPegawai.of(
                 request.nip(),
-                request.noRekening(),
+                request.nomorRekening(),
                 "",
                 request.namaPegawai(),
                 "AKTIF"
@@ -382,7 +382,7 @@ public class JabatanService {
 
         RekeningPegawai rekeningPegawaiReq = RekeningPegawai.of(
                 request.nip(),
-                request.noRekening(),
+                request.nomorRekening(),
                 "",
                 request.namaPegawai(),
                 "AKTIF"
