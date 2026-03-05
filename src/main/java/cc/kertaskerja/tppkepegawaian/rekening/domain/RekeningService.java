@@ -13,10 +13,13 @@ public class RekeningService {
     }
 
     public RekeningPegawai save(RekeningPegawai rekeningPegawai) {
-        return rekeningRepository.save(rekeningPegawai);
+        RekeningPegawai encrypted = rekeningPegawai.encryptRekening();
+        RekeningPegawai saved = rekeningRepository.save(encrypted);
+        return saved.decryptRekening();
     }
 
     public Optional<RekeningPegawai> findByNip(String nip) {
-        return rekeningRepository.findByNip(nip);
+        return rekeningRepository.findByNip(nip)
+                .map(RekeningPegawai::decryptRekening);
     }
 }

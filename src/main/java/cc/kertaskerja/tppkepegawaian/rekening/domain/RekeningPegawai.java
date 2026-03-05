@@ -1,5 +1,6 @@
 package cc.kertaskerja.tppkepegawaian.rekening.domain;
 
+import cc.kertaskerja.tppkepegawaian.util.CryptoUtil;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -56,18 +57,39 @@ public record RekeningPegawai(
         );
     }
 
-    public static RekeningPegawai NonAktif(
-            String nip,
-            String nomorRekening,
-            String namaBank,
-            String namaPemilik) {
-        return new RekeningPegawai(null,
+    public RekeningPegawai encryptRekening() {
+        if (nomorRekening == null || nomorRekening.isBlank()) {
+            return this;
+        }
+
+        if (CryptoUtil.isEncrypted(nomorRekening)) {
+            return this;
+        }
+        return new RekeningPegawai(
+                id,
                 nip,
-                nomorRekening,
+                CryptoUtil.encrypt(nomorRekening),
                 namaBank,
                 namaPemilik,
-                NON_AKTIF,
-                null,
-                null);
+                status,
+                createdDate,
+                lastModifiedDate
+        );
+    }
+
+    public RekeningPegawai decryptRekening() {
+        if (!CryptoUtil.isEncrypted(nomorRekening)) {
+            return this;
+        }
+        return new RekeningPegawai(
+                id,
+                nip,
+                CryptoUtil.decrypt(nomorRekening),
+                namaBank,
+                namaPemilik,
+                status,
+                createdDate,
+                lastModifiedDate
+        );
     }
 }

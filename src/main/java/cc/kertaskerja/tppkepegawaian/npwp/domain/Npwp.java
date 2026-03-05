@@ -1,6 +1,5 @@
 package cc.kertaskerja.tppkepegawaian.npwp.domain;
 
-import jakarta.annotation.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -54,5 +53,5 @@ public record Npwp(
                 null,
                 null
         );
-    };
+    }
 }

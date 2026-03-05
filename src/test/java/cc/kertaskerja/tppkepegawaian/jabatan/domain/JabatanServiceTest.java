@@ -51,9 +51,11 @@ public class JabatanServiceTest {
     private JabatanService jabatanService;
 
     @Mock
+    @SuppressWarnings("unused")
     private RekeningService rekeningService;
 
     @Mock
+    @SuppressWarnings("unused")
     private NpwpService npwpService;
 
     private static final float DEFAULT_BASIC_TPP = 1_000_000f;
