@@ -17,6 +17,6 @@ public class NpwpService {
     }
 
     public Optional<Npwp> findByNip(String nip) {
-        return npwpRepository.findByNip(nip);
+        return npwpRepository.findFirstByNipOrderByIdDesc(nip);
     }
 }

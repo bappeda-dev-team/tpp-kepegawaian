@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface NpwpRepository extends CrudRepository<Npwp, Long> {
-    Optional<Npwp> findByNip(String nip);
+    Optional<Npwp> findFirstByNipOrderByIdDesc(String nip);
 }

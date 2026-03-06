@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface RekeningRepository extends CrudRepository<RekeningPegawai, Long> {
-   Optional<RekeningPegawai> findByNip(String nip);
+   Optional<RekeningPegawai> findFirstByNipOrderByIdDesc(String nip);
 }

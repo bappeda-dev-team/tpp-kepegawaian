@@ -19,7 +19,7 @@ public class RekeningService {
     }
 
     public Optional<RekeningPegawai> findByNip(String nip) {
-        return rekeningRepository.findByNip(nip)
+        return rekeningRepository.findFirstByNipOrderByIdDesc(nip)
                 .map(RekeningPegawai::decryptRekening);
     }
 }
