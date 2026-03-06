@@ -11,15 +11,16 @@ public final class PeriodeUtils {
     private PeriodeUtils() {
     }
 
-    public static <T extends HasPeriode, K> Map<K, T> latestPerKeyUntil(
+    public static <T extends HasPeriode & HasId, K> Map<K, T> latestPerKeyUntil(
             List<T> data,
             Integer bulan,
             Integer tahun,
             Function<T, K> keyExtractor) {
 
         Comparator<T> comparator = Comparator
-                .comparing((T t) -> t.bulan())
-                .thenComparing(HasPeriode::tahun);
+                .comparing((T t) -> t.tahun())
+                .thenComparing(HasPeriode::bulan)
+                .thenComparing(HasId::id);
 
         return data.stream()
                 // filter <= target periode

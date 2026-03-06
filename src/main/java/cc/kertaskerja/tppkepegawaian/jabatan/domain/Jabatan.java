@@ -3,6 +3,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 import java.time.Instant;
 import java.time.LocalDate;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.HasId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -42,7 +43,7 @@ public record Jabatan(
 
         @CreatedDate Instant createdDate,
 
-        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode {
+        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode, HasId {
 
     // buat comparator periode
     // ambil dari tanggalMulai

@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
 import java.time.Instant;
 
+import cc.kertaskerja.tppkepegawaian.domain.periode.HasId;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -34,7 +35,7 @@ public record Tpp(
 
         @CreatedDate Instant createdDate,
 
-        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode {
+        @LastModifiedDate Instant lastModifiedDate) implements HasPeriode, HasId {
 
     private static final String BASIC_TPP = "BASIC_TPP";
     private static final Float BASE_MAX_TPP = 0.0f;
