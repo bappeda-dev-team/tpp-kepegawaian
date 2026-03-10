@@ -77,7 +77,7 @@ public class JabatanService {
                 .toList();
 
         // ambil jabatan terbaru per nip
-        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
+        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyFlexible(
                 jabatanList,
                 bulan,
                 tahun,
@@ -118,17 +118,6 @@ public class JabatanService {
 
         return responses;
     }
-
-    // public List<JabatanWithTppPajakResponse> listAllJabatanWithTpp() {
-    // Iterable<Jabatan> jabatans = jabatanRepository.findAll();
-    // List<JabatanWithTppPajakResponse> responses = new ArrayList<>();
-    //
-    // for (Jabatan jabatan : jabatans) {
-    // responses.add(mapToJabatanWithTpp(jabatan));
-    // }
-    //
-    // return responses;
-    // }
 
     public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
         return jabatanRepository.findByKodeOpd(kodeOpd);

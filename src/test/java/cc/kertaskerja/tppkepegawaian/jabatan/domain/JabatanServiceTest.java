@@ -2,8 +2,9 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import cc.kertaskerja.tppkepegawaian.npwp.domain.NpwpService;
 import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -139,51 +141,6 @@ public class JabatanServiceTest {
         assertThat(result).isEmpty();
         verify(jabatanRepository).findAll();
     }
-
-//    @Test
-//    void listAllJabatanWithTpp_WhenTppAvailable_ShouldReturnTppValues() {
-//        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
-//        Tpp tpp = new Tpp(
-//                1L,
-//                "BASIC_TPP",
-//                testJabatan.kodeOpd(),
-//                testJabatan.nip(),
-//                "--",
-//                200_000f,
-//                0.05f,
-//                0.01f,
-//                1,
-//                2025,
-//                Instant.now(),
-//                Instant.now());
-//        when(tppService.detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025)).thenReturn(tpp);
-//
-//        List<JabatanWithTppPajakResponse> result = jabatanService.listAllJabatanWithTpp();
-//
-//        assertThat(result).hasSize(1);
-//        JabatanWithTppPajakResponse response = result.get(0);
-//        assertThat(response.basicTpp()).isEqualTo(200_000f);
-//        assertThat(response.pajak()).isEqualTo(0.05f);
-//        assertThat(response.nip()).isEqualTo(testJabatan.nip());
-//        verify(jabatanRepository).findAll();
-//        verify(tppService).detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025);
-//    }
-
-//    @Test
-//    void listAllJabatanWithTpp_WhenTppMissing_ShouldFallbackToJabatanValues() {
-//        when(jabatanRepository.findAll()).thenReturn(List.of(testJabatan));
-//        when(tppService.detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025))
-//                .thenThrow(new TppJenisTppNipBulanTahunNotFoundException("BASIC_TPP", testJabatan.nip(), 1, 2025));
-//
-//        List<JabatanWithTppPajakResponse> result = jabatanService.listAllJabatanWithTpp();
-//
-//        assertThat(result).hasSize(1);
-//        JabatanWithTppPajakResponse response = result.get(0);
-//        assertThat(response.basicTpp()).isEqualTo(testJabatan.basicTpp());
-//        assertThat(response.pajak()).isNull();
-//        verify(jabatanRepository).findAll();
-//        verify(tppService).detailTpp("BASIC_TPP", testJabatan.nip(), 1, 2025);
-//    }
 
     @Test
     void listJabatanByKodeOpdWithPegawai_WhenJabatanExists_ShouldReturnResponseList() {
@@ -701,5 +658,115 @@ public class JabatanServiceTest {
 
         verify(jabatanRepository).findAllByNip(nip);
         verify(pegawaiRepository, times(3)).findByNip(nip);
+    }
+
+    // Test Suite for listAllJabatanWithTppByBulanTahunKodeOpd
+    @Nested
+    class ListAllJabatanWithTppByBulanTahunKodeOpdTests {
+        @Nested
+        class ValidationTests {
+            @Test
+            void shouldThrowExceptionWhenBulanInvalid() {
+                assertThrows(IllegalArgumentException.class, () ->
+                        jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(13, 2025, "1.02"));
+            }
+
+            @Test
+            void shouldThrowExceptionWhenBulanZero() {
+                assertThrows(IllegalArgumentException.class, () ->
+                        jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(0, 2025, "1.02"));
+            }
+
+            @Test
+            void shouldThrowExceptionWhenTahunInvalid() {
+                assertThrows(IllegalArgumentException.class, () ->
+                        jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 1999, "1.02"));
+            }
+        }
+
+        @Nested
+        class DefaultValueTests {
+
+            @Test
+            void shouldUseDefaultBulanTahunWhenNull() {
+
+                when(jabatanRepository.findByKodeOpd("1.02"))
+                        .thenReturn(List.of());
+
+                jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(null, null, "1.02");
+
+                verify(tppService).detailTppBatchByNip(
+                        any(),
+                        any(),
+                        eq(1),
+                        eq(2025),
+                        eq("1.02"));
+            }
+        }
+
+        @Nested
+        class RepositoryInteractionTests {
+
+            @Test
+            void shouldFetchJabatanFromRepository() {
+
+                when(jabatanRepository.findByKodeOpd("1.02"))
+                        .thenReturn(List.of());
+
+                jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+
+                verify(jabatanRepository).findByKodeOpd("1.02");
+            }
+        }
+
+        @Nested
+        class ResponseBuildingTests {
+
+            @Test
+            void shouldUseFallbackRekeningAndNpwpWhenNotFound() {
+
+                Jabatan jabatan = new Jabatan(
+                        1L,
+                        "123",
+                        "Ryan",
+                        "Programmer",
+                        "1.02",
+                        "AKTIF",
+                        "FUNGSIONAL",
+                        "IV",
+                        "III/a",
+                        "III",
+                        1000000f,
+                        LocalDate.of(2024, 1, 1),
+                        null,
+                        Instant.now(),
+                        Instant.now()
+                );
+
+                when(jabatanRepository.findByKodeOpd("1.02"))
+                        .thenReturn(List.of(jabatan));
+
+                when(tppService.detailTppBatchByNip(any(), any(), anyInt(), anyInt(), any()))
+                        .thenReturn(Map.of("123",
+                                Tpp.zero(
+                                        "BASIC_TPP",
+                                        "1.02",
+                                        "123",
+                                        "--",
+                                        1,
+                                        2024)));
+
+                when(rekeningService.findByNip("123"))
+                        .thenReturn(Optional.empty());
+
+                when(npwpService.findByNip("123"))
+                        .thenReturn(Optional.empty());
+
+                var result = jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+
+                assertEquals(1, result.size());
+            }
+        }
+
     }
 }

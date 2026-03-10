@@ -1,6 +1,7 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,6 +15,7 @@ import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJen
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunNotFoundException;
 import cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain.exception.TppJenisTppNipBulanTahunSudahAdaException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -294,5 +296,147 @@ class TppServiceTest {
         assertThrows(RuntimeException.class, () -> tppService.hapusTppByNipBulanTahun(nip, bulan, tahun));
 
         verify(tppRepository).deleteByNipAndBulanAndTahun(nip, bulan, tahun);
+    }
+
+    @Nested
+    class detailTppBatchByNipTests {
+        @Nested
+        class ValidationTests {
+            @Test
+            void shouldThrowExceptionWhenNipPegawaisIsNull() {
+                assertThrows(IllegalArgumentException.class, () ->
+                        tppService.detailTppBatchByNip(
+                                "BASIC_TPP",
+                                null,
+                                1,
+                                2025,
+                                "1.02"
+                        ));
+            }
+
+            @Test
+            void shouldThrowExceptionWHenNipPegawaisIsEmpty() {
+                assertThrows(IllegalArgumentException.class, () ->
+                        tppService.detailTppBatchByNip(
+                                "BASIC_TPP",
+                                List.of(),
+                                1,
+                                2025,
+                                "1.02"
+                        ));
+            }
+        }
+
+        @Nested
+        class RepositoryInteractionTests {
+            @Test
+            void shouldFetchTppFromRepository() {
+                List<String> nipPegawais = List.of("201001012010011001", "201001012010011002");
+                when(tppRepository.findAllByJenisTppAndNipInAndKodeOpd(
+                        "BASIC_TPP",
+                        nipPegawais,
+                        "1.02"
+                )).thenReturn(List.of());
+
+                tppService.detailTppBatchByNip("BASIC_TPP", nipPegawais, 1, 2025, "1.02");
+
+                verify(tppRepository).findAllByJenisTppAndNipInAndKodeOpd("BASIC_TPP",nipPegawais, "1.02");
+            }
+        }
+
+        @Nested
+        class ExistingTppTests {
+
+            @Test
+            void shouldReturnLatestTppWhenExists() {
+
+                List<String> nips = List.of("123");
+
+                Tpp tpp = new Tpp(
+                        1L,
+                        "BASIC_TPP",
+                        "1.02",
+                        "123",
+                        "KERTAS",
+                        2000000f,
+                        0f,
+                        0f,
+                        5,
+                        2025,
+                        Instant.now(),
+                        Instant.now());
+
+                when(tppRepository.findAllByJenisTppAndNipInAndKodeOpd(
+                        "BASIC_TPP",
+                        nips,
+                        "1.02"))
+                        .thenReturn(List.of(tpp));
+
+                var result = tppService.detailTppBatchByNip(
+                        "BASIC_TPP",
+                        nips,
+                        5,
+                        2025,
+                        "1.02");
+
+                assertEquals(2000000f, result.get("123").maksimumTpp());
+            }
+        }
+
+        @Nested
+        class ZeroTppTests {
+
+            @Test
+            void shouldReturnZeroTppWhenTppNotFound() {
+
+                List<String> nips = List.of("123");
+
+                when(tppRepository.findAllByJenisTppAndNipInAndKodeOpd(
+                        "BASIC_TPP",
+                        nips,
+                        "1.02"))
+                        .thenReturn(List.of());
+
+                var result = tppService.detailTppBatchByNip(
+                        "BASIC_TPP",
+                        nips,
+                        5,
+                        2025,
+                        "1.02");
+
+                Tpp tpp = result.get("123");
+
+                assertNotNull(tpp);
+                assertEquals(0f, tpp.maksimumTpp());
+                assertEquals("123", tpp.nip());
+            }
+        }
+
+        @Nested
+        class MultipleNipTests {
+
+            @Test
+            void shouldReturnAllRequestedNips() {
+
+                List<String> nips = List.of("123", "456");
+
+                when(tppRepository.findAllByJenisTppAndNipInAndKodeOpd(
+                        any(),
+                        any(),
+                        any()))
+                        .thenReturn(List.of());
+
+                var result = tppService.detailTppBatchByNip(
+                        "BASIC_TPP",
+                        nips,
+                        5,
+                        2025,
+                        "1.02");
+
+                assertEquals(2, result.size());
+                assertTrue(result.containsKey("123"));
+                assertTrue(result.containsKey("456"));
+            }
+        }
     }
 }

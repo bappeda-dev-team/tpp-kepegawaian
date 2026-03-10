@@ -779,4 +779,60 @@ public class JabatanControllerTest {
         verify(jabatanService).hapusJabatan(3L);
     }
 
+    @Test
+    void shouldReturn200WhenGetAll() throws Exception {
+
+        when(jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(null, null, null))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/findall"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldPassParamsToService() throws Exception {
+
+        when(jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02"))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/findall")
+                        .param("bulan", "5")
+                        .param("tahun", "2025")
+                        .param("kode_opd", "1.02"))
+                .andExpect(status().isOk());
+
+        verify(jabatanService)
+                .listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+    }
+
+    @Test
+    void shouldReturnListOfJabatan() throws Exception {
+
+        var response = List.of(
+                testJabatanWithTppPajakResponse1
+        );
+
+        when(jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(1, 2025, "OPD-001"))
+                .thenReturn(response);
+
+        mockMvc.perform(get("/jabatan/detail/findall?bulan=1&tahun=2025&kode_opd=OPD-001"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].nip").value("198001012010011001"))
+                .andExpect(jsonPath("$[0].namaPegawai").value("John Doe"))
+                .andExpect(jsonPath("$[0].namaJabatan").value("Kepala Dinas"))
+                .andExpect(jsonPath("$[0].jenisJabatan").value("Jabatan Pemimpin Tinggi"))
+                .andExpect(jsonPath("$[0].basicTpp").value(5000000.0f));
+    }
+
+    @Test
+    void shouldWorkWithoutParams() throws Exception {
+
+        when(jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(null, null, null))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/jabatan/detail/findall"))
+                .andExpect(status().isOk());
+    }
+
 }
