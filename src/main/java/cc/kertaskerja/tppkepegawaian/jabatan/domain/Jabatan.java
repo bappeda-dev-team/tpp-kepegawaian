@@ -45,6 +45,7 @@ public record Jabatan(
 
         @LastModifiedDate Instant lastModifiedDate) implements HasPeriode, HasId {
 
+    private static final String JENIS_JABATAN_KEPALA = "JABATAN_PEMIMPIN_TINGGI";
     // buat comparator periode
     // ambil dari tanggalMulai
     @Override
@@ -55,6 +56,10 @@ public record Jabatan(
     @Override
     public Integer tahun() {
         return convertToTahunInteger(this.tanggalMulai());
+    }
+
+    public boolean isKepala() {
+        return JENIS_JABATAN_KEPALA.equals(this.jenisJabatan());
     }
 
     private Integer convertToBulanInteger(LocalDate tanggal) {

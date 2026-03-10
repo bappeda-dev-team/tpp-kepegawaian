@@ -163,7 +163,8 @@ public class JabatanControllerTest {
                 1,
                 2025,
                 "TEST-REKENING-1",
-                "TEST-NPWP-1"
+                "TEST-NPWP-1",
+                true
         );
 
         testJabatanWithTppPajakResponse2 = new JabatanWithTppPajakResponse(
@@ -188,7 +189,8 @@ public class JabatanControllerTest {
                 1,
                 2025,
                 "TEST-REKENING-2",
-                "TEST-NPWP-2"
+                "TEST-NPWP-2",
+                false
         );
     }
 
@@ -407,6 +409,7 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[0].tahunMulai").value(2025))
                 .andExpect(jsonPath("$[0].nomorRekening").value("TEST-REKENING-1"))
                 .andExpect(jsonPath("$[0].npwp").value("TEST-NPWP-1"))
+                .andExpect(jsonPath("$[0].isKepala").value(true))
                 .andExpect(jsonPath("$[1].id").value(2L))
                 .andExpect(jsonPath("$[1].nip").value("199001012015021002"))
                 .andExpect(jsonPath("$[1].namaPegawai").value("Jane Smith"))
@@ -421,7 +424,8 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[1].bulanMulai").value(1))
                 .andExpect(jsonPath("$[1].tahunMulai").value(2025))
                 .andExpect(jsonPath("$[1].nomorRekening").value("TEST-REKENING-2"))
-                .andExpect(jsonPath("$[1].npwp").value("TEST-NPWP-2"));
+                .andExpect(jsonPath("$[1].npwp").value("TEST-NPWP-2"))
+                .andExpect(jsonPath("$[1].isKepala").value(false));
 
         verify(jabatanService).listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd);
     }

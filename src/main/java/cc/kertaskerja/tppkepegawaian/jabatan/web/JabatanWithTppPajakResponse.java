@@ -24,5 +24,6 @@ public record JabatanWithTppPajakResponse(
         Integer bulan,
         Integer tahun,
         String nomorRekening,
-        String npwp) {
+        String npwp,
+        boolean isKepala) {
 }

@@ -475,7 +475,8 @@ public class JabatanService {
                 tpp.bulan(),
                 tpp.tahun(),
                 rekeningPegawai.nomorRekening(),
-                npwp.npwp());
+                npwp.npwp(),
+                jabatan.isKepala());
     }
 
     // Y M D
