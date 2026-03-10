@@ -169,7 +169,7 @@ public class JabatanService {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
 
-        List<Jabatan> jabatans = jabatanRepository.findAllByNipIn(nipPegawais);
+        List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
 
         // ambil jabatan terbaru per nip
         Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
@@ -177,8 +177,13 @@ public class JabatanService {
                 bulan,
                 tahun,
                 Jabatan::nip);
+        // update nip pegawais, delete parameter nipPegawais later
+        List<String> nipPegawais2 = jabatans.stream()
+                .map(Jabatan::nip)
+                .distinct()
+                .toList();
 
-        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais, resolvedBulan, resolvedTahun, kodeOpd);
+        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais2, resolvedBulan, resolvedTahun, kodeOpd);
 
         return latestJabatanPerNip.values().stream().map(j -> {
             Tpp tppBasic = tppByNip.get(j.nip());

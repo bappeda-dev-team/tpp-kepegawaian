@@ -493,7 +493,7 @@ public class JabatanServiceTest {
                 nip2,
                 "Jane Smith",
                 "Sekretaris Dinas",
-                "OPD-002",
+                "OPD-001",
                 "PLT_UTAMA",
                 "JABATAN_ADMINISTRASI",
                 "ESELON_III",
@@ -505,16 +505,16 @@ public class JabatanServiceTest {
                 Instant.now(),
                 Instant.now());
 
-        when(jabatanRepository.findAllByNipIn(List.of(nip1, nip2))).thenReturn(List.of(jabatan1, jabatan2));
+        when(jabatanRepository.findByKodeOpd("OPD-001")).thenReturn(List.of(jabatan1, jabatan2));
 
-        when(tppService.detailTppBatchByNip("BASIC_TPP", List.of(nip1, nip2), 1, 2025, "--"))
+        when(tppService.detailTppBatchByNip("BASIC_TPP", List.of(nip1, nip2), 1, 2025, "OPD-001"))
                 .thenReturn(Map.of(
-                        nip1, new Tpp(null, "BASIC_TPP", "--", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
+                        nip1, new Tpp(null, "BASIC_TPP", "OPD-001", nip1, "PEMDA-X", 100_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null),
-                        nip2, new Tpp(null, "BASIC_TPP", "--", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
+                        nip2, new Tpp(null, "BASIC_TPP", "OPD-001", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null)));
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2), 1, 2025, "--");
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2), 1, 2025, "OPD-001");
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(JabatanWithTppPajakResponse::nip).containsExactlyInAnyOrder(nip1, nip2);
@@ -524,18 +524,18 @@ public class JabatanServiceTest {
                 .anySatisfy(r -> assertThat(r.basicTpp()).isEqualTo(100_000f))
                 .anySatisfy(r -> assertThat(r.basicTpp()).isEqualTo(500_000f));
 
-        verify(jabatanRepository).findAllByNipIn(List.of(nip1, nip2));
+        verify(jabatanRepository).findByKodeOpd("OPD-001");
     }
 
     @Test
     void listJabatanByNipWithPegawaiBatch_WhenNoJabatanExists_ShouldReturnEmptyList() {
         List<String> nips = List.of("000", "111");
-        when(jabatanRepository.findAllByNipIn(nips)).thenReturn(List.of());
+        when(jabatanRepository.findByKodeOpd("1.02")).thenReturn(List.of());
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(nips, 1, 2025, "--");
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(nips, 1, 2025, "1.02");
 
         assertThat(result).isEmpty();
-        verify(jabatanRepository).findAllByNipIn(nips);
+        verify(jabatanRepository).findByKodeOpd("1.02");
         verify(pegawaiRepository, never()).findByNip(any());
     }
 

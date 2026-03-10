@@ -14,7 +14,7 @@ public interface JabatanRepository extends CrudRepository<Jabatan, Long> {
 	Optional<Jabatan> findById(@NonNull Long id);
 	boolean existsById(@NonNull Long id);
 	@NonNull
-	Iterable<Jabatan> findByKodeOpd(@NonNull String kodeOpd);
+	List<Jabatan> findByKodeOpd(@NonNull String kodeOpd);
 	@NonNull
 	Optional<Jabatan> findByNip(@NonNull String nip);
 	@NonNull
