@@ -668,7 +668,7 @@ public class JabatanServiceTest {
             @Test
             void shouldThrowExceptionWhenBulanInvalid() {
                 assertThrows(IllegalArgumentException.class, () ->
-                        jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(13, 2025, "1.02"));
+                        jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(18, 2025, "1.02"));
             }
 
             @Test

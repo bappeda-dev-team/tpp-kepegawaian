@@ -31,6 +31,9 @@ public class JabatanService {
     private static final int DEFAULT_TANGGAL = 1;
     private static final int DEFAULT_BULAN = 1;
     private static final int DEFAULT_TAHUN = 2025;
+    private static final int MIN_BULAN = 1;
+    private static final int MAX_BULAN = 14;
+    private static final int MIN_TAHUN = 2000;
 
     private final JabatanRepository jabatanRepository;
     private final PegawaiRepository pegawaiRepository;
@@ -60,11 +63,12 @@ public class JabatanService {
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
 
-        if (resolvedBulan < 1 || resolvedBulan > 12) {
+        // Akomodir bulan 13 dan 14 untuk penggajian tambahan
+        if (resolvedBulan < MIN_BULAN || resolvedBulan > MAX_BULAN) {
             throw new IllegalArgumentException("Bulan tidak valid");
         }
 
-        if (resolvedTahun < 2000) {
+        if (resolvedTahun < MIN_TAHUN) {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
 
@@ -161,11 +165,11 @@ public class JabatanService {
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
 
-        if (resolvedBulan < 1 || resolvedBulan > 12) {
+        if (resolvedBulan < MIN_BULAN || resolvedBulan > MAX_BULAN) {
             throw new IllegalArgumentException("Bulan tidak valid");
         }
 
-        if (resolvedTahun < 2000) {
+        if (resolvedTahun < MIN_TAHUN) {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
 
@@ -258,11 +262,12 @@ public class JabatanService {
 
         int defaultBulanTpp = (bulan == null) ? DEFAULT_BULAN : bulan;
         int defaultTahunTpp = (tahun == null) ? DEFAULT_TAHUN : tahun;
-        if (defaultBulanTpp < 1 || defaultBulanTpp > 12) {
+        // Akomodir bulan 13 dan 14 untuk penggajian tambahan
+        if (defaultBulanTpp < MIN_BULAN || defaultBulanTpp > MAX_BULAN) {
             throw new IllegalArgumentException("Bulan tidak valid");
         }
 
-        if (defaultTahunTpp < 2000) {
+        if (defaultTahunTpp < MIN_TAHUN) {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
         // 1. Cek apakah jabatan sudah ada
