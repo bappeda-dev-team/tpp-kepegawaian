@@ -2,6 +2,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Set;
 
 import cc.kertaskerja.tppkepegawaian.domain.periode.HasId;
 import org.springframework.data.annotation.CreatedDate;
@@ -45,7 +46,10 @@ public record Jabatan(
 
         @LastModifiedDate Instant lastModifiedDate) implements HasPeriode, HasId {
 
-    private static final String JENIS_JABATAN_KEPALA = "JABATAN_PEMIMPIN_TINGGI";
+    private static final Set<String> JENIS_JABATAN_KEPALA_SET = Set.of(
+            "JABATAN_PEMIMPIN_TINGGI",
+            "JABATAN_PEMIMPIN_TINGGI_PRATAMA");
+
     // buat comparator periode
     // ambil dari tanggalMulai
     @Override
@@ -59,7 +63,7 @@ public record Jabatan(
     }
 
     public boolean isKepala() {
-        return JENIS_JABATAN_KEPALA.equals(this.jenisJabatan());
+        return JENIS_JABATAN_KEPALA_SET.contains(this.jenisJabatan());
     }
 
     private Integer convertToBulanInteger(LocalDate tanggal) {
