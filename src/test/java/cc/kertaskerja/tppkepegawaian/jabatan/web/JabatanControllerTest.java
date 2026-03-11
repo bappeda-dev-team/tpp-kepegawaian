@@ -378,13 +378,11 @@ public class JabatanControllerTest {
     @Test
     void getByNipBatch_WhenJabatansExist_ShouldReturnJabatanWithPegawaiList() throws Exception {
         NipBatchRequest request = new NipBatchRequest();
-        request.setNipPegawais(List.of("198001012010011001", "199001012015021002"));
 
-        var nipPegawais = request.getNipPegawais();
         var bulan = request.getBulan();
         var tahun = request.getTahun();
         var kodeOpd = request.getKodeOpd();
-        when(jabatanService.listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd))
+        when(jabatanService.listJabatanByNipWithPegawaiBatch(bulan, tahun, kodeOpd))
                 .thenReturn(List.of(testJabatanWithTppPajakResponse1, testJabatanWithTppPajakResponse2));
 
         mockMvc.perform(post("/jabatan/detail/by-nip-batch")
@@ -427,21 +425,7 @@ public class JabatanControllerTest {
                 .andExpect(jsonPath("$[1].npwp").value("TEST-NPWP-2"))
                 .andExpect(jsonPath("$[1].isKepala").value(false));
 
-        verify(jabatanService).listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd);
-    }
-
-    @Test
-    void getByNipBatch_WhenRequestEmpty_ShouldReturnBadRequest() throws Exception {
-        NipBatchRequest request = new NipBatchRequest();
-        request.setNipPegawais(List.of());
-
-        mockMvc.perform(post("/jabatan/detail/by-nip-batch")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.nipPegawais").value("nip_pegawais tidak boleh kosong"));
-
-        verifyNoInteractions(jabatanService);
+        verify(jabatanService).listJabatanByNipWithPegawaiBatch(bulan, tahun, kodeOpd);
     }
 
 

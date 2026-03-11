@@ -514,7 +514,7 @@ public class JabatanServiceTest {
                         nip2, new Tpp(null, "BASIC_TPP", "OPD-001", nip2, "PEMDA-X", 500_000f, 0.05f, 0.01f, 1, 2025,
                                 null, null)));
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(List.of(nip1, nip2), 1, 2025, "OPD-001");
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(1, 2025, "OPD-001");
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(JabatanWithTppPajakResponse::nip).containsExactlyInAnyOrder(nip1, nip2);
@@ -529,10 +529,9 @@ public class JabatanServiceTest {
 
     @Test
     void listJabatanByNipWithPegawaiBatch_WhenNoJabatanExists_ShouldReturnEmptyList() {
-        List<String> nips = List.of("000", "111");
         when(jabatanRepository.findByKodeOpd("1.02")).thenReturn(List.of());
 
-        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(nips, 1, 2025, "1.02");
+        List<JabatanWithTppPajakResponse> result = jabatanService.listJabatanByNipWithPegawaiBatch(1, 2025, "1.02");
 
         assertThat(result).isEmpty();
         verify(jabatanRepository).findByKodeOpd("1.02");

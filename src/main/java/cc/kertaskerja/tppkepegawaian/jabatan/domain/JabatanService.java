@@ -160,7 +160,7 @@ public class JabatanService {
         return responses;
     }
 
-    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(List<String> nipPegawais, Integer bulan, Integer tahun, String kodeOpd) {
+    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(Integer bulan, Integer tahun, String kodeOpd) {
 
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;

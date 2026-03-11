@@ -7,19 +7,19 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class NipBatchRequest {
 
-    @NotEmpty(message = "nip_pegawais tidak boleh kosong")
-    private List<String> nipPegawais;
+    // @NotEmpty(message = "nip_pegawais tidak boleh kosong")
+    // private List<String> nipPegawais;
     private Integer bulan;
     private Integer tahun;
     private String kodeOpd;
 
-    public List<String> getNipPegawais() {
-        return nipPegawais;
-    }
+    // public List<String> getNipPegawais() {
+    //     return nipPegawais;
+    // }
 
-    public void setNipPegawais(List<String> nipPegawais) {
-        this.nipPegawais = nipPegawais;
-    }
+    // public void setNipPegawais(List<String> nipPegawais) {
+    //     this.nipPegawais = nipPegawais;
+    // }
 
     public Integer getBulan() {
         return bulan;

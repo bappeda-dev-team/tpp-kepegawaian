@@ -80,11 +80,11 @@ public class JabatanController {
     @PostMapping("detail/by-nip-batch")
     public ResponseEntity<List<JabatanWithTppPajakResponse>> getByNipBatch(
             @Valid @RequestBody NipBatchRequest request) {
-        var nipPegawais = request.getNipPegawais();
+        // var nipPegawais = request.getNipPegawais();
         var bulan = request.getBulan();
         var tahun = request.getTahun();
         var kodeOpd = request.getKodeOpd();
-        return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(nipPegawais, bulan, tahun, kodeOpd));
+        return ResponseEntity.ok(jabatanService.listJabatanByNipWithPegawaiBatch(bulan, tahun, kodeOpd));
     }
 
     /**
