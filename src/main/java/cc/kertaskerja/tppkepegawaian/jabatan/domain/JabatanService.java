@@ -176,7 +176,7 @@ public class JabatanService {
         List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
 
         // ambil jabatan terbaru per nip
-        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
+        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyFlexible(
                 jabatans,
                 bulan,
                 tahun,
