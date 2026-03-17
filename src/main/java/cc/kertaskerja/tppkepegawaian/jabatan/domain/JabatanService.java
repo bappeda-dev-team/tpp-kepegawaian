@@ -356,8 +356,6 @@ public class JabatanService {
         float basicTpp = request.basicTpp();
 
         // 4. Default bulan & tahun
-        int defaultBulan = DEFAULT_BULAN;
-        int defaultTahun = DEFAULT_TAHUN;
 
         // 5. Buat entity TPP
         // mestinya dibuat upsert
@@ -370,8 +368,8 @@ public class JabatanService {
                 basicTpp,
                 pajak,
                 0.01f,
-                defaultBulan,
-                defaultTahun);
+                DEFAULT_BULAN,
+                DEFAULT_TAHUN);
 
         Tpp savedTpp = tppService.upsertTpp(tpp);
 

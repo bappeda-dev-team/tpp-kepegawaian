@@ -67,9 +67,9 @@ public record Jabatan(
                 && isActiveAt(tanggal);
     }
 
-    public boolean isKepala() {
-        return JENIS_JABATAN_KEPALA_SET.contains(this.jenisJabatan());
-    }
+//    public boolean isKepala() {
+//        return JENIS_JABATAN_KEPALA_SET.contains(this.jenisJabatan());
+//    }
 
     public boolean isActiveAt(LocalDate tanggal) {
 
