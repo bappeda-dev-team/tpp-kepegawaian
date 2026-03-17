@@ -54,32 +54,35 @@ public record Jabatan(
     // ambil dari tanggalMulai
     @Override
     public Integer bulan() {
-        return convertToBulanInteger(this.tanggalMulai());
+        return tanggalMulai != null ? tanggalMulai.getMonthValue() : null;
     }
 
     @Override
     public Integer tahun() {
-        return convertToTahunInteger(this.tanggalMulai());
+        return tanggalMulai != null ? tanggalMulai.getYear() : null;
+    }
+
+    public boolean isKepalaAt(LocalDate tanggal) {
+        return JENIS_JABATAN_KEPALA_SET.contains(this.jenisJabatan())
+                && isActiveAt(tanggal);
     }
 
     public boolean isKepala() {
         return JENIS_JABATAN_KEPALA_SET.contains(this.jenisJabatan());
     }
 
-    private Integer convertToBulanInteger(LocalDate tanggal) {
-        if (tanggal == null) {
-            return null;
+    public boolean isActiveAt(LocalDate tanggal) {
+
+        if (tanggalMulai == null) {
+            return false;
         }
 
-        return tanggal.getMonthValue();
-    }
-
-    private Integer convertToTahunInteger(LocalDate tanggal) {
-        if (tanggal == null) {
-            return null;
+        if (tanggalAkhir == null) {
+            return !tanggal.isBefore(tanggalMulai);
         }
 
-        return tanggal.getYear();
+        return !tanggal.isBefore(tanggalMulai)
+                && !tanggal.isAfter(tanggalAkhir);
     }
 
     // initiator

@@ -52,8 +52,39 @@ class TppServiceTest {
                 500000.0f,
                 400000.0f,
                 9,
-                2024
-        );
+                2024);
+    }
+
+    @Test
+    void createTppShouldStoreMaximumTppCorrectly() {
+        Tpp tpp = Tpp.of(
+                "Kondisi Kerja",
+                "OPD001",
+                "201001012010011001",
+                "PEMDA001",
+                20000.88f,
+                100.0f,
+                0.01f,
+                1,
+                2025);
+
+        assertEquals(20000.88, tpp.maksimumTpp().doubleValue(), 0.001);
+    }
+
+    @Test
+    void createTppShouldFormatMaximumTppWithComma() {
+        Tpp tpp = Tpp.of(
+                "Kondisi Kerja",
+                "OPD001",
+                "201001012010011001",
+                "PEMDA001",
+                20000.88f,
+                100.0f,
+                0.01f,
+                1,
+                2025);
+
+        assertEquals("20.000,88", tpp.maksimumTppFormatted());
     }
 
     @Test
@@ -150,7 +181,8 @@ class TppServiceTest {
 
         when(tppRepository.findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun)).thenReturn(List.of());
 
-        assertThrows(TppJenisTppKodeOpdBulanTahunNotFoundException.class, () -> tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun));
+        assertThrows(TppJenisTppKodeOpdBulanTahunNotFoundException.class,
+                () -> tppService.listTppByOpdBulanTahun(jenisTpp, kodeOpd, bulan, tahun));
 
         verify(tppRepository).findByKodeOpdAndBulanAndTahun(kodeOpd, bulan, tahun);
     }
@@ -182,7 +214,8 @@ class TppServiceTest {
         when(tppRepository.findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun))
                 .thenReturn(Optional.empty());
 
-        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class, () -> tppService.detailTpp(jenisTpp, nip, bulan, tahun));
+        assertThrows(TppJenisTppNipBulanTahunNotFoundException.class,
+                () -> tppService.detailTpp(jenisTpp, nip, bulan, tahun));
 
         verify(tppRepository).findByJenisTppAndNipAndBulanAndTahun(jenisTpp, nip, bulan, tahun);
     }
@@ -199,8 +232,7 @@ class TppServiceTest {
                 550000.0f,
                 450000.0f,
                 9,
-                2024
-        );
+                2024);
 
         when(tppRepository.existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())).thenReturn(true);
@@ -228,7 +260,6 @@ class TppServiceTest {
         verify(tppRepository, never()).save(any());
     }
 
-
     @Test
     void tambahTpp_WhenValid_ShouldReturnNewTpp() {
         Tpp tpp = createTestTpp();
@@ -241,8 +272,7 @@ class TppServiceTest {
                 500000.0f,
                 400000.0f,
                 9,
-                2024
-        );
+                2024);
 
         when(tppRepository.existsByJenisTppAndNipAndBulanAndTahun(
                 tpp.jenisTpp(), tpp.nip(), tpp.bulan(), tpp.tahun())).thenReturn(false);
@@ -271,7 +301,6 @@ class TppServiceTest {
         verify(tppRepository, never()).save(any());
         verifyNoInteractions(opdRepository, pegawaiRepository);
     }
-
 
     @Test
     void hapusTppByNipBulanTahun_ShouldDeleteTpp() {
@@ -304,26 +333,22 @@ class TppServiceTest {
         class ValidationTests {
             @Test
             void shouldThrowExceptionWhenNipPegawaisIsNull() {
-                assertThrows(IllegalArgumentException.class, () ->
-                        tppService.detailTppBatchByNip(
-                                "BASIC_TPP",
-                                null,
-                                1,
-                                2025,
-                                "1.02"
-                        ));
+                assertThrows(IllegalArgumentException.class, () -> tppService.detailTppBatchByNip(
+                        "BASIC_TPP",
+                        null,
+                        1,
+                        2025,
+                        "1.02"));
             }
 
             @Test
             void shouldThrowExceptionWHenNipPegawaisIsEmpty() {
-                assertThrows(IllegalArgumentException.class, () ->
-                        tppService.detailTppBatchByNip(
-                                "BASIC_TPP",
-                                List.of(),
-                                1,
-                                2025,
-                                "1.02"
-                        ));
+                assertThrows(IllegalArgumentException.class, () -> tppService.detailTppBatchByNip(
+                        "BASIC_TPP",
+                        List.of(),
+                        1,
+                        2025,
+                        "1.02"));
             }
         }
 
@@ -335,12 +360,11 @@ class TppServiceTest {
                 when(tppRepository.findAllByJenisTppAndNipInAndKodeOpd(
                         "BASIC_TPP",
                         nipPegawais,
-                        "1.02"
-                )).thenReturn(List.of());
+                        "1.02")).thenReturn(List.of());
 
                 tppService.detailTppBatchByNip("BASIC_TPP", nipPegawais, 1, 2025, "1.02");
 
-                verify(tppRepository).findAllByJenisTppAndNipInAndKodeOpd("BASIC_TPP",nipPegawais, "1.02");
+                verify(tppRepository).findAllByJenisTppAndNipInAndKodeOpd("BASIC_TPP", nipPegawais, "1.02");
             }
         }
 

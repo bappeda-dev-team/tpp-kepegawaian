@@ -117,7 +117,7 @@ public class JabatanService {
                             "BELUM_DITAMBAHKAN",
                             "BELUM_ADA"
                     ));
-            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai));
+            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, bulan, tahun));
         }
 
         return responses;
@@ -176,7 +176,7 @@ public class JabatanService {
         List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
 
         // ambil jabatan terbaru per nip
-        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyUntil(
+        Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyFlexible(
                 jabatans,
                 bulan,
                 tahun,
@@ -207,7 +207,7 @@ public class JabatanService {
                             "BELUM_ADA"
                     ));
 
-            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai);
+            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, bulan, tahun);
         }).toList();
     }
 
@@ -280,7 +280,7 @@ public class JabatanService {
             jabatan = jabatan.withId(id);
         }
 
-        Jabatan updatedJabatan = jabatanRepository.save(jabatan);
+        Jabatan updatedJabatan = tambahJabatan(jabatan);
 
         // 3. Validasi penyimpanan
         if (updatedJabatan.id() == null) {
@@ -335,7 +335,7 @@ public class JabatanService {
         }
 
         // 7. Kembalikan response
-        return mapToJabatanWithTpp(updatedJabatan, savedTpp, rekeningPegawai, npwpPegawai);
+        return mapToJabatanWithTpp(updatedJabatan, savedTpp, rekeningPegawai, npwpPegawai, bulan, tahun);
     }
 
     public JabatanWithTppPajakResponse tambahJabatanWithTpp(JabatanWithTppPajakRequest request) {
@@ -356,8 +356,8 @@ public class JabatanService {
         float basicTpp = request.basicTpp();
 
         // 4. Default bulan & tahun
-        int defaultBulan = 1;
-        int defaultTahun = 2025;
+        int defaultBulan = DEFAULT_BULAN;
+        int defaultTahun = DEFAULT_TAHUN;
 
         // 5. Buat entity TPP
         // mestinya dibuat upsert
@@ -407,7 +407,8 @@ public class JabatanService {
         // newJabatanPegawai
         // savedTpp
         // 6. Kembalikan response
-        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp, rekeningPegawai, npwpPegawai);
+        // WARNING POSSIBLE BUG request.bulan dan request.tahun null
+        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp, rekeningPegawai, npwpPegawai, request.bulan(), request.tahun());
     }
 
     public void hapusJabatan(Long id) {
@@ -460,7 +461,7 @@ public class JabatanService {
                 Instant.now());
     }
 
-    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai, Npwp npwp) {
+    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai, Npwp npwp, Integer bulan, Integer tahun) {
         return new JabatanWithTppPajakResponse(
                 jabatan.id(),
                 jabatan.nip(),
@@ -486,7 +487,7 @@ public class JabatanService {
                 tpp.tahun(),
                 rekeningPegawai.nomorRekening(),
                 npwp.npwp(),
-                jabatan.isKepala());
+                jabatan.isKepalaAt(createTanggal(tahun, bulan)));
     }
 
     // Y M D

@@ -1,6 +1,8 @@
 package cc.kertaskerja.tppkepegawaian.tpp_perhitungan.tpp.domain;
 
+import java.text.NumberFormat;
 import java.time.Instant;
+import java.util.Locale;
 
 import cc.kertaskerja.tppkepegawaian.domain.periode.HasId;
 import org.springframework.data.annotation.CreatedDate;
@@ -45,6 +47,13 @@ public record Tpp(
 
     public Float bpjs_4() {
         return BASE_BPJS_4;
+    }
+
+    public String maksimumTppFormatted() {
+        NumberFormat format = NumberFormat.getNumberInstance(Locale.of("id", "ID"));
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+        return format.format(this.maksimumTpp);
     }
 
     public static Tpp of(
