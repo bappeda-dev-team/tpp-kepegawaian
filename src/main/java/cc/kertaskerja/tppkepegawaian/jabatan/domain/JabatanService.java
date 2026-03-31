@@ -208,7 +208,8 @@ public class JabatanService {
                             "BELUM_ADA"
                     ));
 
-            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, bulan, tahun);
+            // TODO: handle special bulan case like 13 and 14
+            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, j.bulan(), tahun);
         }).toList();
     }
 
