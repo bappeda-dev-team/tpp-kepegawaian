@@ -117,7 +117,8 @@ public class JabatanService {
                             "BELUM_DITAMBAHKAN",
                             "BELUM_ADA"
                     ));
-            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, bulan, tahun));
+            // TODO: handle special bulan case like 13 and 14
+            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, jabatan.bulan(), tahun));
         }
 
         return responses;
