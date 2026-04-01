@@ -115,7 +115,7 @@ public class JabatanService {
                             "-",
                             "BELUM_DITAMBAHKAN",
                             "BELUM_ADA"));
-            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, jabatan.bulan(), tahun));
+            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, bulan, tahun));
         }
 
         return responses;
@@ -205,7 +205,7 @@ public class JabatanService {
                             "BELUM_DITAMBAHKAN",
                             "BELUM_ADA"));
 
-            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, j.bulan(), tahun);
+            return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, bulan, tahun);
         }).toList();
     }
 
@@ -482,7 +482,7 @@ public class JabatanService {
                 tpp.tahun(),
                 rekeningPegawai.nomorRekening(),
                 npwp.npwp(),
-                jabatan.isKepalaAt(createTanggal(tahun, bulan)));
+                jabatan.isKepalaAt(createTanggal(jabatan.tahun(), jabatan.bulan())));
     }
 
     // Y M D
