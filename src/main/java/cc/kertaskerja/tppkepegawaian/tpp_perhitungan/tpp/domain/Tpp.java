@@ -45,8 +45,24 @@ public record Tpp(
     private static final Float BASE_BPJS_1 = 0.01f;
     private static final Float BASE_BPJS_4 = 0.04f;
 
-    public Float bpjs_4() {
-        return BASE_BPJS_4;
+    private static Float nilaiBpjsDefault(Integer bulan) {
+        if (bulan == null) {
+            return 0.0f;
+        }
+
+        if (bulan == 13 || bulan == 14) {
+            return 0.0f;
+        }
+
+        return 1.0f; // default multiplier
+    }
+
+    public static Float bpjs_1(Integer bulan) {
+        return BASE_BPJS_1 * nilaiBpjsDefault(bulan);
+    }
+
+    public static Float bpjs_4(Integer bulan) {
+        return BASE_BPJS_4 * nilaiBpjsDefault(bulan);
     }
 
     public String maksimumTppFormatted() {
@@ -113,7 +129,7 @@ public record Tpp(
                 kodePemda,
                 maxTpp,
                 pajak,
-                BASE_BPJS_1,
+                bpjs_1(bulan),
                 bulan,
                 tahun,
                 null,
@@ -135,7 +151,7 @@ public record Tpp(
                 kodePemda,
                 BASE_MAX_TPP,
                 BASE_PAJAK,
-                BASE_BPJS_1,
+                bpjs_1(bulan),
                 bulan,
                 tahun,
                 null,

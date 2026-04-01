@@ -42,10 +42,10 @@ public class JabatanService {
     private final NpwpService npwpService;
 
     public JabatanService(JabatanRepository jabatanRepository,
-                          PegawaiRepository pegawaiRepository,
-                          TppService tppService,
-                          RekeningService rekeningService,
-                          NpwpService npwpService) {
+            PegawaiRepository pegawaiRepository,
+            TppService tppService,
+            RekeningService rekeningService,
+            NpwpService npwpService) {
         this.jabatanRepository = jabatanRepository;
         this.pegawaiRepository = pegawaiRepository;
         this.tppService = tppService;
@@ -58,8 +58,8 @@ public class JabatanService {
     }
 
     public List<JabatanWithTppPajakResponse> listAllJabatanWithTppByBulanTahunKodeOpd(Integer bulan,
-                                                                                      Integer tahun,
-                                                                                      String kodeOpd) {
+            Integer tahun,
+            String kodeOpd) {
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
 
@@ -108,16 +108,13 @@ public class JabatanService {
                             "-",
                             "-",
                             jabatan.namaPegawai(),
-                            "BELUM_ADA"
-                    ));
+                            "BELUM_ADA"));
             Npwp npwpPegawai = npwpService.findByNip(jabatan.nip())
                     .orElseGet(() -> Npwp.of(
                             jabatan.nip(),
                             "-",
                             "BELUM_DITAMBAHKAN",
-                            "BELUM_ADA"
-                    ));
-            // TODO: handle special bulan case like 13 and 14
+                            "BELUM_ADA"));
             responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, jabatan.bulan(), tahun));
         }
 
@@ -161,7 +158,8 @@ public class JabatanService {
         return responses;
     }
 
-    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(Integer bulan, Integer tahun, String kodeOpd) {
+    public List<JabatanWithTppPajakResponse> listJabatanByNipWithPegawaiBatch(Integer bulan, Integer tahun,
+            String kodeOpd) {
 
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
@@ -188,7 +186,8 @@ public class JabatanService {
                 .distinct()
                 .toList();
 
-        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais2, resolvedBulan, resolvedTahun, kodeOpd);
+        Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(BASIC_TPP, nipPegawais2, resolvedBulan,
+                resolvedTahun, kodeOpd);
 
         return latestJabatanPerNip.values().stream().map(j -> {
             Tpp tppBasic = tppByNip.get(j.nip());
@@ -198,17 +197,14 @@ public class JabatanService {
                             "-",
                             "-",
                             j.namaPegawai(),
-                            "BELUM_ADA"
-                    ));
+                            "BELUM_ADA"));
             Npwp npwpPegawai = npwpService.findByNip(j.nip())
                     .orElseGet(() -> Npwp.of(
                             j.nip(),
                             "-",
                             "BELUM_DITAMBAHKAN",
-                            "BELUM_ADA"
-                    ));
+                            "BELUM_ADA"));
 
-            // TODO: handle special bulan case like 13 and 14
             return mapToJabatanWithTpp(j, tppBasic, rekeningPegawai, npwpPegawai, j.bulan(), tahun);
         }).toList();
     }
@@ -317,8 +313,7 @@ public class JabatanService {
                 request.nomorRekening(),
                 "",
                 request.namaPegawai(),
-                "AKTIF"
-        );
+                "AKTIF");
         RekeningPegawai rekeningPegawai = rekeningService.save(rekeningPegawaiReq);
 
         if (rekeningPegawai == null || rekeningPegawai.id() == null) {
@@ -329,8 +324,7 @@ public class JabatanService {
                 request.nip(),
                 request.npwp(),
                 "",
-                "AKTIF"
-        );
+                "AKTIF");
         Npwp npwpPegawai = npwpService.save(npwpReq);
         if (npwpPegawai == null || npwpPegawai.id() == null) {
             throw new IllegalStateException("Gagal menyimpan NPWP Pegawai");
@@ -384,8 +378,7 @@ public class JabatanService {
                 request.nomorRekening(),
                 "",
                 request.namaPegawai(),
-                "AKTIF"
-        );
+                "AKTIF");
         RekeningPegawai rekeningPegawai = rekeningService.save(rekeningPegawaiReq);
 
         if (rekeningPegawai == null || rekeningPegawai.id() == null) {
@@ -396,8 +389,7 @@ public class JabatanService {
                 request.nip(),
                 request.npwp(),
                 "",
-                "AKTIF"
-        );
+                "AKTIF");
         Npwp npwpPegawai = npwpService.save(npwpReq);
 
         if (npwpPegawai == null || npwpPegawai.id() == null) {
@@ -408,7 +400,8 @@ public class JabatanService {
         // savedTpp
         // 6. Kembalikan response
         // WARNING POSSIBLE BUG request.bulan dan request.tahun null
-        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp, rekeningPegawai, npwpPegawai, request.bulan(), request.tahun());
+        return mapToJabatanWithTpp(newJabatanPegawai, savedTpp, rekeningPegawai, npwpPegawai, request.bulan(),
+                request.tahun());
     }
 
     public void hapusJabatan(Long id) {
@@ -461,7 +454,8 @@ public class JabatanService {
                 Instant.now());
     }
 
-    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai, Npwp npwp, Integer bulan, Integer tahun) {
+    private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai,
+            Npwp npwp, Integer bulan, Integer tahun) {
         return new JabatanWithTppPajakResponse(
                 jabatan.id(),
                 jabatan.nip(),
@@ -475,8 +469,9 @@ public class JabatanService {
                 jabatan.golongan(),
                 tpp.maksimumTpp(),
                 tpp.pajak(),
-                tpp.bpjs(),
-                tpp.bpjs_4(),
+                // WARNING possible bug when bpjs is not using our default
+                Tpp.bpjs_1(bulan),
+                Tpp.bpjs_4(bulan),
                 // bulan mulai, tahun mulai
                 convertToBulanInteger(jabatan.tanggalMulai()),
                 convertToTahunInteger(jabatan.tanggalMulai()),
