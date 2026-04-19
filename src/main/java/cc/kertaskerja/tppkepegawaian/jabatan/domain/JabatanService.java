@@ -335,6 +335,23 @@ public class JabatanService {
     }
 
     public JabatanWithTppPajakResponse tambahJabatanWithTpp(JabatanWithTppPajakRequest request) {
+        // 5. Default bulan & tahun (bisa disesuaikan dengan kebutuhan)
+        // BUAT TPP
+        Integer bulan = request.bulan();
+        Integer tahun = request.tahun();
+
+        int defaultBulanTpp = (bulan == null) ? DEFAULT_BULAN : bulan;
+        int defaultTahunTpp = (tahun == null) ? DEFAULT_TAHUN : tahun;
+
+        // Akomodir bulan 13 dan 14 untuk penggajian tambahan
+        if (defaultBulanTpp < MIN_BULAN || defaultBulanTpp > MAX_BULAN) {
+            throw new IllegalArgumentException("Bulan tidak valid");
+        }
+
+        if (defaultTahunTpp < MIN_TAHUN) {
+            throw new IllegalArgumentException("Tahun tidak valid");
+        }
+
         // 1. Buat entity Jabatan
         Jabatan jabatan = mapToJabatan(request);
 
@@ -356,18 +373,16 @@ public class JabatanService {
         // 5. Buat entity TPP
         // mestinya dibuat upsert
         // jika bulan, tahun, nip, kodeOpd sama
-        Tpp tpp = Tpp.of(
-                "BASIC_TPP",
+        Tpp tpp = Tpp.basicTpp(
                 request.kodeOpd(),
                 request.nip(),
                 "--",
                 basicTpp,
                 pajak,
-                0.01f,
-                DEFAULT_BULAN,
-                DEFAULT_TAHUN);
+                defaultBulanTpp,
+                defaultTahunTpp);
 
-        Tpp savedTpp = tppService.upsertTpp(tpp);
+        Tpp savedTpp = tppService.saveTimpaTpp(tpp);
 
         if (savedTpp == null || savedTpp.id() == null) {
             throw new IllegalStateException("Gagal menyimpan TPP pegawai");
