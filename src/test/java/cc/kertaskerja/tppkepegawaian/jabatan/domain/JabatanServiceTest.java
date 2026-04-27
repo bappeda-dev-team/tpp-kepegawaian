@@ -2,8 +2,7 @@ package cc.kertaskerja.tppkepegawaian.jabatan.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -755,16 +754,105 @@ public class JabatanServiceTest {
                                         1,
                                         2024)));
 
-//                when(rekeningService.findByNip("123"))
-//                        .thenReturn(Optional.empty());
-//
-//                when(npwpService.findByNip("123"))
-//                        .thenReturn(Optional.empty());
-
                 var result = jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
 
                 assertEquals(1, result.size());
             }
+
+            @Test
+            void shouldNotIncludeJabatanWithStatusBerakhir() {
+
+                Jabatan jabatan = new Jabatan(
+                        1L,
+                        "123",
+                        "Ryan",
+                        "Programmer",
+                        "1.02",
+                        "BERAKHIR",
+                        "FUNGSIONAL",
+                        "IV",
+                        "III/a",
+                        "III",
+                        1000000f,
+                        LocalDate.of(2024, 1, 1),
+                        LocalDate.of(2024, 5, 1),
+                        Instant.now(),
+                        Instant.now()
+                );
+
+                // mock repository
+                when(jabatanRepository.findByKodeOpd("1.02"))
+                        .thenReturn(List.of(jabatan));
+
+                // mock dependency lain (minimal biar tidak NPE)
+
+                when(tppService.detailTppBatchByNip(any(), any(), anyInt(), anyInt(), any()))
+
+                        .thenReturn(Map.of());
+
+                when(rekeningService.findByNipIn(any()))
+
+                        .thenReturn(Map.of());
+
+                when(npwpService.findByNipIn(any()))
+
+                        .thenReturn(Map.of());
+
+                var result = jabatanService
+
+                        .listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+
+                assertTrue(result.isEmpty());
+            }
+        }
+
+        @Test
+        void shouldIncludeActiveJabatan() {
+
+            Jabatan jabatan = new Jabatan(
+                    1L,
+                    "123",
+                    "Ryan",
+                    "Programmer",
+                    "1.02",
+                    "AKTIF",
+                    "FUNGSIONAL",
+                    "IV",
+                    "III/a",
+                    "III",
+                    1000000f,
+                    LocalDate.of(2024, 1, 1),
+                    null,
+                    Instant.now(),
+                    Instant.now()
+            );
+
+            when(jabatanRepository.findByKodeOpd("1.02"))
+                    .thenReturn(List.of(jabatan));
+
+            when(tppService.detailTppBatchByNip(any(), any(), anyInt(), anyInt(), any()))
+                    .thenReturn(Map.of());
+
+            when(tppService.detailTppBatchByNip(any(), any(), anyInt(), anyInt(), any()))
+                    .thenReturn(Map.of("123",
+                            Tpp.zero(
+                                    "BASIC_TPP",
+                                    "1.02",
+                                    "123",
+                                    "--",
+                                    1,
+                                    2024)));
+
+            when(rekeningService.findByNipIn(any()))
+                    .thenReturn(Map.of());
+
+            when(npwpService.findByNipIn(any()))
+                    .thenReturn(Map.of());
+
+            var result = jabatanService
+                    .listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+
+            assertEquals(1, result.size());
         }
 
     }

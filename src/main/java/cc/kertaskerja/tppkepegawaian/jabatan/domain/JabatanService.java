@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 import cc.kertaskerja.tppkepegawaian.npwp.domain.Npwp;
 import cc.kertaskerja.tppkepegawaian.npwp.domain.NpwpService;
@@ -76,8 +75,7 @@ public class JabatanService {
         }
 
         // ambil semua jabatan
-        List<Jabatan> jabatanList = StreamSupport
-                .stream(jabatanRepository.findByKodeOpd(kodeOpd).spliterator(), false)
+        List<Jabatan> jabatanList = jabatanRepository.findByKodeOpd(kodeOpd).stream()
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -104,6 +102,10 @@ public class JabatanService {
 
         // mapping + sorting
         return latestJabatanPerNip.values().stream()
+                .filter(jabatan ->
+                        jabatan.tanggalAkhir() == null &&
+                                !"BERAKHIR".equalsIgnoreCase(jabatan.statusJabatan())
+                )
                 .map(jabatan -> {
                     Tpp tpp = tppByNip.get(jabatan.nip());
 
