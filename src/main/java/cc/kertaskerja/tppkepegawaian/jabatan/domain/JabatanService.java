@@ -75,7 +75,10 @@ public class JabatanService {
         }
 
         // ambil semua jabatan
-        List<Jabatan> jabatanList = jabatanRepository.findByKodeOpd(kodeOpd).stream()
+        List<Jabatan> jabatanList = jabatanRepository.findByKodeOpd(kodeOpd)
+                .stream().filter(j ->
+                        j.tanggalAkhir() == null &&
+                                !"BERAKHIR".equalsIgnoreCase(j.statusJabatan()))
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -102,10 +105,6 @@ public class JabatanService {
 
         // mapping + sorting
         return latestJabatanPerNip.values().stream()
-                .filter(jabatan ->
-                        jabatan.tanggalAkhir() == null &&
-                                !"BERAKHIR".equalsIgnoreCase(jabatan.statusJabatan())
-                )
                 .map(jabatan -> {
                     Tpp tpp = tppByNip.get(jabatan.nip());
 
@@ -180,7 +179,11 @@ public class JabatanService {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
 
-        List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
+        List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd)
+                .stream().filter(j ->
+                        j.tanggalAkhir() == null &&
+                                !"BERAKHIR".equalsIgnoreCase(j.statusJabatan()))
+                .toList();
 
         // ambil jabatan terbaru per nip
         Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyFlexible(

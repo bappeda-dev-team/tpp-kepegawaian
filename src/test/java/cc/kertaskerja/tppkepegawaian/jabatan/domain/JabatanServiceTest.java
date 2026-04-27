@@ -483,7 +483,7 @@ public class JabatanServiceTest {
                 "Golongan I",
                 DEFAULT_BASIC_TPP,
                 tanggalMulai,
-                tanggalAkhir,
+                null,
                 Instant.now(),
                 Instant.now());
 
@@ -500,7 +500,7 @@ public class JabatanServiceTest {
                 "Golongan II",
                 DEFAULT_BASIC_TPP,
                 tanggalMulai,
-                tanggalAkhir,
+                null,
                 Instant.now(),
                 Instant.now());
 
