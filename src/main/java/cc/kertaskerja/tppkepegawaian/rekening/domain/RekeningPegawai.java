@@ -53,8 +53,7 @@ public record RekeningPegawai(
                 namaPemilik,
                 defaultStatus,
                 null,
-                null
-        );
+                null);
     }
 
     public RekeningPegawai encryptRekening() {
@@ -73,8 +72,7 @@ public record RekeningPegawai(
                 namaPemilik,
                 status,
                 createdDate,
-                lastModifiedDate
-        );
+                lastModifiedDate);
     }
 
     public RekeningPegawai decryptRekening() {
@@ -89,7 +87,6 @@ public record RekeningPegawai(
                 namaPemilik,
                 status,
                 createdDate,
-                lastModifiedDate
-        );
+                lastModifiedDate);
     }
 }

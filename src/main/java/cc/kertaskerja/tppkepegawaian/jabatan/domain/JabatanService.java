@@ -14,6 +14,7 @@ import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningPegawai;
 import cc.kertaskerja.tppkepegawaian.rekening.domain.RekeningService;
 import org.springframework.stereotype.Service;
 
+import cc.kertaskerja.tppkepegawaian.domain.jabatan.JabatanUtils;
 import cc.kertaskerja.tppkepegawaian.domain.periode.PeriodeUtils;
 import cc.kertaskerja.tppkepegawaian.jabatan.domain.exception.JabatanNotFoundException;
 import cc.kertaskerja.tppkepegawaian.jabatan.web.JabatanWithPegawaiResponse;
@@ -57,39 +58,39 @@ public class JabatanService {
         return jabatanRepository.findAll();
     }
 
-    public List<JabatanWithTppPajakResponse> listAllJabatanWithTppByBulanTahunKodeOpd(Integer bulan,
+    public List<JabatanWithTppPajakResponse> listAllJabatanWithTppByBulanTahunKodeOpd(
+            Integer bulan,
             Integer tahun,
             String kodeOpd) {
+
         int resolvedBulan = (bulan != null) ? bulan : DEFAULT_BULAN;
         int resolvedTahun = (tahun != null) ? tahun : DEFAULT_TAHUN;
 
-        // Akomodir bulan 13 dan 14 untuk penggajian tambahan
+        // validasi
         if (resolvedBulan < MIN_BULAN || resolvedBulan > MAX_BULAN) {
-            throw new IllegalArgumentException("Bulan tidak valid");
+            throw new IllegalArgumentException("bulan tidak valid");
         }
 
         if (resolvedTahun < MIN_TAHUN) {
-            throw new IllegalArgumentException("Tahun tidak valid");
+            throw new IllegalArgumentException("tahun tidak valid");
         }
 
-        // GET DATA JABATAN BY KODE OPD (ALL)
-        Iterable<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd);
-
-        // START THE THING
-        // Mulai filter dan ambil pegawai serta gabungkan dengan tpp
-        List<Jabatan> jabatanList = StreamSupport.stream(jabatans.spliterator(), false)
+        // ambil semua jabatan
+        List<Jabatan> jabatanList = StreamSupport
+                .stream(jabatanRepository.findByKodeOpd(kodeOpd).spliterator(), false)
                 .toList();
 
         // ambil jabatan terbaru per nip
         Map<String, Jabatan> latestJabatanPerNip = PeriodeUtils.latestPerKeyFlexible(
                 jabatanList,
-                bulan,
-                tahun,
+                resolvedBulan,
+                resolvedTahun,
                 Jabatan::nip);
 
-        // ambil nip unik
+        // kumpulkan nip unik
         List<String> nipPegawais = new ArrayList<>(latestJabatanPerNip.keySet());
 
+        // batch fetch
         Map<String, Tpp> tppByNip = tppService.detailTppBatchByNip(
                 BASIC_TPP,
                 nipPegawais,
@@ -97,28 +98,33 @@ public class JabatanService {
                 resolvedTahun,
                 kodeOpd);
 
-        List<JabatanWithTppPajakResponse> responses = new ArrayList<>();
+        Map<String, RekeningPegawai> rekeningByNip = rekeningService.findByNipIn(nipPegawais);
 
-        for (Jabatan jabatan : latestJabatanPerNip.values()) {
-            Tpp tpp = tppByNip.get(jabatan.nip());
+        Map<String, Npwp> npwpByNip = npwpService.findByNipIn(nipPegawais);
 
-            RekeningPegawai rekeningPegawai = rekeningService.findByNip(jabatan.nip())
-                    .orElseGet(() -> RekeningPegawai.of(
+        // mapping + sorting
+        return latestJabatanPerNip.values().stream()
+                .map(jabatan -> {
+                    Tpp tpp = tppByNip.get(jabatan.nip());
+
+                    RekeningPegawai rekening = rekeningByNip.getOrDefault(
                             jabatan.nip(),
-                            "-",
-                            "-",
-                            jabatan.namaPegawai(),
-                            "BELUM_ADA"));
-            Npwp npwpPegawai = npwpService.findByNip(jabatan.nip())
-                    .orElseGet(() -> Npwp.of(
-                            jabatan.nip(),
-                            "-",
-                            "BELUM_DITAMBAHKAN",
-                            "BELUM_ADA"));
-            responses.add(mapToJabatanWithTpp(jabatan, tpp, rekeningPegawai, npwpPegawai, bulan, tahun));
-        }
+                            defaultRekening(jabatan));
 
-        return responses;
+                    Npwp npwp = npwpByNip.getOrDefault(
+                            jabatan.nip(),
+                            defaultNpwp(jabatan));
+
+                    return mapToJabatanWithTpp(
+                            jabatan,
+                            tpp,
+                            rekening,
+                            npwp,
+                            resolvedBulan,
+                            resolvedTahun);
+                })
+                .sorted(JabatanUtils.sortJabatanTppPajakByJenisPriority())
+                .toList();
     }
 
     public Iterable<Jabatan> listJabatanByKodeOpd(String kodeOpd) {
@@ -526,5 +532,22 @@ public class JabatanService {
         }
 
         return tanggal.getYear();
+    }
+
+    private RekeningPegawai defaultRekening(Jabatan j) {
+        return RekeningPegawai.of(
+                j.nip(),
+                "-",
+                "-",
+                j.namaPegawai(),
+                "BELUM_ADA");
+    }
+
+    private Npwp defaultNpwp(Jabatan j) {
+        return Npwp.of(
+                j.nip(),
+                "-",
+                "BELUM_DITAMBAHKAN",
+                "BELUM_ADA");
     }
 }
