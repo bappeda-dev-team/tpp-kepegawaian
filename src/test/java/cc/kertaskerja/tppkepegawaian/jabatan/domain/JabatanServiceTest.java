@@ -755,11 +755,11 @@ public class JabatanServiceTest {
                                         1,
                                         2024)));
 
-                when(rekeningService.findByNip("123"))
-                        .thenReturn(Optional.empty());
-
-                when(npwpService.findByNip("123"))
-                        .thenReturn(Optional.empty());
+//                when(rekeningService.findByNip("123"))
+//                        .thenReturn(Optional.empty());
+//
+//                when(npwpService.findByNip("123"))
+//                        .thenReturn(Optional.empty());
 
                 var result = jabatanService.listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
 

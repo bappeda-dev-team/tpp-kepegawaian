@@ -1,8 +1,11 @@
 package cc.kertaskerja.tppkepegawaian.rekening.domain;
 
-import org.springframework.stereotype.Service;
-
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
 
 @Service
 public class RekeningService {
@@ -21,5 +24,21 @@ public class RekeningService {
     public Optional<RekeningPegawai> findByNip(String nip) {
         return rekeningRepository.findFirstByNipOrderByIdDesc(nip)
                 .map(RekeningPegawai::decryptRekening);
+    }
+
+    public Map<String, RekeningPegawai> findByNipIn(List<String> nips) {
+        List<RekeningPegawai> all = rekeningRepository.findByNipIn(nips);
+
+        return all.stream()
+                .collect(Collectors.toMap(
+                        RekeningPegawai::nip,
+                        RekeningPegawai::decryptRekening,
+                        this::pickLatest));
+    }
+
+    private RekeningPegawai pickLatest(RekeningPegawai r1, RekeningPegawai r2) {
+
+        return r1.id() > r2.id() ? r1 : r2;
+
     }
 }
