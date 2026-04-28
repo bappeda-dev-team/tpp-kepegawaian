@@ -799,8 +799,7 @@ public class JabatanServiceTest {
                         .thenReturn(Map.of());
 
                 var result = jabatanService
-
-                        .listAllJabatanWithTppByBulanTahunKodeOpd(5, 2025, "1.02");
+                        .listAllJabatanWithTppByBulanTahunKodeOpd(5, 2024, "1.02");
 
                 assertTrue(result.isEmpty());
             }

@@ -77,8 +77,8 @@ public class JabatanService {
         // ambil semua jabatan
         List<Jabatan> jabatanList = jabatanRepository.findByKodeOpd(kodeOpd)
                 .stream().filter(j ->
-                        j.tanggalAkhir() == null &&
-                                !"BERAKHIR".equalsIgnoreCase(j.statusJabatan()))
+                        j.tanggalAkhir() == null || j.tanggalAkhir().isBefore(createTanggal(resolvedTahun, resolvedBulan))
+                                )
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -181,8 +181,8 @@ public class JabatanService {
 
         List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd)
                 .stream().filter(j ->
-                        j.tanggalAkhir() == null &&
-                                !"BERAKHIR".equalsIgnoreCase(j.statusJabatan()))
+                        j.tanggalAkhir() == null || j.tanggalAkhir().isBefore(createTanggal(resolvedTahun, resolvedBulan))
+                )
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -482,6 +482,7 @@ public class JabatanService {
 
     private JabatanWithTppPajakResponse mapToJabatanWithTpp(Jabatan jabatan, Tpp tpp, RekeningPegawai rekeningPegawai,
             Npwp npwp, Integer bulan, Integer tahun) {
+        Float basicTpp = tpp.maksimumTpp() == null ? 0.0f : tpp.maksimumTpp();
         return new JabatanWithTppPajakResponse(
                 jabatan.id(),
                 jabatan.nip(),
@@ -493,7 +494,7 @@ public class JabatanService {
                 jabatan.eselon(),
                 jabatan.pangkat(),
                 jabatan.golongan(),
-                tpp.maksimumTpp(),
+                basicTpp,
                 tpp.pajak(),
                 // WARNING possible bug when bpjs is not using our default
                 Tpp.bpjs_1(bulan),
