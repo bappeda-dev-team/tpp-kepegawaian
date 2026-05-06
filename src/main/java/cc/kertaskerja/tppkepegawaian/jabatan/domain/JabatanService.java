@@ -74,11 +74,11 @@ public class JabatanService {
             throw new IllegalArgumentException("tahun tidak valid");
         }
 
+        var periode = createTanggal(resolvedTahun, resolvedBulan);
+
         // ambil semua jabatan
         List<Jabatan> jabatanList = jabatanRepository.findByKodeOpd(kodeOpd)
-                .stream().filter(j ->
-                        j.tanggalAkhir() == null || j.tanggalAkhir().isAfter(createTanggal(resolvedTahun, resolvedBulan))
-                                )
+                .stream().filter(j -> isActiveAt(j, periode))
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -179,10 +179,10 @@ public class JabatanService {
             throw new IllegalArgumentException("Tahun tidak valid");
         }
 
+        var periode = createTanggal(resolvedTahun, resolvedBulan);
+
         List<Jabatan> jabatans = jabatanRepository.findByKodeOpd(kodeOpd)
-                .stream().filter(j ->
-                        j.tanggalAkhir() == null || j.tanggalAkhir().isAfter(createTanggal(resolvedTahun, resolvedBulan))
-                )
+                .stream().filter(j -> isActiveAt(j, periode))
                 .toList();
 
         // ambil jabatan terbaru per nip
@@ -555,5 +555,10 @@ public class JabatanService {
                 "-",
                 "BELUM_DITAMBAHKAN",
                 "BELUM_ADA");
+    }
+
+    private boolean isActiveAt(Jabatan j, LocalDate periode) {
+        return j.tanggalAkhir() == null ||
+               j.tanggalAkhir().isAfter(periode);
     }
 }
