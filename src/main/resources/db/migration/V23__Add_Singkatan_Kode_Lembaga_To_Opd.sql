@@ -1,0 +1,3 @@
+ALTER TABLE opd
+      ADD COLUMN kode_lembaga VARCHAR(5) NOT NULL,
+      ADD COLUMN singkatan VARCHAR(255) NOT NULL;

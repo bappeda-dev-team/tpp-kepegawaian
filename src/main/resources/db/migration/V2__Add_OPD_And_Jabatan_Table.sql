@@ -8,7 +8,7 @@ Create TABLE opd (
 
 CREATE TABLE jabatan (
     id                  BIGSERIAL PRIMARY KEY NOT NULL,
-    nip                	VARCHAR(18)  NOT NULL,
+    nip                 VARCHAR(18)  NOT NULL,
     nama_jabatan        VARCHAR(255) NOT NULL,
     kode_opd            VARCHAR(22)  NOT NULL,
     status_jabatan      VARCHAR(20)  NOT NULL DEFAULT('UTAMA'),

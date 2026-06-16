@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cc.kertaskerja.tppkepegawaian.domain.periode.HasPeriode;
 
-@Table(name = "jabatan")
+@Table(name = "jabatan_pegawai")
 public record Jabatan(
         @Id Long id,
 
